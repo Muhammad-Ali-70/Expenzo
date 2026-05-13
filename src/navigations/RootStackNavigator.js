@@ -1,8 +1,8 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack'; // ← changed
 import SplashScreen from '../screens/Onboarding/SplashScreen';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator(); // ← changed
 
 const RootStackNavigator = () => {
   return (
