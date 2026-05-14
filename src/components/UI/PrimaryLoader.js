@@ -11,7 +11,7 @@ const PrimaryLoader = ({ marginTop = 0, marginBottom = 0, flex = 0 }) => {
         { marginTop: hp(marginTop), marginBottom: hp(marginBottom), flex },
       ]}
     >
-      <ActivityIndicator size="large" color={colors.accentPink} />
+      <ActivityIndicator size="large" color={colors.primary} />
     </View>
   );
 };

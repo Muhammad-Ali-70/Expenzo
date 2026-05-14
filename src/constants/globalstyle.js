@@ -1,45 +1,69 @@
-// globalstyle.js - Update the import
 import React from 'react';
 import { Text as RNText } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { colors } from './colors';
-import fonts from './fonts'; // Changed from { FONTS }
+import fonts from './fonts';
 import { wp } from './responsive';
 
-export const borderRadiusPrimary = 8;
-export const borderRadiusSecondary = 5;
+// Border Radius — from design system
+export const borderRadius = {
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 24,
+  full: 9999,
+};
+
+// Legacy aliases (so existing code doesn't break)
+export const borderRadiusPrimary = borderRadius.md;
+export const borderRadiusSecondary = borderRadius.sm;
 export const iconSizePrimary = wp(4);
 
+// Shadow — softer, fintech-grade
 export const shadowPrimary = {
-  shadowColor: colors.black,
+  shadowColor: '#0b1c30',
   shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  elevation: 3,
+};
+
+export const shadowCard = {
+  shadowColor: '#0b1c30',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.06,
+  shadowRadius: 12,
   elevation: 4,
 };
 
+// Typography — matched to design system scale
 export const TEXT_TYPES = {
-  h1: RFValue(28), // Large titles
-  h2: RFValue(24), // Section headings
-  h3: RFValue(22), // Subheadings
-  h4: RFValue(20), // Smaller headings
-  h5: RFValue(18), // Minor headings
-  body: RFValue(16), // Default body text
-  bodySmall: RFValue(14), // Small body text
-  bodyXs: RFValue(12), // Extra small text
-  caption: RFValue(10), // Captions or metadata
+  displayLg: RFValue(32), // display-lg
+  displayMd: RFValue(24), // display-md
+  h1: RFValue(28),
+  h2: RFValue(24),
+  h3: RFValue(20), // title-lg
+  h4: RFValue(18),
+  h5: RFValue(16),
+  body: RFValue(16), // body-lg
+  bodySmall: RFValue(14), // body-md
+  bodyXs: RFValue(12), // label-sm
+  caption: RFValue(10),
 };
 
 const FONT_WEIGHTS = {
-  regular: fonts.regular, // Changed from FONTS
-  medium: fonts.medium, // Changed from FONTS
-  semiBold: fonts.semiBold, // Changed from FONTS
-  bold: fonts.bold, // Changed from FONTS
-  extraBold: fonts.extraBold, // Changed from FONTS
-  black: fonts.black, // Changed from FONTS
+  regular: fonts.regular,
+  medium: fonts.medium,
+  semiBold: fonts.semiBold,
+  bold: fonts.bold,
+  extraBold: fonts.extraBold,
+  black: fonts.black,
 };
 
 const DEFAULT_WEIGHTS = {
+  displayLg: 'extraBold',
+  displayMd: 'bold',
   h1: 'extraBold',
   h2: 'bold',
   h3: 'semiBold',
@@ -47,7 +71,7 @@ const DEFAULT_WEIGHTS = {
   h5: 'semiBold',
   body: 'regular',
   bodySmall: 'regular',
-  bodyXs: 'regular',
+  bodyXs: 'semiBold', // label-sm is semiBold per design system
   caption: 'regular',
 };
 
@@ -55,25 +79,29 @@ export const Label = ({
   children,
   type = 'body',
   weight,
-  color = 'black',
+  color = 'textMain',
   underline = false,
   style,
   ...props
 }) => {
   const fontSize = TEXT_TYPES[type] || TEXT_TYPES.body;
   const fontWeight = weight || DEFAULT_WEIGHTS[type] || 'regular';
-  const fontFamily = FONT_WEIGHTS[fontWeight] || fonts.regular; // Changed from FONTS
+  const fontFamily = FONT_WEIGHTS[fontWeight] || fonts.regular;
   const textColor = colors[color] || color;
 
-  const textStyle = {
-    fontFamily,
-    fontSize,
-    color: textColor,
-    ...(underline && { textDecorationLine: 'underline' }),
-  };
-
   return (
-    <RNText style={[textStyle, style]} {...props}>
+    <RNText
+      style={[
+        {
+          fontFamily,
+          fontSize,
+          color: textColor,
+          ...(underline && { textDecorationLine: 'underline' }),
+        },
+        style,
+      ]}
+      {...props}
+    >
       {children}
     </RNText>
   );
