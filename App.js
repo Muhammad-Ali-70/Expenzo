@@ -10,7 +10,7 @@ const App = () => {
       <SafeAreaView
         style={{ flex: 1 }}
         edges={['top', 'bottom']}
-        backgroundColor={colors.mainBackground}
+        backgroundColor={colors.background}
       >
         <StatusBar hidden={false} barStyle={'dark-content'} translucent />
         <RootNavigator />

@@ -1,17 +1,22 @@
 import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { colors } from '../../constants/colors';
+import { View, StyleSheet } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { hp } from '../../constants/responsive';
 
-const PrimaryLoader = ({ marginTop = 0, marginBottom = 0, flex = 0 }) => {
+const PrimaryLoader = ({ marginTop = 0, marginBottom = 0 }) => {
   return (
     <View
       style={[
         styles.container,
-        { marginTop: hp(marginTop), marginBottom: hp(marginBottom), flex },
+        { marginTop: hp(marginTop), marginBottom: hp(marginBottom) },
       ]}
     >
-      <ActivityIndicator size="large" color={colors.primary} />
+      <LottieView
+        source={require('../../assets/animations/moneyLoader.json')}
+        autoPlay
+        loop
+        style={styles.animation}
+      />
     </View>
   );
 };
@@ -20,6 +25,10 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  animation: {
+    width: 120,
+    height: 120,
   },
 });
 

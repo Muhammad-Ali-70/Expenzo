@@ -15,12 +15,10 @@ export const borderRadius = {
   full: 9999,
 };
 
-// Legacy aliases (so existing code doesn't break)
 export const borderRadiusPrimary = borderRadius.md;
 export const borderRadiusSecondary = borderRadius.sm;
 export const iconSizePrimary = wp(4);
 
-// Shadow — softer, fintech-grade
 export const shadowPrimary = {
   shadowColor: '#0b1c30',
   shadowOffset: { width: 0, height: 2 },
@@ -46,10 +44,10 @@ export const TEXT_TYPES = {
   h3: RFValue(20), // title-lg
   h4: RFValue(18),
   h5: RFValue(16),
-  body: RFValue(16), // body-lg
-  bodySmall: RFValue(14), // body-md
-  bodyXs: RFValue(12), // label-sm
-  caption: RFValue(10),
+  body: RFValue(14), // body-lg
+  bodySmall: RFValue(12), // body-md
+  bodyXs: RFValue(10), // label-sm
+  caption: RFValue(8),
 };
 
 const FONT_WEIGHTS = {
