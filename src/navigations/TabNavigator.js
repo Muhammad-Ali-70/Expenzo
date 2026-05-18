@@ -63,7 +63,7 @@ const CustomTabBar = ({ state, navigation }) => {
     );
   };
 
-  const onAddPress = () => navigation.emit({ type: 'tabPress' });
+  const onAddPress = () => navigation.navigate('AddExpense');
 
   return (
     <View style={styles.wrapper}>

@@ -20,7 +20,6 @@ import {
   BookOpen,
   Briefcase,
 } from 'lucide-react-native';
-
 import colors from '../../constants/colors';
 import { borderRadius } from '../../constants/globalstyle';
 import { wp } from '../../constants/responsive';
@@ -60,12 +59,13 @@ const PaymentIcon = ({
   return (
     <View
       style={[
-        styles.container,
         {
           width: containerSize,
           height: containerSize,
           borderRadius: radius,
           backgroundColor,
+          alignItems: 'center',
+          justifyContent: 'center',
         },
         style,
       ]}
@@ -76,10 +76,3 @@ const PaymentIcon = ({
 };
 
 export default PaymentIcon;
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

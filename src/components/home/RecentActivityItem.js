@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfacePrimary,
     borderRadius: borderRadius.lg,
     paddingVertical: wp(2),
-    paddingHorizontal: wp(3),
+    paddingHorizontal: wp(2),
     gap: wp(3),
   },
   info: {

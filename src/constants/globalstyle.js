@@ -21,10 +21,10 @@ export const iconSizePrimary = wp(4);
 
 export const shadowPrimary = {
   shadowColor: '#0b1c30',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.08,
-  shadowRadius: 8,
-  elevation: 3,
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.06,
+  shadowRadius: 12,
+  elevation: 4,
 };
 
 export const shadowCard = {
