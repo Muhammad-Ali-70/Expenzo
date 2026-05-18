@@ -9,19 +9,14 @@ import {
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
-
 import { Label } from '../../constants/globalstyle';
 import OnboardingHeader from '../../components/onboarding/Onboardingheader';
 import OnboardingHeroImage from '../../components/onboarding/Onboardingheroimage';
 import OnboardingTagline from '../../components/onboarding/Onboardingtagline';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
-import AccountSetupCard from '../../components/onboarding/Accountsetupcard';
-import PaginationDots from '../../components/onboarding/Paginationdots';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import PrimaryButton from '../../components/ui/PrimaryButton';
-
-const TOTAL_SLIDES = 3;
-const ACTIVE_SLIDE = 0;
+import AccountSetupCard from '../../components/onboarding/AccountSetupCard';
 
 const OnboardingScreen = ({ navigation }) => {
   const [balances, setBalances] = useState({
@@ -39,17 +34,9 @@ const OnboardingScreen = ({ navigation }) => {
     setActiveCardId(prev => (prev === id ? null : id));
   };
 
-  const handleGetStarted = () => {
-    navigation?.navigate('TabNavigator');
-  };
-
-  const handleSkip = () => {
-    navigation?.navigate('TabNavigator');
-  };
-
-  const handleLogIn = () => {
-    navigation?.navigate('TabNavigator');
-  };
+  const handleGetStarted = () => navigation?.navigate('TabNavigator');
+  const handleSkip = () => navigation?.navigate('TabNavigator');
+  const handleLogIn = () => navigation?.navigate('TabNavigator');
 
   return (
     <View style={styles.safe}>
@@ -85,6 +72,7 @@ const OnboardingScreen = ({ navigation }) => {
               iconBg={account.iconBg}
               name={account.name}
               description={account.description}
+              accountType={account.accountType}
               value={balances[account.id]}
               onChangeText={text => handleBalanceChange(account.id, text)}
               isActive={activeCardId === account.id}
@@ -113,8 +101,6 @@ const OnboardingScreen = ({ navigation }) => {
               </Label>
             </TouchableOpacity>
           </View>
-
-          {/* <PaginationDots total={TOTAL_SLIDES} active={ACTIVE_SLIDE} /> */}
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
