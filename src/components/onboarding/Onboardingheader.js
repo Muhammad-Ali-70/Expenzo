@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Label } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
 
-const OnboardingHeader = ({ title = 'Expenzo', showSkip = true, onSkip }) => {
+const OnboardingHeader = ({ title = 'Expenzo.', showSkip = true, onSkip }) => {
   return (
     <View style={styles.container}>
       <Label type="h4" weight="bold" color="primary">

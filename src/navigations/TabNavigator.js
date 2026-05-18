@@ -7,6 +7,8 @@ import { borderRadius, Label } from '../constants/globalstyle';
 import colors from '../constants/colors';
 import HomeScreen from '../screens/tabs/HomeScreen';
 import HistoryScreen from '../screens/tabs/HistoryScreen';
+import PlanStack from './PlanStack';
+import SettingStack from './SettingStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,8 +20,8 @@ const TAB_ITEMS = [
     Icon: ScrollText,
     screen: HistoryScreen,
   },
-  { name: 'Plan', label: 'Plan', Icon: PieChart, screen: HomeScreen },
-  { name: 'User', label: 'User', Icon: User, screen: HomeScreen },
+  { name: 'Plan', label: 'Plan', Icon: PieChart, screen: PlanStack },
+  { name: 'User', label: 'User', Icon: User, screen: SettingStack },
 ];
 
 const CustomTabBar = ({ state, navigation }) => {

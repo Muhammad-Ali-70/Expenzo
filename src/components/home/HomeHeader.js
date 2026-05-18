@@ -3,7 +3,7 @@ import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Bell } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
-import { Label } from '../../constants/globalstyle';
+import { Label, shadowPrimary } from '../../constants/globalstyle';
 
 const HomeHeader = ({ avatarSource, onBellPress }) => (
   <View style={styles.container}>

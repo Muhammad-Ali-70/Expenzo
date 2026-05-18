@@ -12,7 +12,7 @@ const Logo = ({ width = wp(75), height = hp(8), style }) => {
         style={{ width, height, resizeMode: 'cover' }}
       /> */}
       <Label type="displayMd" color={colors.primary}>
-        Expenzo
+        Expenzo.
       </Label>
     </View>
   );

@@ -16,7 +16,6 @@ const BottomSheet = ({ visible, onClose, title, children }) => (
     transparent
     animationType="slide"
     onRequestClose={onClose}
-    statusBarTranslucent
   >
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.backdrop} />
