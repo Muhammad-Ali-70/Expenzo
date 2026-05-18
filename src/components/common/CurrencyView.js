@@ -22,13 +22,13 @@ const formatDisplay = (amount, currency) => {
       ? `${withSeparator}${currency.decimalSep}${decPart}`
       : withSeparator;
 
-  return `${currency.symbol}${formatted}`;
+  return `${currency.symbol} ${formatted}`;
 };
 
 const CurrencyView = ({
   amount = 0,
   currency = ACTIVE_CURRENCY,
-  type = 'bodyMedium',
+  type = 'body',
   weight = 'semiBold',
   color = 'textMain',
   positive,

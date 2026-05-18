@@ -3,24 +3,29 @@ import { View, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { TrendingUp } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import colors, { gradients } from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 
 const BalanceSummaryCard = ({ totalBalance = 0, monthlyChange = '+2.4%' }) => (
   <LinearGradient
-    colors={['#006C49', '#10B981']}
+    colors={gradients.primary}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={styles.card}
   >
-    <Label type="bodyXs" weight="medium" color="onPrimary" style={styles.label}>
+    <Label
+      type="bodySmall"
+      weight="medium"
+      color="onPrimary"
+      style={styles.label}
+    >
       TOTAL BALANCE
     </Label>
 
     <CurrencyView
       amount={totalBalance}
-      type="displayMedium"
+      type="h4"
       weight="bold"
       color="onPrimary"
       style={styles.amount}

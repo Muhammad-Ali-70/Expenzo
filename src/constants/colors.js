@@ -12,6 +12,8 @@ export const colors = {
   onPrimary: '#FFFFFF',
   onPrimaryContainer: '#00422b',
 
+  gradientPrimary: '#10B981',
+
   // Secondary (Blue)
   secondary: '#0058be',
   secondaryContainer: '#2170e4',
@@ -41,6 +43,14 @@ export const colors = {
   // Kept for backward compat
   white: '#FFFFFF',
   black: '#0b1c30',
+
+  insightBackground: '#E1E0FF',
+  insightBorder: '#9699FF',
+  insightText: '#2F2EBE',
 };
 
 export default colors;
+
+export const gradients = {
+  primary: [colors.primary, colors.gradientPrimary],
+};

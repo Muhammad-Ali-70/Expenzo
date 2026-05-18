@@ -8,16 +8,16 @@ import { Label, borderRadius } from '../../constants/globalstyle';
 const SmartInsightCard = ({ message }) => (
   <View style={styles.card}>
     <View style={styles.iconWrap}>
-      <Sparkles size={wp(5)} color={colors.secondary} strokeWidth={1.8} />
+      <Sparkles size={wp(5)} color={colors.white} strokeWidth={1.8} />
     </View>
     <View style={styles.textWrap}>
-      <Label type="bodySmall" weight="semiBold" color="secondary">
+      <Label type="bodySmall" weight="semiBold" color="insightText">
         Smart Insight
       </Label>
       <Label
         type="bodyXs"
         weight="regular"
-        color="textMuted"
+        color="insightText"
         style={styles.body}
       >
         {message}
@@ -30,9 +30,9 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: wp(5),
     marginTop: hp(2),
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: colors.insightBackground,
     borderRadius: borderRadius.lg,
-    borderColor: colors.secondary,
+    borderColor: colors.insightBorder,
     borderWidth: 1,
     padding: wp(4),
     flexDirection: 'row',
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     width: wp(10),
     height: wp(10),
     borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: colors.insightText,
     alignItems: 'center',
     justifyContent: 'center',
   },
