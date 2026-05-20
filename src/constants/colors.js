@@ -39,10 +39,11 @@ export const colors = {
   // Borders
   outline: '#6c7a71',
   outlineVariant: '#bbcabf',
+  outlinePrimary: '#EFF5FB',
 
   // Kept for backward compat
   white: '#FFFFFF',
-  black: '#0b1c30',
+  black: '#000000',
 
   insightBackground: '#E1E0FF',
   insightBorder: '#9699FF',

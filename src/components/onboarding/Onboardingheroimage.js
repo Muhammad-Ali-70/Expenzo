@@ -5,7 +5,7 @@ import { borderRadius, shadowCard } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
 
 const OnboardingHeroImage = ({ source, aspectRatio = 1.3, style }) => {
-  const cardWidth = wp(88);
+  const cardWidth = wp(70);
   const cardHeight = cardWidth / aspectRatio;
 
   return (

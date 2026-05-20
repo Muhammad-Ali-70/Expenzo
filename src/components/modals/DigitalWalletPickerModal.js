@@ -1,32 +1,22 @@
-import React, { useState } from 'react';
-import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
+import React from 'react';
+import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import FloatingModal from '../ui/FloatingModal';
 
-export const BANKS = [
-  { id: 'hbl', label: 'HBL', initials: 'HB', color: '#006847' },
-  { id: 'ubl', label: 'UBL', initials: 'UB', color: '#003087' },
-  { id: 'meezan', label: 'Meezan', initials: 'MB', color: '#1B5E20' },
-  { id: 'allied', label: 'Allied', initials: 'AB', color: '#B71C1C' },
-  { id: 'mcb', label: 'MCB', initials: 'MC', color: '#880E4F' },
-  { id: 'bop', label: 'Bank of Punjab', initials: 'BP', color: '#1A237E' },
-  { id: 'habib', label: 'Habib Metro', initials: 'HM', color: '#004D40' },
-  { id: 'askari', label: 'Askari', initials: 'AK', color: '#37474F' },
-  { id: 'faysal', label: 'Faysal', initials: 'FB', color: '#E65100' },
-  { id: 'summit', label: 'Summit', initials: 'SB', color: '#4A148C' },
-  { id: 'silk', label: 'Silk Bank', initials: 'SK', color: '#006064' },
+export const DIGITAL_WALLETS = [
+  { id: 'easypaisa', label: 'Easypaisa', initials: 'EP', color: '#00A651' },
+  { id: 'jazzcash', label: 'JazzCash', initials: 'JC', color: '#C8202F' },
+  { id: 'nayapay', label: 'NayaPay', initials: 'NP', color: '#6C3CE1' },
+  { id: 'sadapay', label: 'SadaPay', initials: 'SP', color: '#1A1A1A' },
+  { id: 'upaisa', label: 'Upaisa', initials: 'UP', color: '#F7941D' },
+  { id: 'raast', label: 'Raast', initials: 'RA', color: '#00558B' },
+  { id: 'oraan', label: 'Oraan', initials: 'OR', color: '#9B2335' },
   { id: 'other', label: 'Other', initials: '+ ', color: colors.textMuted },
 ];
 
-const BankTile = ({ item, active, disabled, onPress }) => (
+const WalletTile = ({ item, active, disabled, onPress }) => (
   <TouchableOpacity
     onPress={disabled ? undefined : onPress}
     activeOpacity={disabled ? 1 : 0.75}
@@ -57,47 +47,46 @@ const BankTile = ({ item, active, disabled, onPress }) => (
   </TouchableOpacity>
 );
 
-const BankPickerModal = ({
+/**
+ * DigitalWalletPickerModal
+ * @param {string[]} usedIds — app IDs already added; rendered greyed-out
+ */
+const DigitalWalletPickerModal = ({
   visible,
   activeId,
   usedIds = [],
   onSelect,
   onClose,
 }) => {
-  const [query, setQuery] = useState('');
-
-  const filtered = BANKS.filter(b =>
-    b.label.toLowerCase().includes(query.toLowerCase()),
-  );
-
   const handleSelect = item => {
     onSelect(item);
     onClose();
-    setQuery('');
   };
 
   return (
-    <FloatingModal visible={visible} onClose={onClose} title="Select Your Bank">
-      <View style={styles.searchWrap}>
-        <TextInput
-          style={styles.search}
-          placeholder="Search bank…"
-          placeholderTextColor={colors.textMuted}
-          value={query}
-          onChangeText={setQuery}
-          autoCorrect={false}
-        />
-      </View>
+    <FloatingModal
+      visible={visible}
+      onClose={onClose}
+      title="Select Payment App"
+    >
+      <Label
+        type="bodyXs"
+        weight="regular"
+        color="textMuted"
+        style={styles.hint}
+      >
+        Choose an app you use for daily payments or transfers.
+      </Label>
 
       <FlatList
-        data={filtered}
+        data={DIGITAL_WALLETS}
         keyExtractor={item => item.id}
         numColumns={4}
-        scrollEnabled={filtered.length > 8}
+        scrollEnabled={false}
         contentContainerStyle={styles.grid}
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => (
-          <BankTile
+          <WalletTile
             item={item}
             active={activeId === item.id}
             disabled={usedIds.includes(item.id)}
@@ -110,20 +99,10 @@ const BankPickerModal = ({
 };
 
 const styles = StyleSheet.create({
-  searchWrap: {
-    marginHorizontal: wp(5),
+  hint: {
+    paddingHorizontal: wp(5),
     marginBottom: hp(1.5),
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.surfaceSecondary,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    paddingHorizontal: wp(3.5),
-    paddingVertical: hp(1.1),
-  },
-  search: {
-    fontSize: 13,
-    color: colors.textMain,
-    padding: 0,
+    lineHeight: 17,
   },
   grid: {
     paddingHorizontal: wp(3),
@@ -162,4 +141,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BankPickerModal;
+export default DigitalWalletPickerModal;

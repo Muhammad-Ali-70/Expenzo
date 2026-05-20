@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { ChevronDown } from 'lucide-react-native';
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { ChevronDown, Plus } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import colors from '../../../constants/colors';
 import PaymentIcon from '../../common/Paymenticon';
-import CurrencyInput from '../../common/CurrencyInput';
-import SavingsAppPickerModal from '../../modals/SavingsAppPickerModal';
-import CardShell, { CardRow, CardInfo, CardRight } from './CardShell';
+import DigitalWalletPickerModal from '../../modals/DigitalWalletPickerModal';
+import CardShell, {
+  CardRow,
+  CardInfo,
+  CardRight,
+  CardDivider,
+  CardFooter,
+} from './CardShell';
+import AccountRow from './AccountRow';
+import { useDigitalWallets } from '../../../hooks/AccountSetupCard/Usedigitalwallets';
 
 const DailyPayCard = ({
   iconName,
@@ -15,25 +22,51 @@ const DailyPayCard = ({
   iconBg,
   name,
   description,
-  value,
-  onChangeText,
-  currency,
   isActive,
   onPress,
   style,
 }) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedApp, setSelectedApp] = useState(null);
+  const {
+    accounts,
+    primaryAccount,
+    extraAccounts,
+    usedIds,
+    primaryModalVisible,
+    setPrimaryModalVisible,
+    addModalVisible,
+    setAddModalVisible,
+    setPrimaryWallet,
+    addExtraWallet,
+    removeWallet,
+    updateBalance,
+  } = useDigitalWallets();
 
-  const hasApp = selectedApp && selectedApp.id !== 'none';
+  const footer =
+    accounts.length > 0 ? (
+      <>
+        <CardDivider />
+        <CardFooter>
+          {accounts.map((acct, idx) => (
+            <AccountRow
+              key={acct.id}
+              account={acct}
+              accountIdKey="appId"
+              isPrimary={idx === 0}
+              onBalanceChange={updateBalance}
+              onRemove={removeWallet}
+            />
+          ))}
+        </CardFooter>
+      </>
+    ) : null;
 
   return (
     <>
       <CardShell
         isActive={isActive}
         onPress={onPress}
-        description={description}
         style={style}
+        footer={footer}
       >
         <CardRow>
           <PaymentIcon
@@ -46,24 +79,27 @@ const DailyPayCard = ({
 
           <CardInfo>
             <Label type="bodySmall" weight="semiBold" color="textMain">
-              {name}
+              {primaryAccount ? primaryAccount.label : name}
             </Label>
-            {hasApp && (
-              <Label type="bodyXs" weight="regular" color="textMuted">
-                via {selectedApp.label}
-              </Label>
-            )}
+            <Label type="caption" weight="regular" color="textMuted">
+              {primaryAccount
+                ? extraAccounts.length > 0
+                  ? `+${extraAccounts.length} more app${
+                      extraAccounts.length > 1 ? 's' : ''
+                    }`
+                  : description
+                : description}
+            </Label>
           </CardInfo>
 
           <CardRight>
-            {/* App picker chip */}
             <TouchableOpacity
-              onPress={() => setModalVisible(true)}
+              onPress={() => setPrimaryModalVisible(true)}
               activeOpacity={0.75}
-              style={styles.pickerChip}
+              style={styles.chip}
             >
               <Label type="bodyXs" weight="semiBold" color="primary">
-                {hasApp ? selectedApp.label : 'Optional App'}
+                {primaryAccount ? primaryAccount.label : 'Optional'}
               </Label>
               <ChevronDown
                 size={wp(3)}
@@ -71,33 +107,44 @@ const DailyPayCard = ({
                 strokeWidth={2}
               />
             </TouchableOpacity>
-
-            <CurrencyInput
-              value={value}
-              onChangeText={onChangeText}
-              currency={currency}
-              label="Set Balance"
-              showLabel
-            />
           </CardRight>
         </CardRow>
       </CardShell>
 
-      <SavingsAppPickerModal
-        visible={modalVisible}
-        activeId={selectedApp?.id}
-        onSelect={app => {
-          setSelectedApp(app);
-          setModalVisible(false);
-        }}
-        onClose={() => setModalVisible(false)}
+      <TouchableOpacity
+        onPress={() => setAddModalVisible(true)}
+        activeOpacity={0.75}
+        style={styles.addBtn}
+      >
+        <View style={styles.addIcon}>
+          <Plus size={wp(3.2)} color={colors.primary} strokeWidth={2.5} />
+        </View>
+        <Label type="bodyXs" weight="semiBold" color="primary">
+          Add another wallet
+        </Label>
+      </TouchableOpacity>
+
+      <DigitalWalletPickerModal
+        visible={primaryModalVisible}
+        activeId={primaryAccount?.appId}
+        usedIds={[]}
+        onSelect={setPrimaryWallet}
+        onClose={() => setPrimaryModalVisible(false)}
+      />
+
+      <DigitalWalletPickerModal
+        visible={addModalVisible}
+        activeId={null}
+        usedIds={usedIds}
+        onSelect={addExtraWallet}
+        onClose={() => setAddModalVisible(false)}
       />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  pickerChip: {
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: wp(1),
@@ -107,6 +154,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(2.5),
     paddingVertical: hp(0.5),
     backgroundColor: colors.surfaceContainerLow,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(1.5),
+    marginHorizontal: wp(5),
+    marginBottom: hp(1.5),
+    alignSelf: 'center',
+  },
+  addIcon: {
+    width: wp(5),
+    height: wp(5),
+    borderRadius: borderRadius.full,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

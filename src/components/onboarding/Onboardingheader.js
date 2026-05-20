@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { Label } from '../../constants/globalstyle';
+import { Label, shadowPrimary } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
+import colors from '../../constants/colors';
 
 const OnboardingHeader = ({ title = 'Expenzo.', showSkip = true, onSkip }) => {
   return (
@@ -33,6 +34,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingTop: hp(1),
     paddingBottom: hp(1),
+    backgroundColor: colors.background,
+    ...shadowPrimary,
   },
   hitSlop: {
     top: 10,

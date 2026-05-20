@@ -89,18 +89,23 @@ const VARIANTS = {
  */
 const SIZES = {
   sm: {
-    height: hp(5),
+    height: hp(4),
     px: wp(4),
     labelType: 'bodySmall',
     labelWeight: 'semiBold',
   },
   md: {
-    height: hp(6),
+    height: hp(5),
     px: wp(5),
     labelType: 'bodySmall',
     labelWeight: 'semiBold',
   },
-  lg: { height: hp(7), px: wp(6), labelType: 'body', labelWeight: 'semiBold' },
+  lg: {
+    height: hp(6),
+    px: wp(6),
+    labelType: 'body',
+    labelWeight: 'semiBold',
+  },
 };
 
 const PrimaryButton = ({
@@ -115,7 +120,7 @@ const PrimaryButton = ({
   bg,
   borderColor,
   labelColor,
-  radius = borderRadius.xl,
+  radius = borderRadius.lg,
   onPress,
   style,
   labelStyle,

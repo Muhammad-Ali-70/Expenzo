@@ -53,9 +53,9 @@ const OnboardingScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <OnboardingHeroImage
+          {/* <OnboardingHeroImage
             source={require('../../assets/images/onboarding/onboardingHero.png')}
-          />
+          /> */}
 
           <OnboardingTagline
             title="Master your money"
@@ -110,7 +110,7 @@ const OnboardingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surfacePrimary,
   },
   flex: {
     flex: 1,

@@ -47,7 +47,7 @@ export const TEXT_TYPES = {
   body: RFValue(14), // body-lg
   bodySmall: RFValue(12), // body-md
   bodyXs: RFValue(10), // label-sm
-  caption: RFValue(8),
+  caption: RFValue(9),
 };
 
 const FONT_WEIGHTS = {

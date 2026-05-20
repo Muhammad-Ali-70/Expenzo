@@ -8,12 +8,7 @@ const SectionDivider = ({ label, style }) => {
   return (
     <View style={[styles.row, style]}>
       <View style={styles.line} />
-      <Label
-        type="bodyXs"
-        weight="semiBold"
-        color="textMuted"
-        style={styles.label}
-      >
+      <Label type="bodyXs" weight="semiBold" color="black" style={styles.label}>
         {label}
       </Label>
       <View style={styles.line} />
@@ -30,7 +25,7 @@ const styles = StyleSheet.create({
   },
   line: {
     flex: 1,
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: colors.outlineVariant,
   },
   label: {

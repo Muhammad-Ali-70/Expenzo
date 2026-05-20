@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     paddingHorizontal: wp(6),
-    paddingBottom: hp(1.5),
+    paddingTop: hp(1.5),
   },
   title: {
     textAlign: 'center',
@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'center',
-    lineHeight: 22,
   },
 });
 

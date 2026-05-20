@@ -18,12 +18,7 @@ const WalletCard = ({
   onPress,
   style,
 }) => (
-  <CardShell
-    isActive={isActive}
-    onPress={onPress}
-    description={description}
-    style={style}
-  >
+  <CardShell isActive={isActive} onPress={onPress} style={style}>
     <CardRow>
       <PaymentIcon
         name={iconName}
@@ -36,13 +31,18 @@ const WalletCard = ({
         <Label type="bodySmall" weight="semiBold" color="textMain">
           {name}
         </Label>
+        {description ? (
+          <Label type="caption" weight="regular" color="textMuted">
+            {description}
+          </Label>
+        ) : null}
       </CardInfo>
       <CardRight>
         <CurrencyInput
           value={value}
           onChangeText={onChangeText}
           currency={currency}
-          label="Set Balance"
+          label="Balance"
           showLabel
         />
       </CardRight>

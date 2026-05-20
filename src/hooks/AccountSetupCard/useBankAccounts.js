@@ -1,51 +1,33 @@
 import { useState, useCallback } from 'react';
 
-/**
- * Manages the list of bank accounts the user adds during onboarding.
- * Each entry: { id, bankId, label, color, initials, balance }
- */
 export const useBankAccounts = () => {
   const [accounts, setAccounts] = useState([]);
   const [primaryModalVisible, setPrimaryModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
 
-  // IDs already claimed so the picker can grey them out
   const usedIds = accounts.map(a => a.bankId);
+
+  const _makeEntry = bank => ({
+    id: `bank-${bank.id}`,
+    bankId: bank.id,
+    label: bank.label,
+    color: bank.color,
+    initials: bank.initials,
+    balance: '',
+  });
 
   const setPrimaryBank = useCallback(bank => {
     setAccounts(prev => {
-      // If already in list as primary (index 0), do nothing
       if (prev[0]?.bankId === bank.id) return prev;
-      // Remove if it exists elsewhere then prepend
       const rest = prev.filter(a => a.bankId !== bank.id);
-      return [
-        {
-          id: `bank-${bank.id}`,
-          bankId: bank.id,
-          label: bank.label,
-          color: bank.color,
-          initials: bank.initials,
-          balance: '',
-        },
-        ...rest,
-      ];
+      return [_makeEntry(bank), ...rest];
     });
   }, []);
 
   const addExtraBank = useCallback(bank => {
     setAccounts(prev => {
-      if (prev.find(a => a.bankId === bank.id)) return prev; // no dupes
-      return [
-        ...prev,
-        {
-          id: `bank-${bank.id}`,
-          bankId: bank.id,
-          label: bank.label,
-          color: bank.color,
-          initials: bank.initials,
-          balance: '',
-        },
-      ];
+      if (prev.find(a => a.bankId === bank.id)) return prev;
+      return [...prev, _makeEntry(bank)];
     });
   }, []);
 
@@ -59,13 +41,10 @@ export const useBankAccounts = () => {
     );
   }, []);
 
-  const primaryAccount = accounts[0] ?? null;
-  const extraAccounts = accounts.slice(1);
-
   return {
     accounts,
-    primaryAccount,
-    extraAccounts,
+    primaryAccount: accounts[0] ?? null,
+    extraAccounts: accounts.slice(1),
     usedIds,
     primaryModalVisible,
     setPrimaryModalVisible,

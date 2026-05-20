@@ -4,11 +4,11 @@ export const ACCOUNT_CONFIG = [
   {
     id: 'walletCash',
     accountType: 'wallet',
-    iconName: 'wallet',
+    iconName: 'Banknote',
     iconColor: '#FFFFFF',
     iconBg: colors.walletCash,
     name: 'Wallet Cash',
-    description: 'Physical cash on hand — money in your pocket or at home.',
+    description: 'Physical cash on hand.',
   },
   {
     id: 'bankBalance',
@@ -20,13 +20,12 @@ export const ACCOUNT_CONFIG = [
     description: 'Add your bank accounts and set a balance for each one.',
   },
   {
-    id: 'dailyPay',
-    accountType: 'dailypay',
-    iconName: 'dollar',
+    id: 'digitalWallet',
+    accountType: 'digitalWallet',
+    iconName: 'wallet',
     iconColor: '#FFFFFF',
     iconBg: colors.savings,
-    name: 'Daily Pay',
-    description:
-      'Money in a payment app you use for everyday transfers — like NayaPay or Easypaisa.',
+    name: 'Digital Wallet',
+    description: 'Money in a payment app you use for everyday transfers.',
   },
 ];
