@@ -1,21 +1,26 @@
-import { StyleSheet, ImageBackground } from 'react-native';
 import React, { useEffect } from 'react';
+import { StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import PrimaryLoader from '../../components/ui/PrimaryLoader.js';
-import Logo from '../../components/ui/Logo.js';
+import PrimaryLoader from '../../components/ui/PrimaryLoader';
+import Logo from '../../components/ui/Logo';
 import BackImage from '../../assets/images/onboarding/splashbackground.png';
+
+import useAppStore from '../../store/useAppStore';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
+  const hasCompletedOnboarding = useAppStore(s => s.hasCompletedOnboarding);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Onboarding');
-    }, 3000);
+      navigation.replace(
+        hasCompletedOnboarding ? 'DatabaseTest' : 'Onboarding',
+      );
+    }, 1500);
 
     return () => clearTimeout(timer);
-  });
+  }, [hasCompletedOnboarding, navigation]);
 
   return (
     <ImageBackground

@@ -1,42 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
-import { Label } from '../../constants/globalstyle';
 import OnboardingHeader from '../../components/onboarding/Onboardingheader';
-import OnboardingHeroImage from '../../components/onboarding/Onboardingheroimage';
 import OnboardingTagline from '../../components/onboarding/Onboardingtagline';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
-import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
-import PrimaryButton from '../../components/ui/PrimaryButton';
 import AccountSetupCard from '../../components/onboarding/AccountSetupCard';
+import PrimaryButton from '../../components/ui/PrimaryButton';
+import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
+import AccountRepository from '../../database/repositories/AccountRepository';
+import useAppStore from '../../store/useAppStore';
 
 const OnboardingScreen = ({ navigation }) => {
-  const [balances, setBalances] = useState({
-    walletCash: '',
-    bankBalance: '',
-    savings: '',
-  });
-  const [activeCardId, setActiveCardId] = useState(null);
+  const setOnboardingComplete = useAppStore(s => s.setOnboardingComplete);
 
-  const handleBalanceChange = (id, text) => {
-    setBalances(prev => ({ ...prev, [id]: text }));
-  };
+  const [walletBalance, setWalletBalance] = useState('');
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [digitalWallets, setDigitalWallets] = useState([]);
+  const [saving, setSaving] = useState(false);
 
-  const handleCardPress = id => {
-    setActiveCardId(prev => (prev === id ? null : id));
-  };
+  const handleGetStarted = useCallback(async () => {
+    if (!walletBalance) return;
 
-  const handleGetStarted = () => navigation?.navigate('TabNavigator');
-  const handleSkip = () => navigation?.navigate('TabNavigator');
-  const handleLogIn = () => navigation?.navigate('TabNavigator');
+    setSaving(true);
+
+    try {
+      const records = [
+        {
+          type: 'wallet',
+          label: 'Wallet Cash',
+          color: '#10B981',
+          initials: 'WC',
+          balance: Number(walletBalance),
+          isPrimary: true,
+          sortOrder: 0,
+        },
+        ...bankAccounts.map((acct, idx) => ({
+          type: 'bank',
+          label: acct.label,
+          color: acct.color,
+          initials: acct.initials,
+          balance: Number(acct.balance),
+          isPrimary: idx === 0,
+          sortOrder: 10 + idx,
+        })),
+        ...digitalWallets.map((acct, idx) => ({
+          type: 'digitalWallet',
+          label: acct.label,
+          color: acct.color,
+          initials: acct.initials,
+          balance: Number(acct.balance),
+          isPrimary: idx === 0,
+          sortOrder: 20 + idx,
+        })),
+      ];
+
+      await AccountRepository.seedFromOnboarding(records);
+
+      setOnboardingComplete();
+      navigation.replace('DatabaseTest');
+    } catch (e) {
+      console.error('Onboarding save failed:', e);
+    } finally {
+      setSaving(false);
+    }
+  }, [
+    walletBalance,
+    bankAccounts,
+    digitalWallets,
+    navigation,
+    setOnboardingComplete,
+  ]);
 
   return (
     <View style={styles.safe}>
@@ -45,7 +85,7 @@ const OnboardingScreen = ({ navigation }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={hp(1)}
       >
-        <OnboardingHeader onSkip={handleSkip} />
+        <OnboardingHeader onSkip={() => navigation.replace('TabNavigator')} />
 
         <ScrollView
           style={styles.flex}
@@ -53,10 +93,6 @@ const OnboardingScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* <OnboardingHeroImage
-            source={require('../../assets/images/onboarding/onboardingHero.png')}
-          /> */}
-
           <OnboardingTagline
             title="Master your money"
             subtitle="The effortless way to track expenses and achieve your savings goals."
@@ -73,33 +109,28 @@ const OnboardingScreen = ({ navigation }) => {
               name={account.name}
               description={account.description}
               accountType={account.accountType}
-              value={balances[account.id]}
-              onChangeText={text => handleBalanceChange(account.id, text)}
-              isActive={activeCardId === account.id}
-              onPress={() => handleCardPress(account.id)}
+              // WalletCard props
+              value={walletBalance}
+              onChangeText={setWalletBalance}
+              // BankCard / DailyPayCard lift state up via these callbacks
+              onAccountsChange={
+                account.accountType === 'bank'
+                  ? setBankAccounts
+                  : account.accountType === 'digitalWallet'
+                  ? setDigitalWallets
+                  : undefined
+              }
             />
           ))}
 
-          <View style={styles.ctaContainer}>
+          <View style={styles.cta}>
             <PrimaryButton
               variant="primary"
               size="lg"
-              label="Get Started"
+              label={saving ? 'Saving…' : 'Get Started'}
               onPress={handleGetStarted}
+              disabled={saving}
             />
-
-            <TouchableOpacity
-              onPress={handleLogIn}
-              activeOpacity={0.6}
-              style={styles.loginRow}
-            >
-              <Label type="bodySmall" weight="regular" color="textMuted">
-                Already have an account?{' '}
-              </Label>
-              <Label type="bodySmall" weight="semiBold" color="primary">
-                Log In
-              </Label>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -108,26 +139,10 @@ const OnboardingScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.surfacePrimary,
-  },
-  flex: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: hp(3),
-  },
-  ctaContainer: {
-    paddingHorizontal: wp(5),
-    marginTop: hp(3),
-    gap: hp(1.5),
-  },
-  loginRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  safe: { flex: 1, backgroundColor: colors.surfacePrimary },
+  flex: { flex: 1 },
+  scrollContent: { paddingBottom: hp(3) },
+  cta: { paddingHorizontal: wp(5), marginTop: hp(3) },
 });
 
 export default OnboardingScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, Plus } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
@@ -25,6 +25,7 @@ const DailyPayCard = ({
   isActive,
   onPress,
   style,
+  onAccountsChange,
 }) => {
   const {
     accounts,
@@ -40,6 +41,10 @@ const DailyPayCard = ({
     removeWallet,
     updateBalance,
   } = useDigitalWallets();
+
+  useEffect(() => {
+    onAccountsChange?.(accounts);
+  }, [accounts, onAccountsChange]);
 
   const footer =
     accounts.length > 0 ? (
@@ -76,12 +81,11 @@ const DailyPayCard = ({
             containerSize={wp(11)}
             radius={borderRadius.md}
           />
-
           <CardInfo>
             <Label type="bodySmall" weight="semiBold" color="textMain">
               {primaryAccount ? primaryAccount.label : name}
             </Label>
-            <Label type="caption" weight="regular" color="textMuted">
+            <Label type="bodyXs" weight="regular" color="textMuted">
               {primaryAccount
                 ? extraAccounts.length > 0
                   ? `+${extraAccounts.length} more app${
@@ -91,7 +95,6 @@ const DailyPayCard = ({
                 : description}
             </Label>
           </CardInfo>
-
           <CardRight>
             <TouchableOpacity
               onPress={() => setPrimaryModalVisible(true)}
@@ -131,7 +134,6 @@ const DailyPayCard = ({
         onSelect={setPrimaryWallet}
         onClose={() => setPrimaryModalVisible(false)}
       />
-
       <DigitalWalletPickerModal
         visible={addModalVisible}
         activeId={null}
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
     gap: wp(1.5),
     marginHorizontal: wp(5),
     marginBottom: hp(1.5),
+    marginTop: hp(-0.8),
     alignSelf: 'center',
   },
   addIcon: {

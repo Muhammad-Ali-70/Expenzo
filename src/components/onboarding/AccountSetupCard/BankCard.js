@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, Plus } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import colors from '../../../constants/colors';
 import PaymentIcon from '../../common/Paymenticon';
-import BankPickerModal from '../../modals/BankPickerModal';
 import CardShell, {
   CardRow,
   CardInfo,
@@ -15,6 +14,7 @@ import CardShell, {
 } from './CardShell';
 import AccountRow from './AccountRow';
 import { useBankAccounts } from '../../../hooks/AccountSetupCard/useBankAccounts';
+import BankPickerModal from '../../modals/BankPickerModal';
 
 const BankCard = ({
   iconName,
@@ -25,6 +25,7 @@ const BankCard = ({
   isActive,
   onPress,
   style,
+  onAccountsChange,
 }) => {
   const {
     accounts,
@@ -40,6 +41,10 @@ const BankCard = ({
     removeBank,
     updateBalance,
   } = useBankAccounts();
+
+  useEffect(() => {
+    onAccountsChange?.(accounts);
+  }, [accounts, onAccountsChange]);
 
   const footer =
     accounts.length > 0 ? (
@@ -76,12 +81,11 @@ const BankCard = ({
             containerSize={wp(11)}
             radius={borderRadius.md}
           />
-
           <CardInfo>
             <Label type="bodySmall" weight="semiBold" color="textMain">
               {primaryAccount ? primaryAccount.label : name}
             </Label>
-            <Label type="caption" weight="regular" color="textMuted">
+            <Label type="bodyXs" weight="regular" color="textMuted">
               {primaryAccount
                 ? extraAccounts.length > 0
                   ? `+${extraAccounts.length} more bank${
@@ -91,7 +95,6 @@ const BankCard = ({
                 : description}
             </Label>
           </CardInfo>
-
           <CardRight>
             <TouchableOpacity
               onPress={() => setPrimaryModalVisible(true)}
@@ -110,6 +113,7 @@ const BankCard = ({
           </CardRight>
         </CardRow>
       </CardShell>
+
       <TouchableOpacity
         onPress={() => setAddModalVisible(true)}
         activeOpacity={0.75}
@@ -130,7 +134,6 @@ const BankCard = ({
         onSelect={setPrimaryBank}
         onClose={() => setPrimaryModalVisible(false)}
       />
-
       <BankPickerModal
         visible={addModalVisible}
         activeId={null}
@@ -159,7 +162,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: wp(1.5),
     marginHorizontal: wp(5),
-    marginBottom: hp(2),
+    marginBottom: hp(1.5),
+    marginTop: hp(-0.8),
     alignSelf: 'center',
   },
   addIcon: {
