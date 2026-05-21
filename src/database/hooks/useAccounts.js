@@ -23,5 +23,12 @@ export const useAccounts = (type = null) => {
 
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
 
-  return { accounts, loading, totalBalance };
+  // The wallet primary first, then first bank primary, then whatever comes first
+  const primaryAccount =
+    accounts.find(a => a.type === 'wallet' && a.isPrimary) ??
+    accounts.find(a => a.isPrimary) ??
+    accounts[0] ??
+    null;
+
+  return { accounts, loading, totalBalance, primaryAccount };
 };

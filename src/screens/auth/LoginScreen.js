@@ -28,8 +28,8 @@ const LoginScreen = ({ navigation }) => {
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('testEmail@gmail.com');
+  const [password, setPassword] = useState('admin@123');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -37,19 +37,19 @@ const LoginScreen = ({ navigation }) => {
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
 
   const handleLogin = useCallback(async () => {
-    const newErrors = {};
+    // const newErrors = {};
 
-    if (!isValidEmail(email)) {
-      newErrors.email = 'Please enter a valid email address.';
-    }
-    if (!isStrongPassword(password)) {
-      newErrors.password = 'Password must be at least 8 characters.';
-    }
+    // if (!isValidEmail(email)) {
+    //   newErrors.email = 'Please enter a valid email address.';
+    // }
+    // if (!isStrongPassword(password)) {
+    //   newErrors.password = 'Password must be at least 8 characters.';
+    // }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    // if (Object.keys(newErrors).length > 0) {
+    //   setErrors(newErrors);
+    //   return;
+    // }
 
     setErrors({});
     setLoading(true);

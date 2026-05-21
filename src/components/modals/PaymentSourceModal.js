@@ -1,102 +1,75 @@
 import React from 'react';
-import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { wp, hp } from '../../constants/responsive';
-import colors from '../../constants/colors';
-import { Label, borderRadius } from '../../constants/globalstyle';
-import { BANKS, SOURCES } from '../../constants/dummy/data';
+import { Label } from '../../constants/globalstyle';
 import BottomSheet from '../ui/BottomSheet';
 import SelectableIcon from '../ui/SelectableIcon';
+import { useAccounts } from '../../database/hooks/useAccounts';
 
-const BankTile = ({ item, active, onPress }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    activeOpacity={0.75}
-    style={[styles.bankTile, active && styles.bankTileActive]}
-  >
-    {item.image ? (
-      <Image
-        source={item.image}
-        style={styles.bankImage}
-        resizeMode="contain"
-      />
-    ) : (
-      <View style={styles.bankImagePlaceholder}>
-        <Label type="bodyXs" weight="bold" color="textMuted">
-          {item.label.slice(0, 2).toUpperCase()}
-        </Label>
-      </View>
-    )}
-    <Label
-      type="bodyXs"
-      weight={active ? 'semiBold' : 'regular'}
-      color={active ? 'primary' : 'textMuted'}
-    >
-      {item.label}
-    </Label>
-  </TouchableOpacity>
-);
+const TYPE_ICON = {
+  wallet: { iconName: 'wallet', iconBg: '#E6FBF4', iconColor: '#10B981' },
+  bank: { iconName: 'bank', iconBg: '#EFF6FF', iconColor: '#3B82F6' },
+  digitalWallet: {
+    iconName: 'digital',
+    iconBg: '#F5F3FF',
+    iconColor: '#8B5CF6',
+  },
+};
+
+const TYPE_LABEL = {
+  wallet: 'WALLET',
+  bank: 'BANK ACCOUNTS',
+  digitalWallet: 'DIGITAL WALLETS',
+};
 
 const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
+  const { accounts } = useAccounts();
+
   const handleSelect = id => {
     onSelect(id);
     onClose();
   };
 
+  // Group by type, preserve insertion order: wallet → bank → digitalWallet
+  const groups = ['wallet', 'bank', 'digitalWallet']
+    .map(type => ({
+      type,
+      items: accounts.filter(a => a.type === type),
+    }))
+    .filter(g => g.items.length > 0);
+
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Payment Source">
-      {/* Wallet / Bank / Easypaisa row — reuse SelectableIcon in grid mode */}
-      <Label
-        type="bodyXs"
-        weight="semiBold"
-        color="textMuted"
-        style={styles.sectionLabel}
-      >
-        ACCOUNTS
-      </Label>
-      <View style={styles.sourcesRow}>
-        {SOURCES.map(src => (
-          <SelectableIcon
-            key={src.id}
-            iconName={src.iconName}
-            iconBg={src.iconBg}
-            iconColor={src.iconColor}
-            label={src.label}
-            active={activeId === src.id}
-            onPress={() => handleSelect(src.id)}
-            size="grid"
-          />
-        ))}
-      </View>
+      {groups.map(group => (
+        <View key={group.type}>
+          <Label
+            type="bodyXs"
+            weight="semiBold"
+            color="textMuted"
+            style={styles.sectionLabel}
+          >
+            {TYPE_LABEL[group.type]}
+          </Label>
 
-      <Label
-        type="bodyXs"
-        weight="semiBold"
-        color="textMuted"
-        style={styles.sectionLabel}
-      >
-        BANKS
-      </Label>
-      <FlatList
-        data={BANKS}
-        keyExtractor={item => item.id}
-        numColumns={4}
-        scrollEnabled={false}
-        contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.row}
-        renderItem={({ item }) => (
-          <BankTile
-            item={item}
-            active={activeId === item.id}
-            onPress={() => handleSelect(item.id)}
-          />
-        )}
-      />
+          <View style={styles.sourcesRow}>
+            {group.items.map(account => {
+              const icon = TYPE_ICON[account.type];
+              return (
+                <SelectableIcon
+                  key={account.id}
+                  iconName={icon.iconName}
+                  iconBg={icon.iconBg}
+                  iconColor={icon.iconColor}
+                  label={account.label}
+                  active={activeId === account.id}
+                  onPress={() => handleSelect(account.id)}
+                  size="grid"
+                />
+              );
+            })}
+          </View>
+        </View>
+      ))}
     </BottomSheet>
   );
 };
@@ -109,42 +82,10 @@ const styles = StyleSheet.create({
   },
   sourcesRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingHorizontal: wp(3),
     marginBottom: hp(2),
     gap: wp(2),
-  },
-  grid: {
-    paddingHorizontal: wp(3),
-    paddingBottom: hp(1),
-    gap: hp(0.5),
-  },
-  row: {
-    justifyContent: 'space-between',
-  },
-  bankTile: {
-    width: (wp(100) - wp(6) - wp(9)) / 4,
-    alignItems: 'center',
-    gap: hp(0.8),
-    paddingVertical: hp(1.5),
-    borderRadius: borderRadius.lg,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  bankTileActive: {
-    borderColor: colors.primary,
-  },
-  bankImage: {
-    width: wp(11),
-    height: wp(11),
-    borderRadius: borderRadius.md,
-  },
-  bankImagePlaceholder: {
-    width: wp(11),
-    height: wp(11),
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 

@@ -1,98 +1,79 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, ScrollView, StyleSheet, Text } from 'react-native';
 import { CalendarDays, LayoutGrid, Wallet } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
+import { Label } from '../../constants/globalstyle';
 import HomeHeader from '../../components/home/HomeHeader';
 import SearchBar from '../../components/ui/SearchBar';
 import FilterTagList from '../../components/history/FilterTagList';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
+import { useTransactions } from '../../database/hooks/useTransactions';
 
 const FILTER_TAGS = [
-  { id: 'date', label: 'Date', icon: CalendarDays },
-  { id: 'category', label: 'Category', icon: LayoutGrid },
-  { id: 'source', label: 'Source', icon: Wallet },
+  { id: 'all', label: 'All', icon: CalendarDays },
+  { id: 'expense', label: 'Expenses', icon: LayoutGrid },
+  { id: 'income', label: 'Income', icon: Wallet },
 ];
 
-const GROUPED_TRANSACTIONS = [
-  {
-    id: 'today',
-    label: 'Today',
-    total: -124.5,
-    transactions: [
-      {
-        id: 't1',
-        iconName: 'food',
-        iconBg: '#FFF3E6',
-        iconColor: '#F97316',
-        title: 'Wildwood Kitchen',
-        subtitle: 'Lunch • 12:45 PM',
-        amount: -42,
-      },
-      {
-        id: 't2',
-        iconName: 'phone',
-        iconBg: '#EFF6FF',
-        iconColor: colors.bankAccount,
-        title: 'Apple Store',
-        subtitle: 'Gadgets • 10:15 AM',
-        amount: -82.5,
-      },
-    ],
-  },
-  {
-    id: 'yesterday',
-    label: 'Yesterday',
-    total: 2450,
-    transactions: [
-      {
-        id: 't3',
-        iconName: 'work',
-        iconBg: '#E6FBF4',
-        iconColor: colors.walletCash,
-        title: 'Monthly Salary',
-        subtitle: 'Income • 09:00 AM',
-        amount: 2800,
-      },
-      {
-        id: 't4',
-        iconName: 'home',
-        iconBg: '#F5F3FF',
-        iconColor: colors.savings,
-        title: 'Rent Payment',
-        subtitle: 'Housing • 08:30 AM',
-        amount: -350,
-      },
-    ],
-  },
-  {
-    id: 'march12',
-    label: 'March 12',
-    total: -18.25,
-    transactions: [
-      {
-        id: 't5',
-        iconName: 'car',
-        iconBg: '#F1F5F9',
-        iconColor: colors.textMuted,
-        title: 'City Transit',
-        subtitle: 'Transport • 06:15 PM',
-        amount: -18.25,
-      },
-    ],
-  },
-];
-
-const HistoryScreen = ({ navigation }) => {
+const HistoryScreen = () => {
   const [search, setSearch] = useState('');
-  const [activeFilter, setActiveFilter] = useState('date');
+  const [activeFilter, setActiveFilter] = useState('all');
 
-  const filtered = GROUPED_TRANSACTIONS.map(group => ({
-    ...group,
-    transactions: group.transactions.filter(tx =>
-      tx.title.toLowerCase().includes(search.toLowerCase()),
-    ),
-  })).filter(group => group.transactions.length > 0);
+  const { getGrouped, loading } = useTransactions();
+
+  const groups = useMemo(() => {
+    const category =
+      activeFilter === 'expense' || activeFilter === 'income'
+        ? null // type filter, not category
+        : null;
+
+    const all = getGrouped({ search });
+
+    // Log all transactions
+    console.log('=== All Transactions ===');
+    console.log(
+      'Total transactions:',
+      all.reduce((acc, group) => acc + group.transactions.length, 0),
+    );
+    console.log('Raw groups data:', JSON.stringify(all, null, 2));
+
+    all.forEach((group, groupIndex) => {
+      console.log(`\n--- Group ${groupIndex + 1}: ${group.label} ---`);
+      console.log(`Total for ${group.label}:`, group.total);
+      group.transactions.forEach((tx, txIndex) => {
+        console.log(`Transaction ${txIndex + 1}:`, {
+          id: tx.id,
+          description: tx.description,
+          amount: tx.amount,
+          type: tx.type,
+          category: tx.category,
+          date: tx.date,
+          dateString: new Date(tx.date).toLocaleString(),
+          note: tx.note,
+          accountId: tx.accountId,
+        });
+      });
+    });
+    console.log('========================');
+
+    // Apply type filter (expense / income) at the transaction level
+    if (activeFilter === 'all') return all;
+
+    return all
+      .map(group => ({
+        ...group,
+        transactions: group.transactions.filter(tx =>
+          activeFilter === 'expense' ? tx.amount < 0 : tx.amount >= 0,
+        ),
+        total: group.transactions
+          .filter(tx =>
+            activeFilter === 'expense' ? tx.amount < 0 : tx.amount >= 0,
+          )
+          .reduce((sum, tx) => sum + tx.amount, 0),
+      }))
+      .filter(group => group.transactions.length > 0);
+  }, [getGrouped, search, activeFilter]);
 
   return (
     <View style={styles.safe}>
@@ -118,14 +99,36 @@ const HistoryScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {filtered.map(group => (
-          <RecentActivitySection
-            key={group.id}
-            label={group.label}
-            total={group.total}
-            transactions={group.transactions}
-          />
-        ))}
+        {loading ? (
+          <Label
+            type="bodySmall"
+            weight="regular"
+            color="textMuted"
+            style={styles.empty}
+          >
+            Loading…
+          </Label>
+        ) : groups.length === 0 ? (
+          <Label
+            type="bodySmall"
+            weight="regular"
+            color="textMuted"
+            style={styles.empty}
+          >
+            {search
+              ? 'No transactions match your search.'
+              : 'No transactions yet.'}
+          </Label>
+        ) : (
+          groups.map(group => (
+            <RecentActivitySection
+              key={group.key}
+              label={group.label}
+              total={group.total}
+              transactions={group.transactions}
+            />
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -145,6 +148,10 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: hp(12),
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: hp(10),
   },
 });
 

@@ -16,6 +16,7 @@ export default class Transaction extends Model {
   @field('type') type;
   @field('amount') amount;
   @field('category') category;
+  @field('description') description; // ← add this
   @field('note') note;
   @field('date') date;
   @readonly @date('created_at') createdAt;

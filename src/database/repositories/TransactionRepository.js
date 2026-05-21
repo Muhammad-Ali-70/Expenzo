@@ -30,13 +30,22 @@ const TransactionRepository = {
       .fetch();
   },
 
-  async create({ accountId, type, amount, category, note = '', date }) {
+  async create({
+    accountId,
+    type,
+    amount,
+    category,
+    description = '',
+    note = '',
+    date,
+  }) {
     return database.write(async () =>
       transactions().create(record => {
         record.accountId = accountId;
         record.type = type;
         record.amount = parseFloat(amount);
         record.category = category;
+        record.description = description;
         record.note = note;
         record.date = date ?? Date.now();
       }),
@@ -49,6 +58,8 @@ const TransactionRepository = {
       await record.update(r => {
         if (fields.amount !== undefined) r.amount = parseFloat(fields.amount);
         if (fields.category !== undefined) r.category = fields.category;
+        if (fields.description !== undefined)
+          r.description = fields.description;
         if (fields.note !== undefined) r.note = fields.note;
         if (fields.date !== undefined) r.date = fields.date;
       });

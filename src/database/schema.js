@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export default appSchema({
-  version: 1,
+  version: 2,
   tables: [
     tableSchema({
       name: 'accounts',
@@ -21,9 +21,10 @@ export default appSchema({
       name: 'transactions',
       columns: [
         { name: 'account_id', type: 'string', isIndexed: true },
-        { name: 'type', type: 'string' }, // 'expense' | 'income'
+        { name: 'type', type: 'string' },
         { name: 'amount', type: 'number' },
         { name: 'category', type: 'string' },
+        { name: 'description', type: 'string', isOptional: true }, // ← new
         { name: 'note', type: 'string', isOptional: true },
         { name: 'date', type: 'number' },
         { name: 'created_at', type: 'number' },
