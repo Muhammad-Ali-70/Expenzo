@@ -14,9 +14,7 @@ const SplashScreen = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace(
-        hasCompletedOnboarding ? 'DatabaseTest' : 'Onboarding',
-      );
+      navigation.replace(hasCompletedOnboarding ? 'DatabaseTest' : 'AuthStack');
     }, 1500);
 
     return () => clearTimeout(timer);

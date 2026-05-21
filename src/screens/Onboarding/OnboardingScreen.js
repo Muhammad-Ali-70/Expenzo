@@ -16,6 +16,7 @@ import PrimaryButton from '../../components/ui/PrimaryButton';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import AccountRepository from '../../database/repositories/AccountRepository';
 import useAppStore from '../../store/useAppStore';
+import { Toast } from 'react-native-toast-notifications';
 
 const OnboardingScreen = ({ navigation }) => {
   const setOnboardingComplete = useAppStore(s => s.setOnboardingComplete);
@@ -78,6 +79,10 @@ const OnboardingScreen = ({ navigation }) => {
     setOnboardingComplete,
   ]);
 
+  const testFunction = () => {
+    Toast.show('Sign up failed. Please try again.', { type: 'danger' });
+  };
+
   return (
     <View style={styles.safe}>
       <KeyboardAvoidingView
@@ -128,7 +133,7 @@ const OnboardingScreen = ({ navigation }) => {
               variant="primary"
               size="lg"
               label={saving ? 'Saving…' : 'Get Started'}
-              onPress={handleGetStarted}
+              onPress={testFunction}
               disabled={saving}
             />
           </View>

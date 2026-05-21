@@ -5,6 +5,7 @@ import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import AddExpenseScreen from '../screens/tabs/AddExpense/AddExpenseScreen';
 import DatabaseTestScreen from '../screens/onboarding/DatabaseTestScreen';
+import AuthStack from './AuthStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,6 +15,7 @@ const RootStackNavigator = () => (
     screenOptions={{ headerShown: false }}
   >
     <Stack.Screen name="SplashScreen" component={SplashScreen} />
+    <Stack.Screen name="AuthStack" component={AuthStack} />
     <Stack.Screen name="Onboarding" component={OnboardingScreen} />
     <Stack.Screen name="TabNavigator" component={TabNavigator} />
     <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
