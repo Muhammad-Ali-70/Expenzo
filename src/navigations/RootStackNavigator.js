@@ -5,9 +5,9 @@ import useAppStore from '../store/useAppStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
-import AddExpenseScreen from '../screens/tabs/AddExpense/AddExpenseScreen';
 import DatabaseTestScreen from '../screens/onboarding/DatabaseTestScreen';
 import AuthStack from './AuthStack';
+import AddTransactionScreen from '../screens/tabs/AddTrasaction/AddTransactionScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -66,7 +66,7 @@ const RootStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
-      <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
+      <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
       <Stack.Screen name="DatabaseTest" component={DatabaseTestScreen} />
     </Stack.Navigator>
   );
