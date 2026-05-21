@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import LottieView from 'lottie-react-native';
+
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, shadowPrimary } from '../../constants/globalstyle';
@@ -19,9 +21,19 @@ const AuthHeader = ({ showBack = false, onBack, style }) => (
       <View style={styles.backBtn} />
     )}
 
-    <Label type="body" weight="bold" color="primary">
-      Expenzo.
-    </Label>
+    <View style={styles.titleRow}>
+      {/* <LottieView
+        source={require('../../assets/animations/RollingCoins.json')}
+        autoPlay
+        loop
+        speed={0.5}
+        style={styles.lottie}
+      /> */}
+
+      <Label type="body" weight="bold" color="primary">
+        Expenzo.
+      </Label>
+    </View>
 
     <View style={styles.backBtn} />
   </View>
@@ -43,6 +55,15 @@ const styles = StyleSheet.create({
     height: wp(9),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  lottie: {
+    width: wp(8),
+    height: wp(8),
+    marginRight: wp(1.5),
   },
 });
 

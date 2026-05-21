@@ -63,25 +63,13 @@ const OnboardingScreen = ({ navigation }) => {
       ];
 
       await AccountRepository.seedFromOnboarding(records);
-
-      setOnboardingComplete();
-      navigation.replace('DatabaseTest');
+      setOnboardingComplete(); // ← this triggers RootStackNavigator to render TabNavigator
     } catch (e) {
       console.error('Onboarding save failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [
-    walletBalance,
-    bankAccounts,
-    digitalWallets,
-    navigation,
-    setOnboardingComplete,
-  ]);
-
-  const testFunction = () => {
-    Toast.show('Sign up failed. Please try again.', { type: 'danger' });
-  };
+  }, [walletBalance, bankAccounts, digitalWallets, setOnboardingComplete]);
 
   return (
     <View style={styles.safe}>
@@ -133,7 +121,7 @@ const OnboardingScreen = ({ navigation }) => {
               variant="primary"
               size="lg"
               label={saving ? 'Saving…' : 'Get Started'}
-              onPress={testFunction}
+              onPress={handleGetStarted}
               disabled={saving}
             />
           </View>

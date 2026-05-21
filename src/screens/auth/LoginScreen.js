@@ -20,6 +20,8 @@ import { Label } from '../../constants/globalstyle';
 import { isValidEmail, isStrongPassword } from '../../utils/validation';
 import { useToastService } from '../../utils/ToastService';
 import GoogleImage from '../../assets/images/static/logos/google.png';
+import { supabase } from '../../services/supabase';
+import LoginImage from '../../assets/images/auth/login.png';
 
 const LoginScreen = ({ navigation }) => {
   const toast = useToastService();
@@ -53,15 +55,21 @@ const LoginScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+
       toastRef.current.success('Welcome back!');
-      navigation.replace('TabNavigator');
     } catch (e) {
-      toastRef.current.error('Login failed. Please check your credentials.');
+      toastRef.current.error(
+        e.message ?? 'Login failed. Please check your credentials.',
+      );
     } finally {
       setLoading(false);
     }
-  }, [email, password, navigation]);
+  }, [email, password]);
 
   return (
     <KeyboardAvoidingView
@@ -70,7 +78,7 @@ const LoginScreen = ({ navigation }) => {
       keyboardVerticalOffset={hp(1)}
     >
       <View style={styles.safe}>
-        <AuthHeader showBack onBack={() => navigation.goBack()} />
+        {/* <AuthHeader showBack={false} /> */}
 
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -154,6 +162,12 @@ const LoginScreen = ({ navigation }) => {
             onActionPress={() => navigation.navigate('SignUpScreen')}
           />
         </ScrollView>
+
+        {/* <Image
+          source={LoginImage}
+          style={styles.illustration}
+          resizeMode="contain"
+        /> */}
       </View>
     </KeyboardAvoidingView>
   );
@@ -178,6 +192,14 @@ const styles = StyleSheet.create({
   googleLogo: {
     width: 25,
     height: 25,
+  },
+  illustration: {
+    position: 'absolute',
+    bottom: hp(0),
+    right: wp(-5),
+    width: wp(65),
+    height: wp(65),
+    opacity: 0.92,
   },
 });
 

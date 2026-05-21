@@ -19,17 +19,18 @@ import SectionDivider from '../../components/onboarding/Sectiondivider';
 import { validateSignUp } from '../../utils/validation';
 import { useToastService } from '../../utils/ToastService';
 import GoogleImage from '../../assets/images/static/logos/google.png';
+import { supabase } from '../../services/supabase';
 
 const SignUpScreen = ({ navigation }) => {
   const toast = useToastService();
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [fullName, setFullName] = useState('Test User');
+  const [email, setEmail] = useState('testEmail@gmail.com');
+  const [password, setPassword] = useState('admin@123');
+  const [confirmPassword, setConfirmPassword] = useState('admin@123');
+  const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
@@ -37,35 +38,47 @@ const SignUpScreen = ({ navigation }) => {
 
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
 
-  const handleSignUp = useCallback(async () => {
-    const validationErrors = validateSignUp({
-      fullName,
-      email,
-      password,
-      confirmPassword,
-      agreedToTerms,
-    });
+  const handleSignUp = async () => {
+    // const validationErrors = validateSignUp({
+    //   fullName,
+    //   email,
+    //   password,
+    //   confirmPassword,
+    //   agreedToTerms,
+    // });
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   return;
+    // }
 
     setErrors({});
     setLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      console.log('email:', email, 'password:', password);
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: { full_name: fullName.trim() },
+        },
+      });
+
+      console.log(data);
+      console.log(error);
+
+      if (error) throw error;
+
       toastRef.current.success(
         `Welcome to Expenzo, ${fullName.split(' ')[0]}!`,
       );
-      navigation.replace('Onboarding');
     } catch (e) {
       toastRef.current.error('Sign up failed. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [fullName, email, password, confirmPassword, agreedToTerms, navigation]);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -74,7 +87,7 @@ const SignUpScreen = ({ navigation }) => {
       keyboardVerticalOffset={hp(1)}
     >
       <View style={styles.safe}>
-        <AuthHeader showBack onBack={() => navigation.goBack()} />
+        {/* <AuthHeader showBack onBack={() => navigation.goBack()} /> */}
 
         <ScrollView
           contentContainerStyle={styles.scroll}

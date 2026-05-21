@@ -54,7 +54,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       keyboardVerticalOffset={hp(1)}
     >
       <View style={styles.safe}>
-        <AuthHeader showBack onBack={() => navigation.goBack()} />
+        {/* <AuthHeader showBack onBack={() => navigation.goBack()} /> */}
 
         <ScrollView
           contentContainerStyle={styles.scroll}

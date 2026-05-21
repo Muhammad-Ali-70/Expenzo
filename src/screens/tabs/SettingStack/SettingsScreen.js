@@ -1,12 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Switch, StyleSheet } from 'react-native';
-import {
-  Moon,
-  CircleDollarSign,
-  Bell,
-  Upload,
-  CloudCog,
-} from 'lucide-react-native';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
 import SettingsSection from '../../../components/settings/SettingsSection';
@@ -15,13 +8,26 @@ import { Label, borderRadius } from '../../../constants/globalstyle';
 import colors from '../../../constants/colors';
 import { hp, wp } from '../../../constants/responsive';
 import SignOutButton from '../../../components/settings/SignOutButton';
-
-const IconBox = ({ bg, children }) => (
-  <View style={[styles.iconBox, { backgroundColor: bg }]}>{children}</View>
-);
+import { supabase } from '../../../services/supabase';
+import { useToastService } from '../../../utils/ToastService';
 
 const SettingsScreen = ({ navigation }) => {
+  const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const toast = useToastService();
+  const toastRef = useRef(toast);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
+
+  const displayName =
+    user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
+  const email = user?.email ?? '';
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <View style={styles.safe}>
@@ -32,23 +38,15 @@ const SettingsScreen = ({ navigation }) => {
         contentContainerStyle={styles.scrollContent}
       >
         <SettingsProfileCard
-          name="Ali Wicked Digital"
-          email="ali-wicked@gmail.com"
-          isPremium
-          onEditPress={() => {}}
+          name={displayName}
+          email={email}
+          isPremium={false}
+          avatarSource={null}
         />
 
         <SettingsSection title="PREFERENCES">
           <SettingsRow
-            icon={
-              <IconBox bg="#EFF6FF">
-                <Moon
-                  size={wp(4.5)}
-                  color={colors.bankAccount}
-                  strokeWidth={1.8}
-                />
-              </IconBox>
-            }
+            iconName="moon"
             title="Dark Mode"
             subtitle="Adjust system appearance"
             rightElement={
@@ -66,15 +64,7 @@ const SettingsScreen = ({ navigation }) => {
             showDivider
           />
           <SettingsRow
-            icon={
-              <IconBox bg="#E6FFF5">
-                <CircleDollarSign
-                  size={wp(4.5)}
-                  color={colors.primary}
-                  strokeWidth={1.8}
-                />
-              </IconBox>
-            }
+            iconName="currency"
             title="Default Currency"
             subtitle="Set your primary currency"
             rightLabel="USD ($)"
@@ -85,39 +75,19 @@ const SettingsScreen = ({ navigation }) => {
 
         <SettingsSection title="SYSTEM & DATA">
           <SettingsRow
-            icon={
-              <IconBox bg="#EFF6FF">
-                <Bell
-                  size={wp(4.5)}
-                  color={colors.bankAccount}
-                  strokeWidth={1.8}
-                />
-              </IconBox>
-            }
+            iconName="bell"
             title="Notifications"
             onPress={() => {}}
             showDivider
           />
           <SettingsRow
-            icon={
-              <IconBox bg="#FFF3E6">
-                <Upload size={wp(4.5)} color="#F97316" strokeWidth={1.8} />
-              </IconBox>
-            }
+            iconName="upload"
             title="Export Transactions"
             onPress={() => {}}
             showDivider
           />
           <SettingsRow
-            icon={
-              <IconBox bg="#F5F3FF">
-                <CloudCog
-                  size={wp(4.5)}
-                  color={colors.savings}
-                  strokeWidth={1.8}
-                />
-              </IconBox>
-            }
+            iconName="cloud"
             title="Cloud Backup"
             subtitle="Last synced 2h ago"
             onPress={() => {}}
@@ -125,7 +95,7 @@ const SettingsScreen = ({ navigation }) => {
           />
         </SettingsSection>
 
-        <SignOutButton onPress={() => {}} />
+        <SignOutButton onPress={handleSignOut} />
 
         <Label
           type="bodyXs"
@@ -147,13 +117,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: hp(12),
-  },
-  iconBox: {
-    width: wp(9),
-    height: wp(9),
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   version: {
     textAlign: 'center',
