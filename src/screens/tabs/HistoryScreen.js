@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { CalendarDays, LayoutGrid, Wallet } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
@@ -9,6 +9,7 @@ import SearchBar from '../../components/ui/SearchBar';
 import FilterTagList from '../../components/history/FilterTagList';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
 import { useTransactions } from '../../database/hooks/useTransactions';
+import SkeletonSection from '../../components/common/skeleton/SkeletonSection';
 
 const FILTER_TAGS = [
   { id: 'all', label: 'All', icon: CalendarDays },
@@ -23,41 +24,8 @@ const HistoryScreen = () => {
   const { getGrouped, loading } = useTransactions();
 
   const groups = useMemo(() => {
-    const category =
-      activeFilter === 'expense' || activeFilter === 'income'
-        ? null // type filter, not category
-        : null;
-
     const all = getGrouped({ search });
 
-    // Log all transactions
-    console.log('=== All Transactions ===');
-    console.log(
-      'Total transactions:',
-      all.reduce((acc, group) => acc + group.transactions.length, 0),
-    );
-    console.log('Raw groups data:', JSON.stringify(all, null, 2));
-
-    all.forEach((group, groupIndex) => {
-      console.log(`\n--- Group ${groupIndex + 1}: ${group.label} ---`);
-      console.log(`Total for ${group.label}:`, group.total);
-      group.transactions.forEach((tx, txIndex) => {
-        console.log(`Transaction ${txIndex + 1}:`, {
-          id: tx.id,
-          description: tx.description,
-          amount: tx.amount,
-          type: tx.type,
-          category: tx.category,
-          date: tx.date,
-          dateString: new Date(tx.date).toLocaleString(),
-          note: tx.note,
-          accountId: tx.accountId,
-        });
-      });
-    });
-    console.log('========================');
-
-    // Apply type filter (expense / income) at the transaction level
     if (activeFilter === 'all') return all;
 
     return all
@@ -74,6 +42,41 @@ const HistoryScreen = () => {
       }))
       .filter(group => group.transactions.length > 0);
   }, [getGrouped, search, activeFilter]);
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <>
+          <SkeletonSection itemCount={4} />
+          <SkeletonSection itemCount={3} />
+        </>
+      );
+    }
+
+    if (groups.length === 0) {
+      return (
+        <Label
+          type="bodySmall"
+          weight="regular"
+          color="textMuted"
+          style={styles.empty}
+        >
+          {search
+            ? 'No transactions match your search.'
+            : 'No transactions yet.'}
+        </Label>
+      );
+    }
+
+    return groups.map(group => (
+      <RecentActivitySection
+        key={group.key}
+        label={group.label}
+        total={group.total}
+        transactions={group.transactions}
+      />
+    ));
+  };
 
   return (
     <View style={styles.safe}>
@@ -99,36 +102,7 @@ const HistoryScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {loading ? (
-          <Label
-            type="bodySmall"
-            weight="regular"
-            color="textMuted"
-            style={styles.empty}
-          >
-            Loading…
-          </Label>
-        ) : groups.length === 0 ? (
-          <Label
-            type="bodySmall"
-            weight="regular"
-            color="textMuted"
-            style={styles.empty}
-          >
-            {search
-              ? 'No transactions match your search.'
-              : 'No transactions yet.'}
-          </Label>
-        ) : (
-          groups.map(group => (
-            <RecentActivitySection
-              key={group.key}
-              label={group.label}
-              total={group.total}
-              transactions={group.transactions}
-            />
-          ))
-        )}
+        {renderContent()}
       </ScrollView>
     </View>
   );
