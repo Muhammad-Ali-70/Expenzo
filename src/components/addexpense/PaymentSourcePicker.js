@@ -9,23 +9,12 @@ import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import SelectableIcon from '../ui/SelectableIcon';
 import { useAccounts } from '../../database/hooks/useAccounts';
+import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
 import colors from '../../constants/colors';
-
-// Maps account type → icon config so SelectableIcon still gets what it needs
-const TYPE_ICON = {
-  wallet: { iconName: 'wallet', iconBg: '#E6FBF4', iconColor: '#10B981' },
-  bank: { iconName: 'bank', iconBg: '#EFF6FF', iconColor: '#3B82F6' },
-  digitalWallet: {
-    iconName: 'digital',
-    iconBg: '#F5F3FF',
-    iconColor: '#8B5CF6',
-  },
-};
 
 const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
   const { accounts, loading } = useAccounts();
 
-  // Show max 3 in the quick row — wallet first, then by sort_order
   const quickAccounts = [
     ...accounts.filter(a => a.type === 'wallet'),
     ...accounts.filter(a => a.type !== 'wallet'),
@@ -54,13 +43,13 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
 
       <View style={styles.row}>
         {quickAccounts.map(account => {
-          const icon = TYPE_ICON[account.type] ?? TYPE_ICON.wallet;
+          const meta = getAccountTypeMeta(account.type);
           return (
             <SelectableIcon
               key={account.id}
-              iconName={icon.iconName}
-              iconBg={icon.iconBg}
-              iconColor={icon.iconColor}
+              iconName={meta.iconName}
+              iconBg={meta.iconBg}
+              iconColor={meta.iconColor}
               label={account.label}
               active={activeId === account.id}
               onPress={() => onSelect(account.id)}
@@ -74,19 +63,13 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
 };
 
 const styles = StyleSheet.create({
-  section: {
-    marginHorizontal: wp(5),
-    gap: hp(1.2),
-  },
+  section: { marginHorizontal: wp(5), gap: hp(1.2) },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  row: {
-    flexDirection: 'row',
-    gap: wp(3),
-  },
+  row: { flexDirection: 'row', gap: wp(3) },
 });
 
 export default PaymentSourcePicker;

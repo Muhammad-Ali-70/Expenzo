@@ -16,7 +16,6 @@ import PrimaryButton from '../../components/ui/PrimaryButton';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import AccountRepository from '../../database/repositories/AccountRepository';
 import useAppStore from '../../store/useAppStore';
-import { Toast } from 'react-native-toast-notifications';
 
 const OnboardingScreen = ({ navigation }) => {
   const setOnboardingComplete = useAppStore(s => s.setOnboardingComplete);
@@ -63,13 +62,24 @@ const OnboardingScreen = ({ navigation }) => {
       ];
 
       await AccountRepository.seedFromOnboarding(records);
-      setOnboardingComplete(); // ← this triggers RootStackNavigator to render TabNavigator
+      setOnboardingComplete();
     } catch (e) {
       console.error('Onboarding save failed:', e);
     } finally {
       setSaving(false);
     }
   }, [walletBalance, bankAccounts, digitalWallets, setOnboardingComplete]);
+
+  const handleSkip = useCallback(async () => {
+    setSaving(true);
+    try {
+      setOnboardingComplete();
+    } catch (e) {
+      console.error('Skip failed:', e);
+    } finally {
+      setSaving(false);
+    }
+  }, [setOnboardingComplete]);
 
   return (
     <View style={styles.safe}>
@@ -78,7 +88,7 @@ const OnboardingScreen = ({ navigation }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={hp(1)}
       >
-        <OnboardingHeader onSkip={() => navigation.replace('TabNavigator')} />
+        <OnboardingHeader onSkip={handleSkip} />
 
         <ScrollView
           style={styles.flex}

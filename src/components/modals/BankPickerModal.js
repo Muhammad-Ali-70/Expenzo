@@ -10,21 +10,7 @@ import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import FloatingModal from '../ui/FloatingModal';
-
-export const BANKS = [
-  { id: 'hbl', label: 'HBL', initials: 'HB', color: '#006847' },
-  { id: 'ubl', label: 'UBL', initials: 'UB', color: '#003087' },
-  { id: 'meezan', label: 'Meezan', initials: 'MB', color: '#1B5E20' },
-  { id: 'allied', label: 'Allied', initials: 'AB', color: '#B71C1C' },
-  { id: 'mcb', label: 'MCB', initials: 'MC', color: '#880E4F' },
-  { id: 'bop', label: 'Bank of Punjab', initials: 'BP', color: '#1A237E' },
-  { id: 'habib', label: 'Habib Metro', initials: 'HM', color: '#004D40' },
-  { id: 'askari', label: 'Askari', initials: 'AK', color: '#37474F' },
-  { id: 'faysal', label: 'Faysal', initials: 'FB', color: '#E65100' },
-  { id: 'summit', label: 'Summit', initials: 'SB', color: '#4A148C' },
-  { id: 'silk', label: 'Silk Bank', initials: 'SK', color: '#006064' },
-  { id: 'other', label: 'Other', initials: '+ ', color: colors.textMuted },
-];
+import { BANKS } from '../../constants/theme/accountMeta';
 
 const BankTile = ({ item, active, disabled, onPress }) => (
   <TouchableOpacity
@@ -120,19 +106,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3.5),
     paddingVertical: hp(1.1),
   },
-  search: {
-    fontSize: 13,
-    color: colors.textMain,
-    padding: 0,
-  },
-  grid: {
-    paddingHorizontal: wp(3),
-    paddingBottom: hp(1),
-    gap: hp(0.5),
-  },
-  row: {
-    justifyContent: 'space-between',
-  },
+  search: { fontSize: 13, color: colors.textMain, padding: 0 },
+  grid: { paddingHorizontal: wp(3), paddingBottom: hp(1), gap: hp(0.5) },
+  row: { justifyContent: 'space-between' },
   tile: {
     width: (wp(100) - wp(10) - wp(9)) / 4,
     alignItems: 'center',
@@ -146,9 +122,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.surfaceContainerLow,
   },
-  tileDisabled: {
-    opacity: 0.4,
-  },
+  tileDisabled: { opacity: 0.4 },
   avatar: {
     width: wp(11),
     height: wp(11),
@@ -156,10 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tileLabel: {
-    textAlign: 'center',
-    lineHeight: 14,
-  },
+  tileLabel: { textAlign: 'center', lineHeight: 14 },
 });
 
 export default BankPickerModal;

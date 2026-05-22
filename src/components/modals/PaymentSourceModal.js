@@ -5,22 +5,10 @@ import { Label } from '../../constants/globalstyle';
 import BottomSheet from '../ui/BottomSheet';
 import SelectableIcon from '../ui/SelectableIcon';
 import { useAccounts } from '../../database/hooks/useAccounts';
-
-const TYPE_ICON = {
-  wallet: { iconName: 'wallet', iconBg: '#E6FBF4', iconColor: '#10B981' },
-  bank: { iconName: 'bank', iconBg: '#EFF6FF', iconColor: '#3B82F6' },
-  digitalWallet: {
-    iconName: 'digital',
-    iconBg: '#F5F3FF',
-    iconColor: '#8B5CF6',
-  },
-};
-
-const TYPE_LABEL = {
-  wallet: 'WALLET',
-  bank: 'BANK ACCOUNTS',
-  digitalWallet: 'DIGITAL WALLETS',
-};
+import {
+  getAccountTypeMeta,
+  ACCOUNT_TYPE_META,
+} from '../../constants/theme/accountMeta';
 
 const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
   const { accounts } = useAccounts();
@@ -30,10 +18,10 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
     onClose();
   };
 
-  // Group by type, preserve insertion order: wallet → bank → digitalWallet
   const groups = ['wallet', 'bank', 'digitalWallet']
     .map(type => ({
       type,
+      label: ACCOUNT_TYPE_META[type].label.toUpperCase() + 'S',
       items: accounts.filter(a => a.type === type),
     }))
     .filter(g => g.items.length > 0);
@@ -48,18 +36,18 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
             color="textMuted"
             style={styles.sectionLabel}
           >
-            {TYPE_LABEL[group.type]}
+            {group.label}
           </Label>
 
           <View style={styles.sourcesRow}>
             {group.items.map(account => {
-              const icon = TYPE_ICON[account.type];
+              const meta = getAccountTypeMeta(account.type);
               return (
                 <SelectableIcon
                   key={account.id}
-                  iconName={icon.iconName}
-                  iconBg={icon.iconBg}
-                  iconColor={icon.iconColor}
+                  iconName={meta.iconName}
+                  iconBg={meta.iconBg}
+                  iconColor={meta.iconColor}
                   label={account.label}
                   active={activeId === account.id}
                   onPress={() => handleSelect(account.id)}

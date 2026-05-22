@@ -35,7 +35,6 @@ const RootStackNavigator = () => {
     };
   }, []);
 
-  // still loading
   if (session === undefined || showSplash) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -44,7 +43,6 @@ const RootStackNavigator = () => {
     );
   }
 
-  // no session → auth flow
   if (!session) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -53,7 +51,6 @@ const RootStackNavigator = () => {
     );
   }
 
-  // has session, no onboarding
   if (!hasCompletedOnboarding) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -62,7 +59,6 @@ const RootStackNavigator = () => {
     );
   }
 
-  // fully authenticated + onboarded
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="TabNavigator" component={TabNavigator} />

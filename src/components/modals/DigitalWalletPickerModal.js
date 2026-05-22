@@ -4,17 +4,7 @@ import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import FloatingModal from '../ui/FloatingModal';
-
-export const DIGITAL_WALLETS = [
-  { id: 'easypaisa', label: 'Easypaisa', initials: 'EP', color: '#00A651' },
-  { id: 'jazzcash', label: 'JazzCash', initials: 'JC', color: '#C8202F' },
-  { id: 'nayapay', label: 'NayaPay', initials: 'NP', color: '#6C3CE1' },
-  { id: 'sadapay', label: 'SadaPay', initials: 'SP', color: '#1A1A1A' },
-  { id: 'upaisa', label: 'Upaisa', initials: 'UP', color: '#F7941D' },
-  { id: 'raast', label: 'Raast', initials: 'RA', color: '#00558B' },
-  { id: 'oraan', label: 'Oraan', initials: 'OR', color: '#9B2335' },
-  { id: 'other', label: 'Other', initials: '+ ', color: colors.textMuted },
-];
+import { DIGITAL_WALLETS } from '../../constants/theme/accountMeta';
 
 const WalletTile = ({ item, active, disabled, onPress }) => (
   <TouchableOpacity
@@ -47,10 +37,6 @@ const WalletTile = ({ item, active, disabled, onPress }) => (
   </TouchableOpacity>
 );
 
-/**
- * DigitalWalletPickerModal
- * @param {string[]} usedIds — app IDs already added; rendered greyed-out
- */
 const DigitalWalletPickerModal = ({
   visible,
   activeId,
@@ -99,19 +85,9 @@ const DigitalWalletPickerModal = ({
 };
 
 const styles = StyleSheet.create({
-  hint: {
-    paddingHorizontal: wp(5),
-    marginBottom: hp(1.5),
-    lineHeight: 17,
-  },
-  grid: {
-    paddingHorizontal: wp(3),
-    paddingBottom: hp(1),
-    gap: hp(0.5),
-  },
-  row: {
-    justifyContent: 'space-between',
-  },
+  hint: { paddingHorizontal: wp(5), marginBottom: hp(1.5), lineHeight: 17 },
+  grid: { paddingHorizontal: wp(3), paddingBottom: hp(1), gap: hp(0.5) },
+  row: { justifyContent: 'space-between' },
   tile: {
     width: (wp(100) - wp(10) - wp(9)) / 4,
     alignItems: 'center',
@@ -125,9 +101,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     backgroundColor: colors.surfaceContainerLow,
   },
-  tileDisabled: {
-    opacity: 0.4,
-  },
+  tileDisabled: { opacity: 0.4 },
   avatar: {
     width: wp(11),
     height: wp(11),
@@ -135,10 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tileLabel: {
-    textAlign: 'center',
-    lineHeight: 14,
-  },
+  tileLabel: { textAlign: 'center', lineHeight: 14 },
 });
 
 export default DigitalWalletPickerModal;
