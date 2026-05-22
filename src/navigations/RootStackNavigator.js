@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { supabase } from '../services/supabase';
-import useAppStore from '../store/useAppStore';
+import useAppStore, { selectIsOnboarded } from '../store/useAppStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
@@ -14,7 +14,11 @@ const Stack = createNativeStackNavigator();
 const RootStackNavigator = () => {
   const [session, setSession] = useState(undefined);
   const [showSplash, setShowSplash] = useState(true);
-  const hasCompletedOnboarding = useAppStore(s => s.hasCompletedOnboarding);
+
+  const userId = session?.user?.id ?? null;
+
+  // Reads from the per-user map — new user always gets false
+  const hasCompletedOnboarding = useAppStore(selectIsOnboarded(userId));
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -23,9 +27,9 @@ const RootStackNavigator = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    } = supabase.auth.onAuthStateChange((_event, session) =>
+      setSession(session),
+    );
 
     const splashTimer = setTimeout(() => setShowSplash(false), 1500);
 

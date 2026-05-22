@@ -3,7 +3,7 @@ import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import RecentActivityItem from './RecentActivityItem';
-import TransactionDetailModal from '../modals/TransactionDetailModal';
+import TransactionDetailModal from '../modals/transaction/TransactionDetailModal';
 
 const RecentActivitySection = ({
   label = 'Recent Activity',

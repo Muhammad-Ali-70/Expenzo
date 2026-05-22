@@ -3,9 +3,14 @@ import { View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import SelectableIcon from '../ui/SelectableIcon';
-import { CATEGORIES } from '../../constants/dummy/data';
+import { CATEGORIES } from '../../constants/theme/accountMeta';
 
-const CategoryPicker = ({ activeId, onSelect, onSeeAll }) => (
+const CategoryPicker = ({
+  activeId,
+  onSelect,
+  onSeeAll,
+  categories = CATEGORIES,
+}) => (
   <View style={styles.section}>
     <View style={styles.header}>
       <Label type="bodyMedium" weight="semiBold" color="textMain">
@@ -23,7 +28,7 @@ const CategoryPicker = ({ activeId, onSelect, onSeeAll }) => (
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.list}
     >
-      {CATEGORIES.map(cat => (
+      {categories.map(cat => (
         <SelectableIcon
           key={cat.id}
           iconName={cat.iconName}
@@ -40,19 +45,13 @@ const CategoryPicker = ({ activeId, onSelect, onSeeAll }) => (
 );
 
 const styles = StyleSheet.create({
-  section: {
-    marginHorizontal: wp(5),
-    gap: hp(1.2),
-  },
+  section: { marginHorizontal: wp(5), gap: hp(1.2) },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  list: {
-    gap: wp(1),
-    paddingRight: wp(2),
-  },
+  list: { gap: wp(1), paddingRight: wp(2) },
 });
 
 export default CategoryPicker;

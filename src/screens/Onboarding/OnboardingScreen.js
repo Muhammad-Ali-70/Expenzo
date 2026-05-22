@@ -16,6 +16,7 @@ import PrimaryButton from '../../components/ui/PrimaryButton';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import AccountRepository from '../../database/repositories/AccountRepository';
 import useAppStore from '../../store/useAppStore';
+import { supabase } from '../../services/supabase';
 
 const OnboardingScreen = ({ navigation }) => {
   const setOnboardingComplete = useAppStore(s => s.setOnboardingComplete);
@@ -25,11 +26,17 @@ const OnboardingScreen = ({ navigation }) => {
   const [digitalWallets, setDigitalWallets] = useState([]);
   const [saving, setSaving] = useState(false);
 
+  // Shared helper — gets user ID once and marks onboarding done
+  const completeOnboarding = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    setOnboardingComplete(user.id);
+  }, [setOnboardingComplete]);
+
   const handleGetStarted = useCallback(async () => {
     if (!walletBalance) return;
-
     setSaving(true);
-
     try {
       const records = [
         {
@@ -62,24 +69,24 @@ const OnboardingScreen = ({ navigation }) => {
       ];
 
       await AccountRepository.seedFromOnboarding(records);
-      setOnboardingComplete();
+      await completeOnboarding();
     } catch (e) {
       console.error('Onboarding save failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [walletBalance, bankAccounts, digitalWallets, setOnboardingComplete]);
+  }, [walletBalance, bankAccounts, digitalWallets, completeOnboarding]);
 
   const handleSkip = useCallback(async () => {
     setSaving(true);
     try {
-      setOnboardingComplete();
+      await completeOnboarding();
     } catch (e) {
       console.error('Skip failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [setOnboardingComplete]);
+  }, [completeOnboarding]);
 
   return (
     <View style={styles.safe}>

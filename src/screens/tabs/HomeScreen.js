@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { Plus } from 'lucide-react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
-import { borderRadius } from '../../constants/globalstyle';
 
 import HomeHeader from '../../components/home/HomeHeader';
 import BalanceSummaryCard from '../../components/home/BalanceSummaryCard';
@@ -12,72 +10,55 @@ import MonthlySpendingCard from '../../components/home/MonthlySpendingCard';
 import SmartInsightCard from '../../components/home/SmartInsightCard';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
 
-const TRANSACTIONS = [
-  {
-    id: '1',
-    iconName: 'food',
-    iconBg: '#FFF3E6',
-    iconColor: '#F97316',
-    title: 'The Green Bistro',
-    subtitle: 'Today, 12:45 PM',
-    amount: -42,
-  },
-  {
-    id: '2',
-    iconName: 'shopping',
-    iconBg: '#EFF6FF',
-    iconColor: colors.bankAccount,
-    title: 'Whole Foods',
-    subtitle: 'Yesterday, 06:20 PM',
-    amount: -128.5,
-  },
-  {
-    id: '3',
-    iconName: 'work',
-    iconBg: '#E6FBF4',
-    iconColor: colors.walletCash,
-    title: 'Salary Deposit',
-    subtitle: 'Jun 15, 09:00 AM',
-    amount: 4200,
-  },
-];
+import { useAccounts } from '../../database/hooks/useAccounts';
+import { useTransactions } from '../../database/hooks/useTransactions';
 
-const HomeScreen = ({ navigation }) => (
-  <View style={styles.safe}>
-    <ScrollView
-      style={styles.flex}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <HomeHeader onBellPress={() => {}} />
+const HomeScreen = ({ navigation }) => {
+  const { accounts, totalBalance } = useAccounts();
 
-      <BalanceSummaryCard totalBalance={12450} monthlyChange="+2.4%" />
+  const now = new Date();
+  const { totalExpenses, getGrouped } = useTransactions({
+    month: now.getMonth(),
+    year: now.getFullYear(),
+  });
 
-      <AccountBreakdownRow
-        walletBalance={1200}
-        bankBalance={8450}
-        savingsBalance={2800}
-      />
+  // Recent activity: latest 5 transactions across all groups, flattened
+  const recentTransactions = getGrouped()
+    .flatMap(g => g.transactions)
+    .slice(0, 5);
 
-      <MonthlySpendingCard
-        spendingAmount={3240.5}
-        budgetPercent={72}
-        remainingLabel="You have Rs 850 left for June."
-      />
+  return (
+    <View style={styles.safe}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <HomeHeader onBellPress={() => {}} />
 
-      <SmartInsightCard message="Your dining expenses are 15% higher than last week. Consider home cooking to save Rs 40 this weekend." />
+        <BalanceSummaryCard
+          totalBalance={totalBalance}
+          monthlyChange={`-PKR ${totalExpenses.toLocaleString()}`}
+        />
 
-      <RecentActivitySection
-        transactions={TRANSACTIONS}
-        onSeeAll={() => navigation?.navigate('History')}
-      />
-    </ScrollView>
+        <AccountBreakdownRow accounts={accounts} />
 
-    <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
-      <Plus size={wp(6)} color={colors.onPrimary} strokeWidth={2.5} />
-    </TouchableOpacity>
-  </View>
-);
+        <MonthlySpendingCard
+          spendingAmount={totalExpenses}
+          budgetPercent={72}
+          remainingLabel="Track your spending this month."
+        />
+
+        <SmartInsightCard message="Tap any account card to see its breakdown." />
+
+        <RecentActivitySection
+          transactions={recentTransactions}
+          onSeeAll={() => navigation?.navigate('History')}
+        />
+      </ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   safe: {
@@ -89,22 +70,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: hp(12),
-  },
-  fab: {
-    position: 'absolute',
-    bottom: hp(3),
-    right: wp(5),
-    width: wp(14),
-    height: wp(14),
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 6,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
   },
 });
 

@@ -9,24 +9,21 @@ import {
 } from 'react-native';
 import {
   X,
-  Tag,
-  Wallet,
   Calendar,
   FileText,
-  Hash,
   ArrowDownLeft,
   ArrowUpRight,
 } from 'lucide-react-native';
-import { wp, hp } from '../../constants/responsive';
-import colors from '../../constants/colors';
-import { Label, borderRadius } from '../../constants/globalstyle';
-import CurrencyView from '../common/CurrencyView';
-import PaymentIcon from '../common/Paymenticon';
+import { wp, hp } from '../../../constants/responsive';
+import colors from '../../../constants/colors';
+import { Label, borderRadius } from '../../../constants/globalstyle';
+import CurrencyView from '../../common/CurrencyView';
+import PaymentIcon from '../../common/Paymenticon';
 import {
   getCategoryMeta,
   ACCOUNT_TYPE_META,
-} from '../../constants/theme/accountMeta';
-import { formatDateTime } from '../../utils/transactionUtils';
+} from '../../../constants/theme/accountMeta';
+import { formatDateTime } from '../../../utils/transactionUtils';
 
 const ACCOUNT_TYPE_LABEL = {
   wallet: 'Wallet',

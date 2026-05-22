@@ -1,13 +1,19 @@
 import React from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { wp, hp } from '../../constants/responsive';
 import SelectableIcon from '../ui/SelectableIcon';
-import { CATEGORIES } from '../../constants/dummy/data';
+import { CATEGORIES } from '../../constants/theme/accountMeta';
 import BottomSheet from '../ui/BottomSheet';
 
 const NUM_COLUMNS = 4;
 
-const CategoryModal = ({ visible, activeId, onSelect, onClose }) => {
+const CategoryModal = ({
+  visible,
+  activeId,
+  onSelect,
+  onClose,
+  categories = CATEGORIES,
+}) => {
   const handleSelect = id => {
     onSelect(id);
     onClose();
@@ -16,7 +22,7 @@ const CategoryModal = ({ visible, activeId, onSelect, onClose }) => {
   return (
     <BottomSheet visible={visible} onClose={onClose} title="All Categories">
       <FlatList
-        data={CATEGORIES}
+        data={categories}
         keyExtractor={item => item.id}
         numColumns={NUM_COLUMNS}
         scrollEnabled={false}
@@ -39,14 +45,8 @@ const CategoryModal = ({ visible, activeId, onSelect, onClose }) => {
 };
 
 const styles = StyleSheet.create({
-  grid: {
-    paddingHorizontal: wp(3),
-    paddingBottom: hp(1),
-    gap: hp(0.5),
-  },
-  row: {
-    justifyContent: 'space-between',
-  },
+  grid: { paddingHorizontal: wp(3), paddingBottom: hp(1), gap: hp(0.5) },
+  row: { justifyContent: 'space-between' },
 });
 
 export default CategoryModal;

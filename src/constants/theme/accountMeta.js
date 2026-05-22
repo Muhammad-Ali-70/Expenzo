@@ -101,6 +101,86 @@ export const CATEGORIES = [
   },
 ];
 
+export const INCOME_CATEGORIES = [
+  {
+    id: 'salary',
+    label: 'Salary',
+    iconName: 'work',
+    iconBg: '#F0F9FF',
+    iconColor: '#0284C7',
+  },
+  {
+    id: 'freelance',
+    label: 'Freelance',
+    iconName: 'briefcase',
+    iconBg: '#ECFDF5',
+    iconColor: '#059669',
+  },
+  {
+    id: 'gift',
+    label: 'Gift',
+    iconName: 'gift',
+    iconBg: '#FDF2F8',
+    iconColor: '#9D174D',
+  },
+  {
+    id: 'family',
+    label: 'Family',
+    iconName: 'home',
+    iconBg: '#F5F3FF',
+    iconColor: '#8B5CF6',
+  },
+  {
+    id: 'friend',
+    label: 'Friend',
+    iconName: 'dollar',
+    iconBg: '#ECFDF5',
+    iconColor: '#10B981',
+  },
+  {
+    id: 'investment',
+    label: 'Investment',
+    iconName: 'investment',
+    iconBg: '#ECFDF5',
+    iconColor: '#059669',
+  },
+  {
+    id: 'refund',
+    label: 'Refund',
+    iconName: 'card',
+    iconBg: '#EFF6FF',
+    iconColor: '#3B82F6',
+  },
+  {
+    id: 'rental',
+    label: 'Rental',
+    iconName: 'home',
+    iconBg: '#FFF3E6',
+    iconColor: '#F97316',
+  },
+  {
+    id: 'other',
+    label: 'Other',
+    iconName: 'wallet',
+    iconBg: '#F1F5F9',
+    iconColor: '#94A3B8',
+  },
+];
+
+export const INCOME_CATEGORY_META = Object.fromEntries(
+  INCOME_CATEGORIES.map(c => [
+    c.id,
+    { iconName: c.iconName, iconBg: c.iconBg, iconColor: c.iconColor },
+  ]),
+);
+
+export const getIncomeCategoryMeta = id =>
+  INCOME_CATEGORY_META[id] ?? {
+    iconName: 'dollar',
+    iconBg: '#ECFDF5',
+    iconColor: '#10B981',
+  };
+
 // Quick lookup: category id → { iconName, iconBg, iconColor }
 export const CATEGORY_META = Object.fromEntries(
   CATEGORIES.map(c => [

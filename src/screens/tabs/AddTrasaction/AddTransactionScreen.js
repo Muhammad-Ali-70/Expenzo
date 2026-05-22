@@ -25,12 +25,17 @@ import { Label } from '../../../constants/globalstyle';
 import { useAccounts } from '../../../database/hooks/useAccounts';
 import TransactionRepository from '../../../database/repositories/TransactionRepository';
 import AccountRepository from '../../../database/repositories/AccountRepository';
+import { INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
 
 const TYPES = ['expense', 'income'];
 
 const AddTransactionScreen = ({ navigation, route }) => {
   const initialType = route?.params?.type ?? 'expense';
   const { primaryAccount } = useAccounts();
+
+  const [incomeCategory, setIncomeCategory] = useState('salary');
+  const [incomeCategoryModalVisible, setIncomeCategoryModalVisible] =
+    useState(false);
 
   const [type, setType] = useState(initialType);
   const [amount, setAmount] = useState('');
@@ -70,7 +75,7 @@ const AddTransactionScreen = ({ navigation, route }) => {
         accountId: sourceId,
         type,
         amount: parsedAmount,
-        category: isExpense ? category : 'income',
+        category: isExpense ? category : incomeCategory,
         description: description.trim(),
         note: notes.trim(),
         date: date.getTime(),
@@ -135,11 +140,18 @@ const AddTransactionScreen = ({ navigation, route }) => {
         <View style={styles.form}>
           <DescriptionInput value={description} onChangeText={setDescription} />
 
-          {isExpense && (
+          {isExpense ? (
             <CategoryPicker
               activeId={category}
               onSelect={setCategory}
               onSeeAll={() => setCategoryModalVisible(true)}
+            />
+          ) : (
+            <CategoryPicker
+              activeId={incomeCategory}
+              onSelect={setIncomeCategory}
+              onSeeAll={() => setIncomeCategoryModalVisible(true)}
+              categories={INCOME_CATEGORIES}
             />
           )}
 
@@ -173,6 +185,14 @@ const AddTransactionScreen = ({ navigation, route }) => {
         activeId={category}
         onSelect={setCategory}
         onClose={() => setCategoryModalVisible(false)}
+      />
+
+      <CategoryModal
+        visible={incomeCategoryModalVisible}
+        activeId={incomeCategory}
+        onSelect={setIncomeCategory}
+        onClose={() => setIncomeCategoryModalVisible(false)}
+        categories={INCOME_CATEGORIES}
       />
 
       <PaymentSourceModal

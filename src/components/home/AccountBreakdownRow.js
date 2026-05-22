@@ -1,78 +1,84 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import PaymentIcon from '../common/Paymenticon';
+import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
+import AccountGroupModal from '../modals/home/AccountGroupModal';
 
-const AccountCard = ({ iconName, iconColor, iconBg, label, amount }) => (
-  <View style={styles.card}>
-    <PaymentIcon
-      name={iconName}
-      backgroundColor={iconBg}
-      color={iconColor}
-      containerSize={wp(10)}
-      size={wp(5)}
-    />
-    <Label
-      type="bodyXs"
-      weight="regular"
-      color="textMuted"
-      style={styles.label}
-    >
-      {label}
-    </Label>
-    <CurrencyView
-      amount={amount}
-      type="bodySmall"
-      weight="bold"
-      color="textMain"
-    />
-  </View>
-);
-
-const ACCOUNTS = [
-  {
-    id: 'wallet',
-    iconName: 'wallet',
-    iconBg: '#E6FBF4',
-    iconColor: colors.walletCash,
-    label: 'Wallet',
-  },
-  {
-    id: 'bank',
-    iconName: 'bank',
-    iconBg: '#EFF6FF',
-    iconColor: colors.bankAccount,
-    label: 'Bank',
-  },
-  {
-    id: 'savings',
-    iconName: 'savings',
-    iconBg: '#F5F3FF',
-    iconColor: colors.savings,
-    label: 'Savings',
-  },
+// The three buckets we always show, in order
+const BUCKETS = [
+  { type: 'wallet', label: 'Wallet' },
+  { type: 'bank', label: 'Bank' },
+  { type: 'digitalWallet', label: 'Digital' },
 ];
 
-const AccountBreakdownRow = ({
-  walletBalance = 0,
-  bankBalance = 0,
-  savingsBalance = 0,
-}) => {
-  const amounts = {
-    wallet: walletBalance,
-    bank: bankBalance,
-    savings: savingsBalance,
-  };
+const AccountCard = ({ type, label, total, onPress }) => {
+  const meta = getAccountTypeMeta(type);
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.75}
+      style={styles.card}
+    >
+      <PaymentIcon
+        name={meta.iconName}
+        backgroundColor={meta.iconBg}
+        color={meta.iconColor}
+        containerSize={wp(10)}
+        size={wp(5)}
+      />
+      <Label
+        type="bodyXs"
+        weight="regular"
+        color="textMuted"
+        style={styles.label}
+      >
+        {label}
+      </Label>
+      <CurrencyView
+        amount={total}
+        type="bodySmall"
+        weight="bold"
+        color="textMain"
+      />
+    </TouchableOpacity>
+  );
+};
+
+const AccountBreakdownRow = ({ accounts = [] }) => {
+  const [activeType, setActiveType] = useState(null);
+
+  // Group accounts by type, compute total per bucket
+  const byType = type => accounts.filter(a => a.type === type);
+  const totalFor = type =>
+    byType(type).reduce((sum, a) => sum + (a.balance ?? 0), 0);
+
+  const modalAccounts = activeType ? byType(activeType) : [];
 
   return (
-    <View style={styles.row}>
-      {ACCOUNTS.map(acc => (
-        <AccountCard key={acc.id} {...acc} amount={amounts[acc.id]} />
-      ))}
-    </View>
+    <>
+      <View style={styles.row}>
+        {BUCKETS.map(bucket => (
+          <AccountCard
+            key={bucket.type}
+            type={bucket.type}
+            label={bucket.label}
+            total={totalFor(bucket.type)}
+            onPress={() => setActiveType(bucket.type)}
+          />
+        ))}
+      </View>
+
+      <AccountGroupModal
+        visible={!!activeType}
+        type={activeType}
+        accounts={modalAccounts}
+        onClose={() => setActiveType(null)}
+      />
+    </>
   );
 };
 
