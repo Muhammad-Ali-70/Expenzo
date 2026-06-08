@@ -1,12 +1,6 @@
 import { useCallback } from 'react';
 import AccountRepository from '../../database/repositories/AccountRepository';
 
-/**
- * Collects account data from onboarding cards and persists to WatermelonDB.
- *
- * Usage in OnboardingScreen:
- *   const { saveAndContinue } = useOnboardingSave({ walletBalance, bankAccounts, walletAccounts });
- */
 const useOnboardingSave = ({ walletBalance, bankAccounts, walletAccounts }) => {
   const saveAndContinue = useCallback(async () => {
     const records = [];

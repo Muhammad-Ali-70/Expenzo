@@ -16,11 +16,11 @@ import { Label, borderRadius } from '../../../constants/globalstyle';
 import colors from '../../../constants/colors';
 import { hp, wp } from '../../../constants/responsive';
 import SignOutButton from '../../../components/settings/SignOutButton';
-import { supabase } from '../../../services/supabase';
 import { useToastService } from '../../../utils/ToastService';
 import { useAccounts } from '../../../database/hooks/useAccounts';
 import { useDatabase } from '@nozbe/watermelondb/hooks';
 import useAppStore from '../../../store/useAppStore';
+import useAuthStore from '../../../store/useAuthStore';
 
 const TYPE_LABEL = {
   wallet: 'Wallet',
@@ -50,22 +50,25 @@ const AccountRow = ({ account, isLast }) => (
 const SettingsScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const toast = useToastService();
 
   const { accounts, loading, totalBalance } = useAccounts();
   const database = useDatabase();
   const resetOnboarding = useAppStore(s => s.resetOnboarding);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-  }, []);
+  const logout = useAuthStore(s => s.logout);
 
   const displayName =
     user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
   const email = user?.email ?? '';
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: () => logout(),
+      },
+    ]);
   };
 
   const handleClearData = () => {

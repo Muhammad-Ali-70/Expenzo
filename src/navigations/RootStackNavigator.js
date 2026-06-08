@@ -1,45 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { supabase } from '../services/supabase';
-import useAppStore, { selectIsOnboarded } from '../store/useAppStore';
+import useAuthStore, {
+  selectToken,
+  selectIsOnboarded,
+} from '../store/useAuthStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
-import DatabaseTestScreen from '../screens/onboarding/DatabaseTestScreen';
 import AuthStack from './AuthStack';
 import AddTransactionScreen from '../screens/tabs/AddTrasaction/AddTransactionScreen';
 
 const Stack = createNativeStackNavigator();
 
 const RootStackNavigator = () => {
-  const [session, setSession] = useState(undefined);
   const [showSplash, setShowSplash] = useState(true);
 
-  const userId = session?.user?.id ?? null;
-
-  // Reads from the per-user map — new user always gets false
-  const hasCompletedOnboarding = useAppStore(selectIsOnboarded(userId));
+  const token = useAuthStore(selectToken);
+  const isOnboarded = useAuthStore(selectIsOnboarded);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) =>
-      setSession(session),
-    );
-
     const splashTimer = setTimeout(() => setShowSplash(false), 1500);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(splashTimer);
-    };
+    return () => clearTimeout(splashTimer);
   }, []);
 
-  if (session === undefined || showSplash) {
+  if (showSplash) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
@@ -47,7 +31,7 @@ const RootStackNavigator = () => {
     );
   }
 
-  if (!session) {
+  if (!token) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="AuthStack" component={AuthStack} />
@@ -55,7 +39,7 @@ const RootStackNavigator = () => {
     );
   }
 
-  if (!hasCompletedOnboarding) {
+  if (!isOnboarded) {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
@@ -67,7 +51,6 @@ const RootStackNavigator = () => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="TabNavigator" component={TabNavigator} />
       <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
-      <Stack.Screen name="DatabaseTest" component={DatabaseTestScreen} />
     </Stack.Navigator>
   );
 };

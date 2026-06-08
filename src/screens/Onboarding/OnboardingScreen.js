@@ -14,31 +14,22 @@ import SectionDivider from '../../components/onboarding/Sectiondivider';
 import AccountSetupCard from '../../components/onboarding/AccountSetupCard';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
-import AccountRepository from '../../database/repositories/AccountRepository';
-import useAppStore from '../../store/useAppStore';
-import { supabase } from '../../services/supabase';
+import useAuthStore from '../../store/useAuthStore';
+import { seedAccountsApi } from '../../services/accountService';
 
-const OnboardingScreen = ({ navigation }) => {
-  const setOnboardingComplete = useAppStore(s => s.setOnboardingComplete);
+const OnboardingScreen = () => {
+  const setOnboarded = useAuthStore(s => s.setOnboarded);
 
   const [walletBalance, setWalletBalance] = useState('');
   const [bankAccounts, setBankAccounts] = useState([]);
   const [digitalWallets, setDigitalWallets] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // Shared helper — gets user ID once and marks onboarding done
-  const completeOnboarding = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    setOnboardingComplete(user.id);
-  }, [setOnboardingComplete]);
-
   const handleGetStarted = useCallback(async () => {
     if (!walletBalance) return;
     setSaving(true);
     try {
-      const records = [
+      const accounts = [
         {
           type: 'wallet',
           label: 'Wallet Cash',
@@ -50,6 +41,7 @@ const OnboardingScreen = ({ navigation }) => {
         },
         ...bankAccounts.map((acct, idx) => ({
           type: 'bank',
+          sourceId: acct.id === 'other' ? null : acct.id,
           label: acct.label,
           color: acct.color,
           initials: acct.initials,
@@ -59,6 +51,7 @@ const OnboardingScreen = ({ navigation }) => {
         })),
         ...digitalWallets.map((acct, idx) => ({
           type: 'digitalWallet',
+          sourceId: acct.id === 'other' ? null : acct.id,
           label: acct.label,
           color: acct.color,
           initials: acct.initials,
@@ -68,25 +61,29 @@ const OnboardingScreen = ({ navigation }) => {
         })),
       ];
 
-      await AccountRepository.seedFromOnboarding(records);
-      await completeOnboarding();
+      await seedAccountsApi({ accounts });
+
+      // Flip isOnboarded locally — navigator re-renders automatically
+      setOnboarded();
     } catch (e) {
       console.error('Onboarding save failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [walletBalance, bankAccounts, digitalWallets, completeOnboarding]);
+  }, [walletBalance, bankAccounts, digitalWallets, setOnboarded]);
 
   const handleSkip = useCallback(async () => {
     setSaving(true);
     try {
-      await completeOnboarding();
+      // No accounts to seed — just flip locally
+      // Backend will mark isOnboarded true on first account creation later
+      setOnboarded();
     } catch (e) {
       console.error('Skip failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [completeOnboarding]);
+  }, [setOnboarded]);
 
   return (
     <View style={styles.safe}>
@@ -119,10 +116,8 @@ const OnboardingScreen = ({ navigation }) => {
               name={account.name}
               description={account.description}
               accountType={account.accountType}
-              // WalletCard props
               value={walletBalance}
               onChangeText={setWalletBalance}
-              // BankCard / DailyPayCard lift state up via these callbacks
               onAccountsChange={
                 account.accountType === 'bank'
                   ? setBankAccounts

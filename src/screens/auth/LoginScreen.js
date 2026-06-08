@@ -12,64 +12,41 @@ import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import AppTextInput from '../../components/ui/AppTextInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
-import AuthHeader from '../../components/auth/AuthHeader';
 import AuthTagline from '../../components/auth/AuthTagline';
 import AuthFooter from '../../components/auth/AuthFooter';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
 import { Label } from '../../constants/globalstyle';
-import { isValidEmail, isStrongPassword } from '../../utils/validation';
 import { useToastService } from '../../utils/ToastService';
 import GoogleImage from '../../assets/images/static/logos/google.png';
-import { supabase } from '../../services/supabase';
-import LoginImage from '../../assets/images/auth/login.png';
+import useAuthStore from '../../store/useAuthStore';
 
 const LoginScreen = ({ navigation }) => {
   const toast = useToastService();
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
-  const [email, setEmail] = useState('testEmail@gmail.com');
+  const { login, isLoading } = useAuthStore();
+
+  const [email, setEmail] = useState('yoiwuwaucoiffoi-8995@yopmail.com');
   const [password, setPassword] = useState('admin@123');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
 
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
 
   const handleLogin = useCallback(async () => {
-    // const newErrors = {};
-
-    // if (!isValidEmail(email)) {
-    //   newErrors.email = 'Please enter a valid email address.';
-    // }
-    // if (!isStrongPassword(password)) {
-    //   newErrors.password = 'Password must be at least 8 characters.';
-    // }
-
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors(newErrors);
-    //   return;
-    // }
-
     setErrors({});
-    setLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
+    const result = await login({ email: email.trim(), password });
 
+    if (result.success) {
       toastRef.current.success('Welcome back!');
-    } catch (e) {
+    } else {
       toastRef.current.error(
-        e.message ?? 'Login failed. Please check your credentials.',
+        result.message || 'Login failed. Please check your credentials.',
       );
-    } finally {
-      setLoading(false);
     }
-  }, [email, password]);
+  }, [email, password, login]);
 
   return (
     <KeyboardAvoidingView
@@ -78,8 +55,6 @@ const LoginScreen = ({ navigation }) => {
       keyboardVerticalOffset={hp(1)}
     >
       <View style={styles.safe}>
-        {/* <AuthHeader showBack={false} /> */}
-
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
@@ -133,10 +108,10 @@ const LoginScreen = ({ navigation }) => {
             <PrimaryButton
               variant="primary"
               size="lg"
-              label={loading ? 'Signing in…' : 'Log In'}
+              label={isLoading ? 'Signing in…' : 'Log In'}
               onPress={handleLogin}
-              loading={loading}
-              disabled={loading}
+              loading={isLoading}
+              disabled={isLoading}
             />
           </View>
 
@@ -162,12 +137,6 @@ const LoginScreen = ({ navigation }) => {
             onActionPress={() => navigation.navigate('SignUpScreen')}
           />
         </ScrollView>
-
-        {/* <Image
-          source={LoginImage}
-          style={styles.illustration}
-          resizeMode="contain"
-        /> */}
       </View>
     </KeyboardAvoidingView>
   );
@@ -188,18 +157,9 @@ const styles = StyleSheet.create({
   },
   ctaWrapper: { marginTop: hp(1.5) },
   divider: { paddingHorizontal: 0 },
-
   googleLogo: {
     width: 25,
     height: 25,
-  },
-  illustration: {
-    position: 'absolute',
-    bottom: hp(0),
-    right: wp(-5),
-    width: wp(65),
-    height: wp(65),
-    opacity: 0.92,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   ScrollView,
@@ -11,7 +11,6 @@ import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import AppTextInput from '../../components/ui/AppTextInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
-import AuthHeader from '../../components/auth/AuthHeader';
 import AuthTagline from '../../components/auth/AuthTagline';
 import AuthFooter from '../../components/auth/AuthFooter';
 import TermsAgreementRow from '../../components/auth/TermsAgreementRow';
@@ -19,64 +18,56 @@ import SectionDivider from '../../components/onboarding/Sectiondivider';
 import { validateSignUp } from '../../utils/validation';
 import { useToastService } from '../../utils/ToastService';
 import GoogleImage from '../../assets/images/static/logos/google.png';
-import { supabase } from '../../services/supabase';
+import useAuthStore from '../../store/useAuthStore';
 
 const SignUpScreen = ({ navigation }) => {
   const toast = useToastService();
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
-  const [fullName, setFullName] = useState('Test User');
-  const [email, setEmail] = useState('testEmail@gmail.com');
+  const { signup, isLoading } = useAuthStore();
+
+  const [fullName, setFullName] = useState('Argon James');
+  const [email, setEmail] = useState('tridduxasifeu-6204@yopmail.com');
   const [password, setPassword] = useState('admin@123');
   const [confirmPassword, setConfirmPassword] = useState('admin@123');
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
 
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
 
   const handleSignUp = async () => {
-    // const validationErrors = validateSignUp({
-    //   fullName,
-    //   email,
-    //   password,
-    //   confirmPassword,
-    //   agreedToTerms,
-    // });
+    const validationErrors = validateSignUp({
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      agreedToTerms,
+    });
 
-    // if (Object.keys(validationErrors).length > 0) {
-    //   setErrors(validationErrors);
-    //   return;
-    // }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     setErrors({});
-    setLoading(true);
 
-    try {
-      console.log('email:', email, 'password:', password);
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: { full_name: fullName.trim() },
-        },
-      });
+    const result = await signup({
+      name: fullName.trim(),
+      email: email.trim(),
+      password,
+    });
 
-      console.log(data);
-      console.log(error);
-
-      if (error) throw error;
-
+    if (result.success) {
       toastRef.current.success(
         `Welcome to Expenzo, ${fullName.split(' ')[0]}!`,
       );
-    } catch (e) {
-      toastRef.current.error('Sign up failed. Please try again.');
-    } finally {
-      setLoading(false);
+    } else {
+      toastRef.current.error(
+        result.message || 'Sign up failed. Please try again.',
+      );
     }
   };
 
@@ -87,8 +78,6 @@ const SignUpScreen = ({ navigation }) => {
       keyboardVerticalOffset={hp(1)}
     >
       <View style={styles.safe}>
-        {/* <AuthHeader showBack onBack={() => navigation.goBack()} /> */}
-
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
@@ -171,10 +160,10 @@ const SignUpScreen = ({ navigation }) => {
             <PrimaryButton
               variant="primary"
               size="lg"
-              label={loading ? 'Creating account…' : 'Sign Up'}
+              label={isLoading ? 'Creating account…' : 'Sign Up'}
               onPress={handleSignUp}
-              loading={loading}
-              disabled={loading}
+              loading={isLoading}
+              disabled={isLoading}
             />
           </View>
 
@@ -215,12 +204,6 @@ const styles = StyleSheet.create({
   },
   ctaWrapper: { marginTop: hp(2.5) },
   divider: { paddingHorizontal: 0 },
-  googleLogoPlaceholder: {
-    width: wp(5),
-    height: wp(5),
-    borderRadius: 2,
-    backgroundColor: colors.outlineVariant,
-  },
   googleLogo: {
     width: 25,
     height: 25,

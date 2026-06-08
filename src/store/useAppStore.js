@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storage } from '../services/storage';
+
+const mmkvStorage = {
+  getItem: key => storage.getString(key) ?? null,
+  setItem: (key, value) => storage.set(key, value),
+  removeItem: key => storage.delete(key),
+};
 
 const useAppStore = create(
   persist(
@@ -55,7 +61,7 @@ const useAppStore = create(
 
     {
       name: 'expenzo-app-store',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
       partialize: state => ({
         onboardingByUser: state.onboardingByUser,
         currency: state.currency,
