@@ -22,16 +22,29 @@ import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
 import colors from '../../../constants/colors';
 import { hp, wp } from '../../../constants/responsive';
 import { Label } from '../../../constants/globalstyle';
-import { useAccounts } from '../../../database/hooks/useAccounts';
-import TransactionRepository from '../../../database/repositories/TransactionRepository';
-import AccountRepository from '../../../database/repositories/AccountRepository';
 import { INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
+import { createTransactionApi } from '../../../services/transactionService';
+import useAccountStore from '../../../store/useAccountStore';
+import { useToastService } from '../../../utils/ToastService';
+
+// -- WatermelonDB (commented out for now — will be used for sync later)
+// import { useAccounts } from '../../../database/hooks/useAccounts';
+// import TransactionRepository from '../../../database/repositories/TransactionRepository';
+// import AccountRepository from '../../../database/repositories/AccountRepository';
 
 const TYPES = ['expense', 'income'];
 
 const AddTransactionScreen = ({ navigation, route }) => {
   const initialType = route?.params?.type ?? 'expense';
-  const { primaryAccount } = useAccounts();
+
+  // -- WatermelonDB (commented out)
+  // const { primaryAccount } = useAccounts();
+
+  // Pull accounts from your API store instead
+  const accounts = useAccountStore(s => s.accounts);
+
+  const primaryAccount =
+    accounts?.find(a => a.isPrimary) ?? accounts?.[0] ?? null;
 
   const [incomeCategory, setIncomeCategory] = useState('salary');
   const [incomeCategoryModalVisible, setIncomeCategoryModalVisible] =
@@ -49,9 +62,12 @@ const AddTransactionScreen = ({ navigation, route }) => {
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
 
+  const toast = useToastService();
+
   useEffect(() => {
     if (primaryAccount && sourceId === null) {
-      setSourceId(primaryAccount.id);
+      // API accounts use _id, WatermelonDB used id
+      setSourceId(primaryAccount._id);
     }
   }, [primaryAccount, sourceId]);
 
@@ -71,30 +87,39 @@ const AddTransactionScreen = ({ navigation, route }) => {
 
     setSaving(true);
     try {
-      await TransactionRepository.create({
+      await createTransactionApi({
         accountId: sourceId,
         type,
         amount: parsedAmount,
         category: isExpense ? category : incomeCategory,
         description: description.trim(),
         note: notes.trim(),
-        date: date.getTime(),
+        date: date.toISOString(),
       });
 
-      const account = await AccountRepository.getAll().then(all =>
-        all.find(a => a.id === sourceId),
-      );
-      if (account) {
-        const newBalance = isExpense
-          ? (account.balance ?? 0) - parsedAmount
-          : (account.balance ?? 0) + parsedAmount;
-        await AccountRepository.updateBalance(sourceId, newBalance);
-      }
+      // -- WatermelonDB balance update (commented out — backend handles this later)
+      // const account = await AccountRepository.getAll().then(all =>
+      //   all.find(a => a.id === sourceId),
+      // );
+      // if (account) {
+      //   const newBalance = isExpense
+      //     ? (account.balance ?? 0) - parsedAmount
+      //     : (account.balance ?? 0) + parsedAmount;
+      //   await AccountRepository.updateBalance(sourceId, newBalance);
+      // }
 
       navigation?.goBack();
     } catch (e) {
       console.error('Save transaction failed:', e);
-      Alert.alert('Error', 'Could not save transaction. Please try again.');
+
+      const message =
+        e?.message ?? 'Could not save transaction. Please try again.';
+
+      if (message === 'Insufficient balance.') {
+        toast.warning('Insufficient balance in this account.');
+      } else {
+        toast.error(message);
+      }
     } finally {
       setSaving(false);
     }

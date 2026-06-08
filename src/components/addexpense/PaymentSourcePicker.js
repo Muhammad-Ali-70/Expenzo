@@ -8,12 +8,13 @@ import {
 import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import SelectableIcon from '../ui/SelectableIcon';
-import { useAccounts } from '../../database/hooks/useAccounts';
+import useAccountStore from '../../store/useAccountStore';
 import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
 import colors from '../../constants/colors';
 
 const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
-  const { accounts, loading } = useAccounts();
+  const accounts = useAccountStore(s => s.accounts);
+  const loading = useAccountStore(s => s.loading);
 
   const quickAccounts = [
     ...accounts.filter(a => a.type === 'wallet'),
@@ -46,13 +47,13 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
           const meta = getAccountTypeMeta(account.type);
           return (
             <SelectableIcon
-              key={account.id}
+              key={account._id}
               iconName={meta.iconName}
               iconBg={meta.iconBg}
               iconColor={meta.iconColor}
               label={account.label}
-              active={activeId === account.id}
-              onPress={() => onSelect(account.id)}
+              active={activeId === account._id}
+              onPress={() => onSelect(account._id)}
               size="lg"
             />
           );

@@ -15,10 +15,12 @@ import AccountSetupCard from '../../components/onboarding/AccountSetupCard';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import useAuthStore from '../../store/useAuthStore';
+import useAccountStore from '../../store/useAccountStore';
 import { seedAccountsApi } from '../../services/accountService';
 
 const OnboardingScreen = () => {
   const setOnboarded = useAuthStore(s => s.setOnboarded);
+  const fetchAccounts = useAccountStore(s => s.fetchAccounts);
 
   const [walletBalance, setWalletBalance] = useState('');
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -63,26 +65,27 @@ const OnboardingScreen = () => {
 
       await seedAccountsApi({ accounts });
 
-      // Flip isOnboarded locally — navigator re-renders automatically
+      // Pull the newly created accounts into Zustand before navigating.
+      // setOnboarded() fires after so the navigator transitions only once
+      // accounts are already in the store — no empty state flash.
+      await fetchAccounts();
       setOnboarded();
     } catch (e) {
       console.error('Onboarding save failed:', e);
     } finally {
       setSaving(false);
     }
-  }, [walletBalance, bankAccounts, digitalWallets, setOnboarded]);
+  }, [
+    walletBalance,
+    bankAccounts,
+    digitalWallets,
+    fetchAccounts,
+    setOnboarded,
+  ]);
 
   const handleSkip = useCallback(async () => {
-    setSaving(true);
-    try {
-      // No accounts to seed — just flip locally
-      // Backend will mark isOnboarded true on first account creation later
-      setOnboarded();
-    } catch (e) {
-      console.error('Skip failed:', e);
-    } finally {
-      setSaving(false);
-    }
+    // Skipping — no accounts seeded, nothing to fetch.
+    setOnboarded();
   }, [setOnboarded]);
 
   return (

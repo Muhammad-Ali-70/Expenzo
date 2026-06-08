@@ -4,6 +4,7 @@ import useAuthStore, {
   selectToken,
   selectIsOnboarded,
 } from '../store/useAuthStore';
+import useAccountStore from '../store/useAccountStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
@@ -17,11 +18,22 @@ const RootStackNavigator = () => {
 
   const token = useAuthStore(selectToken);
   const isOnboarded = useAuthStore(selectIsOnboarded);
+  const fetchAccounts = useAccountStore(s => s.fetchAccounts);
 
   useEffect(() => {
     const splashTimer = setTimeout(() => setShowSplash(false), 1500);
     return () => clearTimeout(splashTimer);
   }, []);
+
+  // Boot-time fetch: token exists but we got here without going through login
+  // (app restarted / killed and reopened). Fires once when the navigator mounts.
+  useEffect(() => {
+    if (token && isOnboarded) {
+      fetchAccounts();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Intentionally empty deps — we only want this to run once on mount,
+  // not re-run every time token/isOnboarded change during a session.
 
   if (showSplash) {
     return (

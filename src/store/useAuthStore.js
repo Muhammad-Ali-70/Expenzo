@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { storage, mmkvStorage } from '../services/storage';
 import { signupApi, loginApi, getMeApi } from '../services/authService';
+import useAccountStore from './useAccountStore';
 
 const withLoading = async (set, fn) => {
   set({ isLoading: true, error: null });
@@ -25,6 +26,9 @@ const useAuthStore = create(
       error: null,
 
       // ── Actions ────────────────────────────────────────────────────────────
+
+      // No fetchAccounts here — user has no accounts yet at signup time.
+      // Accounts are created during onboarding; boot-time fetch covers returning users.
       signup: ({ name, email, password }) =>
         withLoading(set, async () => {
           const { token, user } = await signupApi({ name, email, password });
@@ -33,11 +37,13 @@ const useAuthStore = create(
           return { success: true };
         }),
 
+      // fetchAccounts after login — user's accounts already exist on the server.
       login: ({ email, password }) =>
         withLoading(set, async () => {
           const { token, user } = await loginApi({ email, password });
           storage.set('token', token);
           set({ token, user });
+          await useAccountStore.getState().fetchAccounts();
           return { success: true };
         }),
 
@@ -56,6 +62,8 @@ const useAuthStore = create(
 
       logout: () => {
         storage.remove('token');
+        // Clear accounts on logout so stale data isn't shown on next login
+        useAccountStore.getState().clearAccounts();
         set({ user: null, token: null, error: null });
       },
 

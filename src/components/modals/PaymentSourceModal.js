@@ -4,14 +4,14 @@ import { wp, hp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import BottomSheet from '../ui/BottomSheet';
 import SelectableIcon from '../ui/SelectableIcon';
-import { useAccounts } from '../../database/hooks/useAccounts';
+import useAccountStore from '../../store/useAccountStore';
 import {
   getAccountTypeMeta,
   ACCOUNT_TYPE_META,
 } from '../../constants/theme/accountMeta';
 
 const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
-  const { accounts } = useAccounts();
+  const accounts = useAccountStore(s => s.accounts);
 
   const handleSelect = id => {
     onSelect(id);
@@ -44,13 +44,13 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
               const meta = getAccountTypeMeta(account.type);
               return (
                 <SelectableIcon
-                  key={account.id}
+                  key={account._id}
                   iconName={meta.iconName}
                   iconBg={meta.iconBg}
                   iconColor={meta.iconColor}
                   label={account.label}
-                  active={activeId === account.id}
-                  onPress={() => handleSelect(account.id)}
+                  active={activeId === account._id}
+                  onPress={() => handleSelect(account._id)}
                   size="grid"
                 />
               );
