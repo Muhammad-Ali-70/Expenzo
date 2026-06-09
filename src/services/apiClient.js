@@ -1,14 +1,9 @@
 import axios from 'axios';
 import { storage } from './storage';
-
-// const BASE_URL = 'https://expenzo-backend-zdh2.onrender.com/api';
-// const BASE_URL = 'https://expenzo-backend-production.up.railway.app/api';
-
-// const BASE_URL = 'http://10.0.2.2:3000/api'; // Local Dev Current Laptop
-const BASE_URL = 'http://192.168.18.100:3000/api'; // Local Dev - Laptop A
+import { ENV } from '../config/env';
 
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: ENV.BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
