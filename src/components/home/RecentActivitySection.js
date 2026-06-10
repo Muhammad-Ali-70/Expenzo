@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import RecentActivityItem from './RecentActivityItem';
@@ -38,10 +39,11 @@ const RecentActivitySection = ({
           ) : null}
         </View>
 
-        <FlatList
+        <FlashList
           data={transactions}
           keyExtractor={item => item.id}
-          scrollEnabled={false} // parent ScrollView handles scrolling
+          scrollEnabled={false}
+          estimatedItemSize={hp(8)}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
             <RecentActivityItem
@@ -49,6 +51,7 @@ const RecentActivitySection = ({
               onPress={() => setSelectedTx(item.raw)}
             />
           )}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </View>
 
@@ -73,7 +76,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   list: {
-    gap: hp(1.2),
+    paddingBottom: hp(0.5),
+  },
+  separator: {
+    height: hp(1.2),
   },
 });
 

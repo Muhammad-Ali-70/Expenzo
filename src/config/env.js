@@ -21,7 +21,6 @@ export const ENV = {
   SENTRY_DSN,
   POSTHOG_KEY,
   POSTHOG_HOST: POSTHOG_HOST ?? 'https://us.i.posthog.com',
-  APP_ENV: APP_ENV ?? 'development',
-  IS_DEV: APP_ENV === 'development',
   BASE_URL: getBaseURL(),
+  IS_DEV: APP_ENV === 'BASE_URL_DEV',
 };

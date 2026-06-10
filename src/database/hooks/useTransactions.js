@@ -1,38 +1,70 @@
-import { useDatabase } from '@nozbe/watermelondb/hooks';
-import { Q } from '@nozbe/watermelondb';
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getTransactionsApi } from '../../services/transactionService';
 import { groupTransactions } from '../../utils/transactionUtils';
-import { useAccounts } from './useAccounts';
 
+/**
+ * Drop-in replacement for the WatermelonDB useTransactions hook.
+ * Fetches from the backend API with pagination and search support.
+ */
 export const useTransactions = ({ accountId, month, year } = {}) => {
-  const database = useDatabase();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Bring in accounts so groupTransactions can attach account labels
-  const { accounts } = useAccounts();
+  const pageRef = useRef(1);
+  const hasMoreRef = useRef(true);
 
+  const fetchTransactions = useCallback(
+    async ({ page = 1, append = false } = {}) => {
+      if (page === 1) setLoading(true);
+      else setLoadingMore(true);
+
+      try {
+        const data = await getTransactionsApi({
+          accountId,
+          month,
+          year,
+          page,
+          limit: 20,
+        });
+
+        setTransactions(prev =>
+          append ? [...prev, ...data.transactions] : data.transactions,
+        );
+        setPagination(data.pagination);
+        hasMoreRef.current = data.pagination.hasNextPage;
+        pageRef.current = page;
+        setError(null);
+      } catch (err) {
+        setError(err.message ?? 'Failed to load transactions');
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [accountId, month, year],
+  );
+
+  // Initial load and when filters change
   useEffect(() => {
-    const collection = database.get('transactions');
-    const conditions = [];
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    fetchTransactions({ page: 1, append: false });
+  }, [fetchTransactions]);
 
-    if (accountId) conditions.push(Q.where('account_id', accountId));
+  // Called by FlashList onEndReached
+  const fetchNextPage = useCallback(() => {
+    if (!hasMoreRef.current || loadingMore || loading) return;
+    fetchTransactions({ page: pageRef.current + 1, append: true });
+  }, [fetchTransactions, loadingMore, loading]);
 
-    if (month !== undefined && year !== undefined) {
-      const start = new Date(year, month, 1).getTime();
-      const end = new Date(year, month + 1, 0, 23, 59, 59).getTime();
-      conditions.push(Q.where('date', Q.gte(start)));
-      conditions.push(Q.where('date', Q.lte(end)));
-    }
-
-    const query = collection.query(...conditions, Q.sortBy('date', Q.desc));
-    const subscription = query.observe().subscribe(result => {
-      setTransactions(result);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [database, accountId, month, year]);
+  const refresh = useCallback(() => {
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    fetchTransactions({ page: 1, append: false });
+  }, [fetchTransactions]);
 
   const totalExpenses = transactions
     .filter(t => t.type === 'expense')
@@ -42,8 +74,22 @@ export const useTransactions = ({ accountId, month, year } = {}) => {
     .filter(t => t.type === 'income')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const getGrouped = (opts = {}) =>
-    groupTransactions(transactions, { ...opts, accounts });
+  // groupTransactions handles local search/filter on already-fetched data
+  const getGrouped = useCallback(
+    (opts = {}) => groupTransactions(transactions, opts),
+    [transactions],
+  );
 
-  return { transactions, loading, totalExpenses, totalIncome, getGrouped };
+  return {
+    transactions,
+    loading,
+    loadingMore,
+    pagination,
+    error,
+    totalExpenses,
+    totalIncome,
+    getGrouped,
+    fetchNextPage,
+    refresh,
+  };
 };

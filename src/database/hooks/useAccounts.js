@@ -1,33 +1,33 @@
-import { useDatabase } from '@nozbe/watermelondb/hooks';
-import { Q } from '@nozbe/watermelondb';
 import { useEffect, useState } from 'react';
+import useAccountStore from '../../store/useAccountStore';
 
 export const useAccounts = (type = null) => {
-  const database = useDatabase();
-  const [accounts, setAccounts] = useState([]);
+  const storeAccounts = useAccountStore(s => s.accounts);
+  const fetchAccounts = useAccountStore(s => s.fetchAccounts);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const collection = database.get('accounts');
-    const query = type
-      ? collection.query(Q.where('type', type), Q.sortBy('sort_order', Q.asc))
-      : collection.query(Q.sortBy('sort_order', Q.asc));
-
-    const subscription = query.observe().subscribe(result => {
-      setAccounts(result);
+    if (storeAccounts.length === 0) {
+      fetchAccounts().finally(() => setLoading(false));
+    } else {
       setLoading(false);
-    });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return () => subscription.unsubscribe();
-  }, [database, type]);
+  const accounts = type
+    ? storeAccounts.filter(a => a.type === type)
+    : storeAccounts;
 
-  const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
+  const totalBalance = storeAccounts.reduce(
+    (sum, a) => sum + (a.balance ?? 0),
+    0,
+  );
 
-  // The wallet primary first, then first bank primary, then whatever comes first
   const primaryAccount =
-    accounts.find(a => a.type === 'wallet' && a.isPrimary) ??
-    accounts.find(a => a.isPrimary) ??
-    accounts[0] ??
+    storeAccounts.find(a => a.type === 'wallet' && a.isPrimary) ??
+    storeAccounts.find(a => a.isPrimary) ??
+    storeAccounts[0] ??
     null;
 
   return { accounts, loading, totalBalance, primaryAccount };

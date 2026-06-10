@@ -43,30 +43,13 @@ export const dayLabel = ts => {
 };
 
 /**
- * Converts raw WatermelonDB transaction records into grouped day sections.
- * Each transaction is mapped to the shape RecentActivityItem expects.
- *
- * @param {object[]} transactions  - raw WatermelonDB records
- * @param {object}   opts
- * @param {string}   opts.search   - free-text filter
- * @param {string}   opts.category - category id filter
- * @param {string}   opts.acId     - account id filter
- * @param {string}   opts.type     - 'expense' | 'income' | null
- * @param {object[]} opts.accounts - account records for label lookup
+ * Groups transactions by day and maps them to the display shape.
+ * Expects API-shaped data where accountId is a populated object { _id, label, type, ... }.
  */
 export const groupTransactions = (
   transactions,
-  {
-    search = '',
-    category = null,
-    acId = null,
-    type = null,
-    accounts = [],
-  } = {},
+  { search = '', category = null, acId = null, type = null } = {},
 ) => {
-  // Build a quick id → account map
-  const accountMap = Object.fromEntries(accounts.map(a => [a.id, a]));
-
   let filtered = transactions;
 
   if (search.trim()) {
@@ -80,17 +63,25 @@ export const groupTransactions = (
   }
 
   if (category) filtered = filtered.filter(t => t.category === category);
-  if (acId) filtered = filtered.filter(t => t.accountId === acId);
   if (type) filtered = filtered.filter(t => t.type === type);
+  if (acId) {
+    filtered = filtered.filter(t => {
+      const id = t.accountId?._id ?? t.accountId;
+      return id === acId;
+    });
+  }
 
   const buckets = {};
 
   filtered.forEach(t => {
-    const key = dayKey(t.date);
+    const dateTs =
+      typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+    const key = dayKey(dateTs);
+
     if (!buckets[key]) {
       buckets[key] = {
         key,
-        label: dayLabel(t.date),
+        label: dayLabel(dateTs),
         transactions: [],
         total: 0,
       };
@@ -98,30 +89,29 @@ export const groupTransactions = (
 
     const meta = getCategoryMeta(t.category);
     const categoryLabel = CATEGORY_LABEL[t.category] ?? t.category;
-    const account = accountMap[t.accountId] ?? null;
+    const account = t.accountId ?? null;
+    const id = t._id;
 
     buckets[key].transactions.push({
-      id: t.id,
+      id,
       iconName: meta.iconName,
       iconBg: meta.iconBg,
       iconColor: meta.iconColor,
       title: t.description?.trim() || categoryLabel,
-      subtitle: `${categoryLabel} · ${formatTime(t.date)}`,
+      subtitle: `${categoryLabel} · ${formatTime(dateTs)}`,
       amount: t.type === 'expense' ? -t.amount : t.amount,
-      // account tag
       accountLabel: account?.label ?? null,
       accountType: account?.type ?? null,
-      // full raw data for detail modal
       raw: {
-        id: t.id,
+        id,
         type: t.type,
         amount: t.amount,
         category: t.category,
         categoryLabel,
         description: t.description ?? '',
         note: t.note ?? '',
-        date: t.date,
-        accountId: t.accountId,
+        date: dateTs,
+        accountId: account?._id ?? t.accountId,
         accountLabel: account?.label ?? '—',
         accountType: account?.type ?? '—',
       },

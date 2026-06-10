@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
-import AccountRepository from '../../database/repositories/AccountRepository';
+import { seedAccountsApi } from '../../services/accountService';
 
 const useOnboardingSave = ({ walletBalance, bankAccounts, walletAccounts }) => {
   const saveAndContinue = useCallback(async () => {
-    const records = [];
+    const accounts = [];
 
     // Wallet Cash — always one record
-    records.push({
+    accounts.push({
       type: 'wallet',
       label: 'Wallet Cash',
       color: '#10B981',
@@ -18,7 +18,7 @@ const useOnboardingSave = ({ walletBalance, bankAccounts, walletAccounts }) => {
 
     // Bank accounts — one record per bank, first is primary
     bankAccounts.forEach((acct, idx) => {
-      records.push({
+      accounts.push({
         type: 'bank',
         label: acct.label,
         color: acct.color,
@@ -31,7 +31,7 @@ const useOnboardingSave = ({ walletBalance, bankAccounts, walletAccounts }) => {
 
     // Digital wallets — one record per app, first is primary
     walletAccounts.forEach((acct, idx) => {
-      records.push({
+      accounts.push({
         type: 'digitalWallet',
         label: acct.label,
         color: acct.color,
@@ -42,7 +42,7 @@ const useOnboardingSave = ({ walletBalance, bankAccounts, walletAccounts }) => {
       });
     });
 
-    await AccountRepository.seedFromOnboarding(records);
+    await seedAccountsApi({ accounts });
   }, [walletBalance, bankAccounts, walletAccounts]);
 
   return { saveAndContinue };

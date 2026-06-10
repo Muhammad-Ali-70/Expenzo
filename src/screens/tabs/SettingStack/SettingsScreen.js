@@ -18,7 +18,6 @@ import { hp, wp } from '../../../constants/responsive';
 import SignOutButton from '../../../components/settings/SignOutButton';
 import { useToastService } from '../../../utils/ToastService';
 import { useAccounts } from '../../../database/hooks/useAccounts';
-import { useDatabase } from '@nozbe/watermelondb/hooks';
 import useAppStore from '../../../store/useAppStore';
 import useAuthStore from '../../../store/useAuthStore';
 
@@ -52,7 +51,6 @@ const SettingsScreen = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
 
   const { accounts, loading, totalBalance } = useAccounts();
-  const database = useDatabase();
   const resetOnboarding = useAppStore(s => s.resetOnboarding);
   const logout = useAuthStore(s => s.logout);
 
@@ -82,9 +80,7 @@ const SettingsScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await database.write(async () => {
-                await database.unsafeResetDatabase();
-              });
+              // TODO: call API endpoint to clear user data
               resetOnboarding();
             } catch (e) {
               console.error('Clear failed:', e);

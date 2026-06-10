@@ -27,20 +27,11 @@ import { createTransactionApi } from '../../../services/transactionService';
 import useAccountStore from '../../../store/useAccountStore';
 import { useToastService } from '../../../utils/ToastService';
 
-// -- WatermelonDB (commented out for now — will be used for sync later)
-// import { useAccounts } from '../../../database/hooks/useAccounts';
-// import TransactionRepository from '../../../database/repositories/TransactionRepository';
-// import AccountRepository from '../../../database/repositories/AccountRepository';
-
 const TYPES = ['expense', 'income'];
 
 const AddTransactionScreen = ({ navigation, route }) => {
   const initialType = route?.params?.type ?? 'expense';
 
-  // -- WatermelonDB (commented out)
-  // const { primaryAccount } = useAccounts();
-
-  // Pull accounts from your API store instead
   const accounts = useAccountStore(s => s.accounts);
 
   const primaryAccount =
@@ -96,17 +87,6 @@ const AddTransactionScreen = ({ navigation, route }) => {
         note: notes.trim(),
         date: date.toISOString(),
       });
-
-      // -- WatermelonDB balance update (commented out — backend handles this later)
-      // const account = await AccountRepository.getAll().then(all =>
-      //   all.find(a => a.id === sourceId),
-      // );
-      // if (account) {
-      //   const newBalance = isExpense
-      //     ? (account.balance ?? 0) - parsedAmount
-      //     : (account.balance ?? 0) + parsedAmount;
-      //   await AccountRepository.updateBalance(sourceId, newBalance);
-      // }
 
       navigation?.goBack();
     } catch (e) {

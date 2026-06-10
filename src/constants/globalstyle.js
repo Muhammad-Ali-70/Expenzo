@@ -80,12 +80,28 @@ export const Label = ({
   color = 'textMain',
   underline = false,
   style,
+  transformText, // 👈 add this
   ...props
 }) => {
   const fontSize = TEXT_TYPES[type] || TEXT_TYPES.body;
   const fontWeight = weight || DEFAULT_WEIGHTS[type] || 'regular';
   const fontFamily = FONT_WEIGHTS[fontWeight] || fonts.regular;
   const textColor = colors[color] || color;
+
+  const formatText = text => {
+    if (!text) return text;
+
+    switch (transformText) {
+      case 'uppercase':
+        return text.toUpperCase();
+      case 'capitalize':
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      case 'lowercase':
+        return text.toLowerCase();
+      default:
+        return text;
+    }
+  };
 
   return (
     <RNText
@@ -100,7 +116,7 @@ export const Label = ({
       ]}
       {...props}
     >
-      {children}
+      {formatText(children)}
     </RNText>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
@@ -10,22 +10,49 @@ import MonthlySpendingCard from '../../components/home/MonthlySpendingCard';
 import SmartInsightCard from '../../components/home/SmartInsightCard';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
 
-import { useAccounts } from '../../database/hooks/useAccounts';
-import { useTransactions } from '../../database/hooks/useTransactions';
+import useAccountStore from '../../store/useAccountStore';
+import {
+  getTransactionsSummaryApi,
+  getTransactionsApi,
+} from '../../services/transactionService';
+import { groupTransactions } from '../../utils/transactionUtils';
 
 const HomeScreen = ({ navigation }) => {
-  const { accounts, totalBalance } = useAccounts();
+  const accounts = useAccountStore(s => s.accounts);
+  const fetchAccounts = useAccountStore(s => s.fetchAccounts);
+
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+
+  useEffect(() => {
+    if (accounts.length === 0) fetchAccounts();
+  }, []);
 
   const now = new Date();
-  const { totalExpenses, getGrouped } = useTransactions({
-    month: now.getMonth(),
-    year: now.getFullYear(),
-  });
+  const month = now.getMonth();
+  const year = now.getFullYear();
 
-  // Recent activity: latest 5 transactions across all groups, flattened
-  const recentTransactions = getGrouped()
-    .flatMap(g => g.transactions)
-    .slice(0, 5);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [summary, txData] = await Promise.all([
+          getTransactionsSummaryApi({ month, year }),
+          getTransactionsApi({ month, year, limit: 5 }),
+        ]);
+
+        const expenseItem = summary.summary?.find(s => s._id === 'expense');
+        setTotalExpenses(expenseItem?.total ?? 0);
+
+        const groups = groupTransactions(txData.transactions);
+        setRecentTransactions(groups.flatMap(g => g.transactions));
+      } catch (err) {
+        console.error('Failed to load home data:', err);
+      }
+    };
+    load();
+  }, [month, year]);
+
+  const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
 
   return (
     <View style={styles.safe}>

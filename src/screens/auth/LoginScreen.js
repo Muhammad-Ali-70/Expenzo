@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
 
   const { login, isLoading } = useAuthStore();
 
-  const [email, setEmail] = useState('yoiwuwaucoiffoi-8995@yopmail.com');
+  const [email, setEmail] = useState('tridduxasifeu-6204@yopmail.com');
   const [password, setPassword] = useState('admin@123');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});

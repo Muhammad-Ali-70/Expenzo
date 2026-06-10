@@ -26,11 +26,12 @@ export const getTransactionsApi = async ({
   type,
   month,
   year,
+  search,
   page = 1,
   limit = 20,
 } = {}) => {
   const response = await apiClient.get('/transactions', {
-    params: { accountId, type, month, year, page, limit },
+    params: { accountId, type, month, year, search, page, limit },
   });
   return response.data;
 };

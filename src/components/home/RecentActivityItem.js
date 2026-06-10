@@ -65,7 +65,12 @@ const RecentActivityItem = ({
           ) : null}
         </View>
 
-        <Label type="bodyXs" weight="regular" color="textMuted">
+        <Label
+          type="bodyXs"
+          weight="regular"
+          color="textMuted"
+          transformText="capitalize"
+        >
           {subtitle}
         </Label>
       </View>
@@ -90,6 +95,7 @@ const styles = StyleSheet.create({
     paddingVertical: wp(2),
     paddingHorizontal: wp(2),
     gap: wp(3),
+    marginBottom: hp(1),
   },
   info: {
     flex: 1,
