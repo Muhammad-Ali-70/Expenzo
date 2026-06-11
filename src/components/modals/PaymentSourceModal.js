@@ -9,6 +9,7 @@ import {
   getAccountTypeMeta,
   ACCOUNT_TYPE_META,
 } from '../../constants/theme/accountMeta';
+import { getAccountMeta } from '../../utils/accountMetaLookup';
 
 const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
   const accounts = useAccountStore(s => s.accounts);
@@ -42,6 +43,7 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
           <View style={styles.sourcesRow}>
             {group.items.map(account => {
               const meta = getAccountTypeMeta(account.type);
+              const imageMeta = getAccountMeta(account.type, account.sourceId);
               return (
                 <SelectableIcon
                   key={account._id}
@@ -52,6 +54,9 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
                   active={activeId === account._id}
                   onPress={() => handleSelect(account._id)}
                   size="grid"
+                  imageUri={imageMeta.imageUri}
+                  initials={imageMeta.initials}
+                  color={imageMeta.color}
                 />
               );
             })}

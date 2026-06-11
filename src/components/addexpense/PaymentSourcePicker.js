@@ -10,6 +10,7 @@ import { Label } from '../../constants/globalstyle';
 import SelectableIcon from '../ui/SelectableIcon';
 import useAccountStore from '../../store/useAccountStore';
 import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
+import { getAccountMeta } from '../../utils/accountMetaLookup';
 import colors from '../../constants/colors';
 
 const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
@@ -45,6 +46,7 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
       <View style={styles.row}>
         {quickAccounts.map(account => {
           const meta = getAccountTypeMeta(account.type);
+          const imageMeta = getAccountMeta(account.type, account.sourceId);
           return (
             <SelectableIcon
               key={account._id}
@@ -55,6 +57,9 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
               active={activeId === account._id}
               onPress={() => onSelect(account._id)}
               size="lg"
+              imageUri={imageMeta.imageUri}
+              initials={imageMeta.initials}
+              color={imageMeta.color}
             />
           );
         })}

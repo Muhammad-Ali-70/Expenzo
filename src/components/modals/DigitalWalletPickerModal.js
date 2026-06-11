@@ -1,41 +1,10 @@
 import React from 'react';
-import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
-import { Label, borderRadius } from '../../constants/globalstyle';
-import FloatingModal from '../ui/FloatingModal';
+import { Label } from '../../constants/globalstyle';
+import BottomSheet from '../ui/BottomSheet';
+import AccountTile from '../ui/AccountTile';
 import { DIGITAL_WALLETS } from '../../constants/theme/accountMeta';
-
-const WalletTile = ({ item, active, disabled, onPress }) => (
-  <TouchableOpacity
-    onPress={disabled ? undefined : onPress}
-    activeOpacity={disabled ? 1 : 0.75}
-    style={[
-      styles.tile,
-      active && styles.tileActive,
-      disabled && styles.tileDisabled,
-    ]}
-  >
-    <View style={[styles.avatar, { backgroundColor: item.color + '22' }]}>
-      <Label
-        type="bodyXs"
-        weight="bold"
-        style={{ color: disabled ? colors.textMuted : item.color }}
-      >
-        {item.initials}
-      </Label>
-    </View>
-    <Label
-      type="bodyXs"
-      weight={active ? 'semiBold' : 'regular'}
-      color={active ? 'primary' : disabled ? 'textDisabled' : 'textMuted'}
-      style={styles.tileLabel}
-      numberOfLines={2}
-    >
-      {item.label}
-    </Label>
-  </TouchableOpacity>
-);
 
 const DigitalWalletPickerModal = ({
   visible,
@@ -50,7 +19,7 @@ const DigitalWalletPickerModal = ({
   };
 
   return (
-    <FloatingModal
+    <BottomSheet
       visible={visible}
       onClose={onClose}
       title="Select Payment App"
@@ -72,15 +41,18 @@ const DigitalWalletPickerModal = ({
         contentContainerStyle={styles.grid}
         columnWrapperStyle={styles.row}
         renderItem={({ item }) => (
-          <WalletTile
-            item={item}
+          <AccountTile
+            imageUri={item.imageUri}
+            initials={item.initials}
+            color={item.color}
+            label={item.label}
             active={activeId === item.id}
             disabled={usedIds.includes(item.id)}
             onPress={() => handleSelect(item)}
           />
         )}
       />
-    </FloatingModal>
+    </BottomSheet>
   );
 };
 
@@ -88,28 +60,6 @@ const styles = StyleSheet.create({
   hint: { paddingHorizontal: wp(5), marginBottom: hp(1.5), lineHeight: 17 },
   grid: { paddingHorizontal: wp(3), paddingBottom: hp(1), gap: hp(0.5) },
   row: { justifyContent: 'space-between' },
-  tile: {
-    width: (wp(100) - wp(10) - wp(9)) / 4,
-    alignItems: 'center',
-    gap: hp(0.8),
-    paddingVertical: hp(1.5),
-    borderRadius: borderRadius.lg,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-  },
-  tileActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.surfaceContainerLow,
-  },
-  tileDisabled: { opacity: 0.4 },
-  avatar: {
-    width: wp(11),
-    height: wp(11),
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tileLabel: { textAlign: 'center', lineHeight: 14 },
 });
 
 export default DigitalWalletPickerModal;

@@ -17,6 +17,9 @@ const getBaseURL = () => {
   return BASE_URL_DEV;
 };
 
+console.log('[ENV] APP_ENV:', APP_ENV);
+console.log('[ENV] BASE_URL:', getBaseURL());
+
 export const ENV = {
   SENTRY_DSN,
   POSTHOG_KEY,

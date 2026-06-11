@@ -4,13 +4,8 @@ import { wp, hp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import PaymentIcon from '../common/Paymenticon';
+import AccountAvatar from './AccountAvatar';
 
-/**
- * size variants:
- *  "md"   — horizontal scroll row
- *  "lg"   — full flex box card (PaymentSourcePicker)
- *  "grid" — modal grid, no card background
- */
 const SelectableIcon = ({
   iconName,
   iconColor,
@@ -19,9 +14,14 @@ const SelectableIcon = ({
   active = false,
   onPress,
   size = 'md',
+  imageUri,
+  initials,
+  color,
 }) => {
   const isLg = size === 'lg';
   const isGrid = size === 'grid';
+
+  const avatarSize = isLg ? wp(12) : isGrid ? wp(13) : wp(11);
 
   return (
     <TouchableOpacity
@@ -34,13 +34,22 @@ const SelectableIcon = ({
         active && styles.active,
       ]}
     >
-      <PaymentIcon
-        name={iconName}
-        backgroundColor={active ? colors.primary : iconBg}
-        color={active ? colors.onPrimary : iconColor}
-        containerSize={isLg ? wp(12) : isGrid ? wp(13) : wp(11)}
-        size={isLg ? wp(6) : isGrid ? wp(6.5) : wp(5.2)}
-      />
+      {imageUri ? (
+        <AccountAvatar
+          imageUri={imageUri}
+          initials={initials}
+          color={color}
+          size={avatarSize}
+        />
+      ) : (
+        <PaymentIcon
+          name={iconName}
+          backgroundColor={active ? colors.primary : iconBg}
+          color={active ? colors.onPrimary : iconColor}
+          containerSize={avatarSize}
+          size={isLg ? wp(6) : isGrid ? wp(6.5) : wp(5.2)}
+        />
+      )}
       <Label
         type="bodyXs"
         weight={active ? 'semiBold' : 'regular'}
@@ -57,7 +66,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: hp(0.8),
     paddingVertical: hp(1),
-    // paddingHorizontal: wp(2),
     width: wp(20),
     borderRadius: borderRadius.lg,
     borderWidth: 2,

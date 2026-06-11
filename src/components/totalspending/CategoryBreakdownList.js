@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import { Label } from '../../constants/globalstyle';
 import CategoryBreakdownItem from './CategoryBreakdownItem';
@@ -10,11 +10,11 @@ const CategoryBreakdownList = ({ items = [], onDetails }) => (
       <Label type="headingXs" weight="bold" color="textMain">
         Category Breakdown
       </Label>
-      {/* <TouchableOpacity onPress={onDetails} activeOpacity={0.7}>
+      <TouchableOpacity onPress={onDetails} activeOpacity={0.7}>
         <Label type="bodySmall" weight="semiBold" color="primary">
           Details
         </Label>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
 
     <View style={styles.list}>
