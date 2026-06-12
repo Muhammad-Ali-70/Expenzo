@@ -4,33 +4,7 @@ import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
-import SpendingBarChart from '../common/SpendingBarChart';
-
-const BudgetProgressBar = ({ percent = 72, remainingLabel }) => (
-  <View style={styles.progressSection}>
-    <View style={styles.progressHeader}>
-      <Label type="bodyXs" weight="medium" color="textMuted">
-        Budget Progress
-      </Label>
-      <Label type="bodyXs" weight="semiBold" color="textMain">
-        {percent}% used
-      </Label>
-    </View>
-    <View style={styles.track}>
-      <View style={[styles.fill, { width: `${Math.min(percent, 100)}%` }]} />
-    </View>
-    {remainingLabel && (
-      <Label
-        type="bodyXs"
-        weight="regular"
-        color="textMuted"
-        style={styles.remaining}
-      >
-        {remainingLabel}
-      </Label>
-    )}
-  </View>
-);
+import SpendingLineChart from '../common/SpendingLineChart';
 
 const MonthlySpendingCard = ({
   spendingAmount = 0,
@@ -39,29 +13,46 @@ const MonthlySpendingCard = ({
   remainingLabel,
 }) => (
   <View style={styles.card}>
-    <View style={styles.top}>
-      <View>
+    <View>
+      <Label type="bodyXs" weight="medium" color="textMuted">
+        Monthly Spending
+      </Label>
+      <CurrencyView
+        amount={spendingAmount}
+        type="headingSmall"
+        weight="bold"
+        color="textMain"
+        style={styles.amount}
+      />
+    </View>
+
+    <SpendingLineChart dailySpending={dailySpending} />
+
+    <View style={styles.progressSection}>
+      <View style={styles.progressHeader}>
         <Label type="bodyXs" weight="medium" color="textMuted">
-          Monthly Spending
+          Budget Progress
         </Label>
-        <CurrencyView
-          amount={spendingAmount}
-          type="headingSmall"
-          weight="bold"
-          color="textMain"
-          style={styles.spendingAmount}
+        <Label type="bodyXs" weight="semiBold" color="textMain">
+          {budgetPercent}% used
+        </Label>
+      </View>
+      <View style={styles.track}>
+        <View
+          style={[styles.fill, { width: `${Math.min(budgetPercent, 100)}%` }]}
         />
       </View>
+      {remainingLabel && (
+        <Label
+          type="bodyXs"
+          weight="regular"
+          color="textMuted"
+          style={styles.remaining}
+        >
+          {remainingLabel}
+        </Label>
+      )}
     </View>
-
-    <View style={styles.chartContainer}>
-      <SpendingBarChart dailySpending={dailySpending} />
-    </View>
-
-    <BudgetProgressBar
-      percent={budgetPercent}
-      remainingLabel={remainingLabel}
-    />
   </View>
 );
 
@@ -74,26 +65,18 @@ const styles = StyleSheet.create({
     padding: wp(5),
     gap: hp(2),
   },
-  top: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  spendingAmount: {
+  amount: {
     marginTop: hp(0.3),
   },
-  chartContainer: {
-    marginTop: hp(0.5),
-  },
   progressSection: {
-    gap: hp(0.8),
+    gap: hp(0.7),
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   track: {
-    height: hp(0.9),
+    height: hp(0.8),
     backgroundColor: colors.surfaceContainer,
     borderRadius: borderRadius.full,
     overflow: 'hidden',
@@ -104,7 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.full,
   },
   remaining: {
-    marginTop: hp(0.2),
+    marginTop: hp(0.1),
   },
 });
 

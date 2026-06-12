@@ -14,6 +14,9 @@ import RecentActivitySection from '../../components/home/RecentActivitySection';
 import useAccountStore from '../../store/useAccountStore';
 import { getHomeDataApi } from '../../services/transactionService';
 import { groupTransactions } from '../../utils/transactionUtils';
+import PrimaryLoader from '../../components/ui/PrimaryLoader';
+import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
+import { Label } from '../../constants/globalstyle';
 
 const HomeScreen = ({ navigation }) => {
   const accounts = useAccountStore(s => s.accounts);
@@ -22,7 +25,9 @@ const HomeScreen = ({ navigation }) => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [dailySpending, setDailySpending] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingText] = useState(getRandomLoadingText);
 
   const now = new Date();
   const month = now.getMonth();
@@ -38,6 +43,8 @@ const HomeScreen = ({ navigation }) => {
       setRecentTransactions(groups.flatMap(g => g.transactions));
     } catch (err) {
       console.error('Failed to load home data:', err);
+    } finally {
+      setLoading(false);
     }
   }, [month, year]);
 
@@ -62,6 +69,25 @@ const HomeScreen = ({ navigation }) => {
   }, [fetchAccounts, loadHomeData]);
 
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
+
+  if (loading) {
+    return (
+      <View style={styles.safe}>
+        <HomeHeader onBellPress={() => {}} />
+        <View style={styles.loadingWrap}>
+          <PrimaryLoader width={100} height={100} />
+          <Label
+            type="bodySmall"
+            weight="regular"
+            color="textMuted"
+            style={styles.loadingText}
+          >
+            {loadingText}
+          </Label>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.safe}>
@@ -90,7 +116,7 @@ const HomeScreen = ({ navigation }) => {
         <MonthlySpendingCard
           spendingAmount={totalExpenses}
           dailySpending={dailySpending}
-          budgetPercent={'NAN'}
+          budgetPercent={72}
           remainingLabel="Track your spending this month."
         />
 
@@ -115,6 +141,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: hp(12),
+  },
+  loadingWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: hp(1.5),
+    textAlign: 'center',
   },
 });
 

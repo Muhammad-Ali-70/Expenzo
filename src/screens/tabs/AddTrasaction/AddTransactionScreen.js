@@ -89,7 +89,10 @@ const AddTransactionScreen = ({ navigation, route }) => {
       });
 
       useAccountStore.getState().fetchAccounts();
-      navigation?.navigate('TabNavigator', { screen: 'History' });
+      navigation?.navigate('TabNavigator', {
+        screen: 'History',
+        params: { refresh: Date.now() },
+      });
     } catch (e) {
       console.error('Save transaction failed:', e);
 

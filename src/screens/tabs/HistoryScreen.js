@@ -1,10 +1,8 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { CalendarDays, LayoutGrid, Wallet } from 'lucide-react-native';
@@ -16,7 +14,9 @@ import SearchBar from '../../components/ui/SearchBar';
 import FilterTagList from '../../components/history/FilterTagList';
 import RecentActivityItem from '../../components/home/RecentActivityItem';
 import TransactionDetailModal from '../../components/modals/transaction/TransactionDetailModal';
-import SkeletonSection from '../../components/common/skeleton/SkeletonSection';
+import PrimaryLoader from '../../components/ui/PrimaryLoader';
+import PrimaryButton from '../../components/ui/PrimaryButton';
+import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
 import { useTransactions } from '../../database/hooks/useTransactions';
 
 const FILTER_TAGS = [
@@ -35,10 +35,11 @@ const useDebounce = (value, delay = 400) => {
   return debounced;
 };
 
-const HistoryScreen = () => {
+const HistoryScreen = ({ route }) => {
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedTx, setSelectedTx] = useState(null);
+  const [loadingText] = useState(getRandomLoadingText);
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -49,14 +50,10 @@ const HistoryScreen = () => {
       year: now.getFullYear(),
     });
 
-  const isMountedRef = useRef(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isMountedRef.current) refresh();
-      else isMountedRef.current = true;
-    }, [refresh]),
-  );
+  const refreshTrigger = route?.params?.refresh;
+  useEffect(() => {
+    if (refreshTrigger) refresh();
+  }, [refreshTrigger, refresh]);
 
   // Local filter + search runs on already-fetched data — instant, no API call
   const groups = useMemo(() => {
@@ -151,20 +148,28 @@ const HistoryScreen = () => {
       </View>
 
       {loading ? (
-        <View style={styles.skeletonWrap}>
-          <SkeletonSection itemCount={4} />
-          <SkeletonSection itemCount={3} />
+        <View style={styles.loadingWrap}>
+          <PrimaryLoader width={100} height={100} />
+          <Label
+            type="bodySmall"
+            weight="regular"
+            color="textMuted"
+            style={styles.loadingText}
+          >
+            {loadingText}
+          </Label>
         </View>
       ) : error ? (
         <View style={styles.errorWrap}>
           <Label type="bodySmall" color="error" style={styles.empty}>
             {error}
           </Label>
-          <TouchableOpacity onPress={refresh} activeOpacity={0.7}>
-            <Label type="bodySmall" weight="semiBold" color="primary">
-              Retry
-            </Label>
-          </TouchableOpacity>
+          <PrimaryButton
+            variant="primary"
+            size="sm"
+            label="Retry"
+            onPress={refresh}
+          />
         </View>
       ) : (
         <FlashList
@@ -215,8 +220,14 @@ const styles = StyleSheet.create({
     paddingTop: hp(2.5),
     paddingBottom: hp(1),
   },
-  skeletonWrap: {
+  loadingWrap: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: hp(1.5),
+    textAlign: 'center',
   },
   errorWrap: {
     flex: 1,
