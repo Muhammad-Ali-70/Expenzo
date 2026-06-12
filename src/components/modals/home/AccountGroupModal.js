@@ -97,7 +97,7 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
               {/* Account list */}
               <FlatList
                 data={accounts}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item._id || item.id}
                 scrollEnabled={accounts.length > 5}
                 contentContainerStyle={styles.list}
                 renderItem={({ item, index }) => (

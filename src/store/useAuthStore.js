@@ -24,6 +24,7 @@ const useAuthStore = create(
       token: null,
       isLoading: false,
       error: null,
+      rememberMe: true,
 
       // ── Actions ────────────────────────────────────────────────────────────
 
@@ -38,11 +39,11 @@ const useAuthStore = create(
         }),
 
       // fetchAccounts after login — user's accounts already exist on the server.
-      login: ({ email, password }) =>
+      login: ({ email, password, rememberMe = true }) =>
         withLoading(set, async () => {
           const { token, user } = await loginApi({ email, password });
           storage.set('token', token);
-          set({ token, user });
+          set({ token, user, rememberMe });
           await useAccountStore.getState().fetchAccounts();
           return { success: true };
         }),
@@ -72,7 +73,14 @@ const useAuthStore = create(
     {
       name: 'expenzo-auth-store',
       storage: createJSONStorage(() => mmkvStorage),
-      partialize: ({ token, user }) => ({ token, user }),
+      partialize: state => {
+        const partial = { rememberMe: state.rememberMe };
+        if (state.rememberMe) {
+          partial.token = state.token;
+          partial.user = state.user;
+        }
+        return partial;
+      },
     },
   ),
 );

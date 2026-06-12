@@ -57,3 +57,10 @@ export const getTransactionsSummaryApi = async ({ month, year } = {}) => {
   });
   return response.data;
 };
+
+export const getHomeDataApi = async ({ month, year } = {}) => {
+  const response = await apiClient.get('/dashboard', {
+    params: { month, year },
+  });
+  return response.data;
+};

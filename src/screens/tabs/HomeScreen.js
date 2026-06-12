@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, ScrollView, RefreshControl, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { hp, wp } from '../../constants/responsive';
 import colors from '../../constants/colors';
 
@@ -11,10 +12,7 @@ import SmartInsightCard from '../../components/home/SmartInsightCard';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
 
 import useAccountStore from '../../store/useAccountStore';
-import {
-  getTransactionsSummaryApi,
-  getTransactionsApi,
-} from '../../services/transactionService';
+import { getHomeDataApi } from '../../services/transactionService';
 import { groupTransactions } from '../../utils/transactionUtils';
 
 const HomeScreen = ({ navigation }) => {
@@ -23,34 +21,45 @@ const HomeScreen = ({ navigation }) => {
 
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState([]);
-
-  useEffect(() => {
-    if (accounts.length === 0) fetchAccounts();
-  }, []);
+  const [dailySpending, setDailySpending] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const now = new Date();
   const month = now.getMonth();
   const year = now.getFullYear();
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [summary, txData] = await Promise.all([
-          getTransactionsSummaryApi({ month, year }),
-          getTransactionsApi({ month, year, limit: 5 }),
-        ]);
+  const loadHomeData = useCallback(async () => {
+    try {
+      const data = await getHomeDataApi({ month, year });
+      setTotalExpenses(data.totalExpenses);
+      setDailySpending(data.dailySpending);
 
-        const expenseItem = summary.summary?.find(s => s._id === 'expense');
-        setTotalExpenses(expenseItem?.total ?? 0);
-
-        const groups = groupTransactions(txData.transactions);
-        setRecentTransactions(groups.flatMap(g => g.transactions));
-      } catch (err) {
-        console.error('Failed to load home data:', err);
-      }
-    };
-    load();
+      const groups = groupTransactions(data.recentTransactions);
+      setRecentTransactions(groups.flatMap(g => g.transactions));
+    } catch (err) {
+      console.error('Failed to load home data:', err);
+    }
   }, [month, year]);
+
+  useEffect(() => {
+    if (accounts.length === 0) fetchAccounts();
+  }, [accounts.length, fetchAccounts]);
+
+  useEffect(() => {
+    loadHomeData();
+  }, [loadHomeData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHomeData();
+    }, [loadHomeData]),
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([fetchAccounts(), loadHomeData()]);
+    setRefreshing(false);
+  }, [fetchAccounts, loadHomeData]);
 
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
 
@@ -60,6 +69,14 @@ const HomeScreen = ({ navigation }) => {
         style={styles.flex}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
       >
         <HomeHeader onBellPress={() => {}} />
 
@@ -72,7 +89,8 @@ const HomeScreen = ({ navigation }) => {
 
         <MonthlySpendingCard
           spendingAmount={totalExpenses}
-          budgetPercent={72}
+          dailySpending={dailySpending}
+          budgetPercent={'NAN'}
           remainingLabel="Track your spending this month."
         />
 

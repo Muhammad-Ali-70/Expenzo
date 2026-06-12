@@ -1,83 +1,67 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import React, { useRef, useEffect } from 'react';
+import { View, Animated, StyleSheet } from 'react-native';
 import colors from '../../../constants/colors';
 import { borderRadius } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
 
+const ShimmerBlock = ({ style }) => {
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [opacity]);
+
+  return (
+    <Animated.View
+      style={[
+        style,
+        {
+          backgroundColor: colors.textMuted + '20',
+          opacity: opacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.3, 0.7],
+          }),
+        },
+      ]}
+    />
+  );
+};
+
 const SkeletonItem = () => (
-  <SkeletonPlaceholder.Item
-    flexDirection="row"
-    alignItems="center"
-    backgroundColor={colors.surfacePrimary}
-    borderRadius={borderRadius.lg}
-    paddingVertical={wp(2)}
-    paddingHorizontal={wp(2)}
-    gap={wp(3)}
-  >
-    {/* Icon */}
-    <SkeletonPlaceholder.Item
-      width={wp(11)}
-      height={wp(11)}
-      borderRadius={wp(5.5)}
-    />
-
-    {/* Text lines */}
-    <SkeletonPlaceholder.Item flex={1} gap={hp(0.8)}>
-      <SkeletonPlaceholder.Item
-        width="62%"
-        height={hp(1.6)}
-        borderRadius={borderRadius.sm}
-      />
-      <SkeletonPlaceholder.Item
-        width="38%"
-        height={hp(1.2)}
-        borderRadius={borderRadius.sm}
-      />
-    </SkeletonPlaceholder.Item>
-
-    {/* Amount */}
-    <SkeletonPlaceholder.Item
-      width={wp(14)}
-      height={hp(1.6)}
-      borderRadius={borderRadius.sm}
-    />
-  </SkeletonPlaceholder.Item>
+  <View style={styles.itemRow}>
+    <ShimmerBlock style={styles.icon} />
+    <View style={styles.textCol}>
+      <ShimmerBlock style={styles.titleLine} />
+      <ShimmerBlock style={styles.subtitleLine} />
+    </View>
+    <ShimmerBlock style={styles.amountLine} />
+  </View>
 );
 
 const SkeletonSection = ({ itemCount = 3 }) => (
   <View style={styles.section}>
-    <SkeletonPlaceholder
-      backgroundColor={colors.textMuted + '20'}
-      highlightColor={colors.textMuted + '50'}
-      speed={1200}
-    >
-      {/* Header */}
-      <SkeletonPlaceholder.Item
-        flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
-        marginBottom={hp(1.5)}
-      >
-        <SkeletonPlaceholder.Item
-          width={wp(28)}
-          height={hp(2)}
-          borderRadius={borderRadius.sm}
-        />
-        <SkeletonPlaceholder.Item
-          width={wp(18)}
-          height={hp(1.8)}
-          borderRadius={borderRadius.sm}
-        />
-      </SkeletonPlaceholder.Item>
-
-      {/* Items */}
-      <SkeletonPlaceholder.Item gap={hp(1.2)}>
-        {Array.from({ length: itemCount }).map((_, i) => (
-          <SkeletonItem key={i} />
-        ))}
-      </SkeletonPlaceholder.Item>
-    </SkeletonPlaceholder>
+    <View style={styles.headerRow}>
+      <ShimmerBlock style={styles.headerLeft} />
+      <ShimmerBlock style={styles.headerRight} />
+    </View>
+    {Array.from({ length: itemCount }).map((_, i) => (
+      <SkeletonItem key={i} />
+    ))}
   </View>
 );
 
@@ -85,6 +69,57 @@ const styles = StyleSheet.create({
   section: {
     marginHorizontal: wp(5),
     marginTop: hp(2.5),
+    backgroundColor: colors.background,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: hp(1.5),
+  },
+  headerLeft: {
+    width: wp(28),
+    height: hp(2),
+    borderRadius: borderRadius.sm,
+  },
+  headerRight: {
+    width: wp(18),
+    height: hp(1.8),
+    borderRadius: borderRadius.sm,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surfacePrimary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: wp(2),
+    paddingHorizontal: wp(2),
+    marginBottom: hp(1.2),
+  },
+  icon: {
+    width: wp(11),
+    height: wp(11),
+    borderRadius: wp(5.5),
+  },
+  textCol: {
+    flex: 1,
+    marginLeft: wp(3),
+    gap: hp(0.8),
+  },
+  titleLine: {
+    width: '62%',
+    height: hp(1.6),
+    borderRadius: borderRadius.sm,
+  },
+  subtitleLine: {
+    width: '38%',
+    height: hp(1.2),
+    borderRadius: borderRadius.sm,
+  },
+  amountLine: {
+    width: wp(14),
+    height: hp(1.6),
+    borderRadius: borderRadius.sm,
   },
 });
 

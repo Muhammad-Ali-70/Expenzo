@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   Image,
@@ -14,6 +13,7 @@ import AppTextInput from '../../components/ui/AppTextInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import AuthTagline from '../../components/auth/AuthTagline';
 import AuthFooter from '../../components/auth/AuthFooter';
+import LoginOptionsRow from '../../components/auth/LoginOptionsRow';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
 import { Label } from '../../constants/globalstyle';
 import { useToastService } from '../../utils/ToastService';
@@ -30,6 +30,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('tridduxasifeu-6204@yopmail.com');
   const [password, setPassword] = useState('admin@123');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [errors, setErrors] = useState({});
 
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
@@ -37,7 +38,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = useCallback(async () => {
     setErrors({});
 
-    const result = await login({ email: email.trim(), password });
+    const result = await login({ email: email.trim(), password, rememberMe });
 
     if (result.success) {
       toastRef.current.success('Welcome back!');
@@ -46,7 +47,7 @@ const LoginScreen = ({ navigation }) => {
         result.message || 'Login failed. Please check your credentials.',
       );
     }
-  }, [email, password, login]);
+  }, [email, password, rememberMe, login]);
 
   return (
     <KeyboardAvoidingView
@@ -94,15 +95,11 @@ const LoginScreen = ({ navigation }) => {
             onRightIconPress={() => setShowPassword(v => !v)}
           />
 
-          <TouchableOpacity
-            style={styles.forgotBtn}
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('ForgotPasswordScreen')}
-          >
-            <Label type="bodySmall" weight="semiBold" color="primary">
-              Forgot Password?
-            </Label>
-          </TouchableOpacity>
+          <LoginOptionsRow
+            rememberMe={rememberMe}
+            onRememberMeToggle={() => setRememberMe(v => !v)}
+            onForgotPassword={() => navigation.navigate('ForgotPasswordScreen')}
+          />
 
           <View style={styles.ctaWrapper}>
             <PrimaryButton
@@ -149,11 +146,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingTop: hp(2),
     paddingBottom: hp(4),
-  },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    marginTop: hp(-0.5),
-    marginBottom: hp(1),
   },
   ctaWrapper: { marginTop: hp(1.5) },
   divider: { paddingHorizontal: 0 },
