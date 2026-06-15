@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { AlertTriangle } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
 import PaymentIcon from '../common/Paymenticon';
 import CurrencyView from '../common/CurrencyView';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 // status: 'normal' | 'warning' | 'overspent'
 const getStatus = percent => {
@@ -14,16 +14,18 @@ const getStatus = percent => {
   return 'normal';
 };
 
-const STATUS_BAR_COLOR = {
-  normal: colors.bankAccount,
-  warning: '#F59E0B',
-  overspent: colors.error,
+const getBarColor = (status, t) => {
+  switch (status) {
+    case 'normal': return t.bankAccount;
+    case 'overspent': return t.error;
+    default: return '#F59E0B';
+  }
 };
 
-const StatusLabel = ({ percent, status }) => {
+const StatusLabel = ({ percent, status, s }) => {
   if (status === 'overspent') {
     return (
-      <View style={styles.overspentWrap}>
+      <View style={s.overspentWrap}>
         <Label type="bodyXs" weight="semiBold" color="error">
           Overspent
         </Label>
@@ -35,7 +37,7 @@ const StatusLabel = ({ percent, status }) => {
   }
   if (status === 'warning') {
     return (
-      <View style={styles.warningWrap}>
+      <View style={s.warningWrap}>
         <AlertTriangle size={wp(3.5)} color="#F59E0B" strokeWidth={2} />
         <Label type="bodySmall" weight="bold" style={{ color: '#F59E0B' }}>
           {percent}%
@@ -59,9 +61,11 @@ const CategoryBreakdownItem = ({
   limitAmount,
   barColor,
 }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const percent = Math.round((spentAmount / limitAmount) * 100);
   const status = getStatus(percent);
-  const resolvedBarColor = barColor ?? STATUS_BAR_COLOR[status];
+  const resolvedBarColor = barColor ?? getBarColor(status, theme);
   const leftAccent = status !== 'normal' ? resolvedBarColor : 'transparent';
 
   return (
@@ -99,7 +103,7 @@ const CategoryBreakdownItem = ({
           </View>
         </View>
 
-        <StatusLabel percent={percent} status={status} />
+        <StatusLabel percent={percent} status={status} s={styles} />
       </View>
 
       <View style={styles.track}>
@@ -117,9 +121,9 @@ const CategoryBreakdownItem = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   card: {
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     padding: wp(4),
     gap: hp(1.2),
@@ -149,7 +153,7 @@ const styles = StyleSheet.create({
   },
   track: {
     height: hp(0.8),
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: t.surfaceContainer,
     borderRadius: borderRadius.full,
     overflow: 'hidden',
   },

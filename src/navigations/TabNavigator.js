@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, ScrollText, Plus, PieChart, User } from 'lucide-react-native';
 import { hp, wp } from '../constants/responsive';
 import { borderRadius, Label } from '../constants/globalstyle';
-import colors from '../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import HomeScreen from '../screens/tabs/HomeScreen';
 import HistoryScreen from '../screens/tabs/HistoryScreen';
 import PlanStack from './PlanStack';
@@ -14,24 +14,20 @@ const Tab = createBottomTabNavigator();
 
 const TAB_ITEMS = [
   { name: 'Home', label: 'Home', Icon: Home, screen: HomeScreen },
-  {
-    name: 'History',
-    label: 'History',
-    Icon: ScrollText,
-    screen: HistoryScreen,
-  },
+  { name: 'History', label: 'History', Icon: ScrollText, screen: HistoryScreen },
   { name: 'Plan', label: 'Plan', Icon: PieChart, screen: PlanStack },
   { name: 'User', label: 'User', Icon: User, screen: SettingStack },
 ];
 
 const CustomTabBar = ({ state, navigation }) => {
+  const theme = useThemeColors();
   const left = TAB_ITEMS.slice(0, 2);
   const right = TAB_ITEMS.slice(2, 4);
 
   const renderTab = (item, index) => {
     const routeIndex = TAB_ITEMS.indexOf(item);
     const isFocused = state.index === routeIndex;
-    const iconColor = isFocused ? colors.primary : colors.textMuted;
+    const iconColor = isFocused ? theme.primary : theme.textMuted;
     const labelColor = isFocused ? 'primary' : 'textMuted';
 
     const onPress = () => {
@@ -68,21 +64,26 @@ const CustomTabBar = ({ state, navigation }) => {
   const onAddPress = () => navigation.navigate('AddTransaction');
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.bar}>
+    <View style={[styles.wrapper, { backgroundColor: 'transparent' }]}>
+      <View style={[styles.bar, { backgroundColor: theme.surfacePrimary }]}>
         <View style={styles.side}>{left.map(renderTab)}</View>
-
         <View style={styles.fabSlot} />
-
         <View style={styles.side}>{right.map(renderTab)}</View>
       </View>
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: theme.primary,
+            borderColor: theme.surfacePrimary,
+            shadowColor: theme.primary,
+          },
+        ]}
         activeOpacity={0.85}
         onPress={onAddPress}
       >
-        <Plus size={wp(8)} color={colors.white} strokeWidth={2.5} />
+        <Plus size={wp(8)} color={theme.onPrimary} strokeWidth={2.5} />
       </TouchableOpacity>
     </View>
   );
@@ -96,7 +97,6 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfacePrimary,
     borderTopLeftRadius: borderRadius.xxl,
     borderTopRightRadius: borderRadius.xxl,
     paddingBottom: Platform.OS === 'ios' ? hp(3) : hp(1.5),
@@ -132,16 +132,13 @@ const styles = StyleSheet.create({
     width: wp(15),
     height: wp(15),
     borderRadius: wp(8),
-    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 10,
     borderWidth: 5,
-    borderColor: colors.white,
   },
 });
 

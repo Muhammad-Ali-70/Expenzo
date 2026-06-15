@@ -1,11 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../constants/responsive';
 
 const OtpInput = ({ length = 6, value = '', onChange, error }) => {
   const inputs = useRef([]);
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const digits = value.split('');
 
   const handleChange = (text, index) => {
@@ -57,10 +59,10 @@ const OtpInput = ({ length = 6, value = '', onChange, error }) => {
         {Array.from({ length }).map((_, index) => {
           const isFilled = !!digits[index];
           const borderColor = error
-            ? colors.error
+            ? theme.error
             : isFilled
-            ? colors.primary
-            : colors.outlineVariant;
+            ? theme.primary
+            : theme.outlineVariant;
 
           return (
             <TextInput
@@ -81,9 +83,9 @@ const OtpInput = ({ length = 6, value = '', onChange, error }) => {
               maxLength={6} // allow paste
               selectTextOnFocus
               caretHidden
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={theme.textMuted}
               placeholder="·"
-              cursorColor={colors.primary}
+              cursorColor={theme.primary}
             />
           );
         })}
@@ -98,7 +100,7 @@ const OtpInput = ({ length = 6, value = '', onChange, error }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   wrapper: { marginBottom: hp(1) },
   row: {
     flexDirection: 'row',
@@ -110,11 +112,11 @@ const styles = StyleSheet.create({
     height: hp(7),
     borderWidth: 1.5,
     borderRadius: borderRadius.lg,
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     textAlign: 'center',
     fontSize: 22,
     fontWeight: '600',
-    color: colors.textMain,
+    color: t.textMain,
   },
   error: {
     marginTop: hp(0.8),

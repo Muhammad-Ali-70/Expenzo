@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import SpendingLineChart from '../common/SpendingLineChart';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const MonthlySpendingCard = ({
   spendingAmount = 0,
   dailySpending = [],
   budgetPercent = 72,
   remainingLabel,
-}) => (
+}) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
+  return (
   <View style={styles.card}>
     <View>
       <Label type="bodyXs" weight="medium" color="textMuted">
@@ -54,13 +58,14 @@ const MonthlySpendingCard = ({
       )}
     </View>
   </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   card: {
     marginHorizontal: wp(5),
     marginTop: hp(2),
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     padding: wp(5),
     gap: hp(2),
@@ -77,13 +82,13 @@ const styles = StyleSheet.create({
   },
   track: {
     height: hp(0.8),
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: t.surfaceContainer,
     borderRadius: borderRadius.full,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    backgroundColor: colors.primary,
+    backgroundColor: t.primary,
     borderRadius: borderRadius.full,
   },
   remaining: {

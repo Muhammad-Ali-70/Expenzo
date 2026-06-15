@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { Label } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
 import { wp, hp } from '../../constants/responsive';
 import { ACTIVE_CURRENCY, sanitiseInput } from '../../utils/currency';
 import { RFValue } from 'react-native-responsive-fontsize';
 import fonts from '../../constants/fonts';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const CurrencyInput = ({
   value,
@@ -26,6 +26,9 @@ const CurrencyInput = ({
     const clean = sanitiseInput(text, currency);
     onChangeText?.(clean);
   };
+
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
@@ -51,7 +54,7 @@ const CurrencyInput = ({
           value={value}
           onChangeText={handleChange}
           placeholder={derivedPlaceholder}
-          placeholderTextColor={colors.outlineVariant}
+          placeholderTextColor={theme.outlineVariant}
           keyboardType={currency.decimals > 0 ? 'decimal-pad' : 'number-pad'}
           maxLength={12}
           {...rest}
@@ -61,7 +64,7 @@ const CurrencyInput = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   wrapper: {
     alignItems: 'flex-end',
     minWidth: wp(20),
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: RFValue(15),
     fontFamily: fonts.bold,
-    color: colors.primary,
+    color: t.primary,
     padding: 0,
     minWidth: wp(12),
     textAlign: 'right',

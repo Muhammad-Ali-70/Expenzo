@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { X } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
 import { Label } from '../../../constants/globalstyle';
-import colors from '../../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import CurrencyInput from '../../common/CurrencyInput';
 
 const AccountRow = ({
@@ -13,6 +13,8 @@ const AccountRow = ({
   onBalanceChange,
   onRemove,
 }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const accountId = account[accountIdKey];
 
   return (
@@ -44,14 +46,14 @@ const AccountRow = ({
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           style={styles.removeBtn}
         >
-          <X size={wp(4)} color={colors.black} strokeWidth={2} />
+          <X size={wp(4)} color={theme.black} strokeWidth={2} />
         </TouchableOpacity>
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',

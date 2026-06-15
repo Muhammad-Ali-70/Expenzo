@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { wp, hp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import PaymentIcon from '../common/Paymenticon';
 import AccountAvatar from './AccountAvatar';
@@ -21,6 +21,8 @@ const SelectableIcon = ({
   const isLg = size === 'lg';
   const isGrid = size === 'grid';
 
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const avatarSize = isLg ? wp(12) : isGrid ? wp(13) : wp(11);
 
   return (
@@ -44,8 +46,8 @@ const SelectableIcon = ({
       ) : (
         <PaymentIcon
           name={iconName}
-          backgroundColor={active ? colors.primary : iconBg}
-          color={active ? colors.onPrimary : iconColor}
+          backgroundColor={active ? theme.primary : iconBg}
+          color={active ? theme.onPrimary : iconColor}
           containerSize={avatarSize}
           size={isLg ? wp(6) : isGrid ? wp(6.5) : wp(5.2)}
         />
@@ -61,7 +63,7 @@ const SelectableIcon = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   base: {
     alignItems: 'center',
     gap: hp(0.8),
@@ -74,7 +76,7 @@ const styles = StyleSheet.create({
   lg: {
     flex: 1,
     paddingVertical: hp(2),
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
   },
   grid: {
     width: (wp(100) - wp(6) - wp(9)) / 4,
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(1),
   },
   active: {
-    borderColor: colors.primary,
+    borderColor: t.primary,
   },
 });
 

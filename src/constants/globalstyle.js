@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { colors } from './colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import fonts from './fonts';
 import { wp } from './responsive';
 
@@ -80,13 +80,14 @@ export const Label = ({
   color = 'textMain',
   underline = false,
   style,
-  transformText, // 👈 add this
+  transformText,
   ...props
 }) => {
   const fontSize = TEXT_TYPES[type] || TEXT_TYPES.body;
   const fontWeight = weight || DEFAULT_WEIGHTS[type] || 'regular';
   const fontFamily = FONT_WEIGHTS[fontWeight] || fonts.regular;
-  const textColor = colors[color] || color;
+  const themeColors = useThemeColors();
+  const textColor = themeColors[color] || color;
 
   const formatText = text => {
     if (!text) return text;

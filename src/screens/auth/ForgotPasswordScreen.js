@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import AppTextInput from '../../components/ui/AppTextInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import AuthTagline from '../../components/auth/AuthTagline';
@@ -24,6 +24,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const handleSubmit = useCallback(async () => {
     if (!isValidEmail(email)) {
@@ -100,9 +102,9 @@ const ForgotPasswordScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   flex: { flex: 1 },
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1, backgroundColor: t.background },
   scroll: {
     paddingHorizontal: wp(5),
     paddingTop: hp(2),

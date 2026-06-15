@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { CalendarDays, ChevronRight } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const formatDate = date => {
   const now = new Date();
@@ -28,6 +28,8 @@ const formatDate = date => {
 };
 
 const DateTimeRow = ({ date, onChange }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [show, setShow] = React.useState(false);
   const [mode, setMode] = React.useState('date'); // 'date' | 'time'
 
@@ -76,7 +78,7 @@ const DateTimeRow = ({ date, onChange }) => {
           <View style={styles.row}>
             <CalendarDays
               size={wp(4.2)}
-              color={colors.secondary}
+              color={theme.secondary}
               strokeWidth={1.8}
             />
             <Label type="bodySmall" weight="semiBold" color="textMain">
@@ -86,7 +88,7 @@ const DateTimeRow = ({ date, onChange }) => {
         </View>
         <ChevronRight
           size={wp(4.5)}
-          color={colors.textMuted}
+          color={theme.textMuted}
           strokeWidth={1.8}
         />
       </TouchableOpacity>
@@ -104,10 +106,10 @@ const DateTimeRow = ({ date, onChange }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   card: {
     marginHorizontal: wp(5),
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     paddingHorizontal: wp(4),
     paddingVertical: hp(2),

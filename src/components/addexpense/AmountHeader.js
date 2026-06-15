@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label } from '../../constants/globalstyle';
 import { ACTIVE_CURRENCY, sanitiseInput } from '../../utils/currency';
 import { RFValue } from 'react-native-responsive-fontsize';
 import fonts from '../../constants/fonts';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const AmountHeader = ({ value, onChangeText, currency = ACTIVE_CURRENCY }) => {
   const handleChange = text => onChangeText(sanitiseInput(text, currency));
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <View style={styles.container}>
@@ -36,7 +38,7 @@ const AmountHeader = ({ value, onChangeText, currency = ACTIVE_CURRENCY }) => {
           placeholder={
             currency.decimals > 0 ? `0.${'0'.repeat(currency.decimals)}` : '0'
           }
-          placeholderTextColor={colors.textMain}
+          placeholderTextColor={theme.textMain}
           keyboardType={currency.decimals > 0 ? 'decimal-pad' : 'number-pad'}
           maxLength={12}
         />
@@ -45,11 +47,11 @@ const AmountHeader = ({ value, onChangeText, currency = ACTIVE_CURRENCY }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: t.surfaceContainerLow,
     paddingVertical: hp(3.5),
     gap: hp(0.8),
   },
@@ -67,7 +69,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: RFValue(36),
     fontFamily: fonts.bold,
-    color: colors.textMain,
+    color: t.textMain,
     minWidth: wp(30),
     padding: 0,
     includeFontPadding: false,

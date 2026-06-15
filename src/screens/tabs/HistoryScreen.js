@@ -7,7 +7,7 @@ import {
 import { FlashList } from '@shopify/flash-list';
 import { CalendarDays, LayoutGrid, Wallet } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { Label } from '../../constants/globalstyle';
 import HomeHeader from '../../components/home/HomeHeader';
 import SearchBar from '../../components/ui/SearchBar';
@@ -36,6 +36,9 @@ const useDebounce = (value, delay = 400) => {
 };
 
 const HistoryScreen = ({ route }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedTx, setSelectedTx] = useState(null);
@@ -100,7 +103,7 @@ const HistoryScreen = ({ route }) => {
         onPress={() => setSelectedTx(item.raw)}
       />
     );
-  }, []);
+  }, [styles]);
 
   const renderEmpty = () => {
     if (loading) return null;
@@ -121,7 +124,7 @@ const HistoryScreen = ({ route }) => {
     return (
       <ActivityIndicator
         size="small"
-        color={colors.primary}
+        color={theme.primary}
         style={styles.loadingMore}
       />
     );
@@ -197,51 +200,52 @@ const HistoryScreen = ({ route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  searchWrap: {
-    paddingHorizontal: wp(5),
-    marginBottom: hp(1.5),
-  },
-  tagsWrap: {
-    marginBottom: hp(1),
-  },
-  scrollContent: {
-    paddingBottom: hp(12),
-    paddingHorizontal: wp(5),
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: hp(2.5),
-    paddingBottom: hp(1),
-  },
-  loadingWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: hp(1.5),
-    textAlign: 'center',
-  },
-  errorWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: hp(1.5),
-  },
-  empty: {
-    textAlign: 'center',
-    marginTop: hp(10),
-  },
-  loadingMore: {
-    paddingVertical: hp(2),
-  },
-});
+const createStyles = t =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: t.background,
+    },
+    searchWrap: {
+      paddingHorizontal: wp(5),
+      marginBottom: hp(1.5),
+    },
+    tagsWrap: {
+      marginBottom: hp(1),
+    },
+    scrollContent: {
+      paddingBottom: hp(12),
+      paddingHorizontal: wp(5),
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingTop: hp(2.5),
+      paddingBottom: hp(1),
+    },
+    loadingWrap: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: hp(1.5),
+      textAlign: 'center',
+    },
+    errorWrap: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: hp(1.5),
+    },
+    empty: {
+      textAlign: 'center',
+      marginTop: hp(10),
+    },
+    loadingMore: {
+      paddingVertical: hp(2),
+    },
+  });
 
 export default HistoryScreen;

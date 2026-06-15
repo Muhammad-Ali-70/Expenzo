@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   FlatList,
@@ -6,11 +6,11 @@ import {
   StyleSheet,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import BottomSheet from '../ui/BottomSheet';
 import AccountTile from '../ui/AccountTile';
 import { BANKS } from '../../constants/theme/accountMeta';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const BankPickerModal = ({
   visible,
@@ -19,6 +19,8 @@ const BankPickerModal = ({
   onSelect,
   onClose,
 }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [query, setQuery] = useState('');
 
   const filtered = BANKS.filter(b =>
@@ -37,7 +39,7 @@ const BankPickerModal = ({
         <TextInput
           style={styles.search}
           placeholder="Search bank…"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           value={query}
           onChangeText={setQuery}
           autoCorrect={false}
@@ -67,18 +69,18 @@ const BankPickerModal = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   searchWrap: {
     marginHorizontal: wp(5),
     marginBottom: hp(1.5),
     borderRadius: borderRadius.lg,
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: t.surfaceSecondary,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: t.outlineVariant,
     paddingHorizontal: wp(3.5),
     paddingVertical: hp(1.1),
   },
-  search: { fontSize: 13, color: colors.textMain, padding: 0 },
+  search: { fontSize: 13, color: t.textMain, padding: 0 },
   grid: { paddingHorizontal: wp(3), paddingBottom: hp(1), gap: hp(0.5) },
   row: { justifyContent: 'space-between' },
 });

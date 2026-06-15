@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import { borderRadius } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const PaginationDots = ({ total = 3, active = 0, style }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={[styles.row, style]}>
       {Array.from({ length: total }).map((_, index) => {
@@ -23,7 +25,7 @@ const PaginationDots = ({ total = 3, active = 0, style }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -37,11 +39,11 @@ const styles = StyleSheet.create({
   },
   dotActive: {
     width: wp(6),
-    backgroundColor: colors.primary,
+    backgroundColor: t.primary,
   },
   dotInactive: {
     width: wp(2),
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: t.outlineVariant,
   },
 });
 

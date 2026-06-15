@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const fillDaysForMonth = (dailySpending = [], daysInMonth, emptyColor) => {
   const map = {};
@@ -20,9 +20,9 @@ const SpendingBarChart = ({
   daysInMonth,
   width: propWidth,
   height = hp(12),
-  barColor = colors.primary,
+  barColor: _barColor,
   gradientColor,
-  emptyBarColor = colors.surfaceContainer,
+  emptyBarColor: _emptyBarColor,
   barBorderRadius = 3,
   noOfSections = 3,
   isAnimated = true,
@@ -31,6 +31,9 @@ const SpendingBarChart = ({
 }) => {
   const [measuredWidth, setMeasuredWidth] = useState(0);
   const { width: screenWidth } = useWindowDimensions();
+  const theme = useThemeColors();
+  const barColor = _barColor ?? theme.primary;
+  const emptyBarColor = _emptyBarColor ?? theme.surfaceContainer;
 
   const containerWidth = propWidth || measuredWidth || screenWidth - wp(10) * 2;
 
@@ -47,6 +50,7 @@ const SpendingBarChart = ({
 
   const maxVal = Math.max(...barData.map(b => b.value), 1);
   const effectiveGradient = gradientColor ?? barColor;
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <View
@@ -71,7 +75,7 @@ const SpendingBarChart = ({
         gradientColor={effectiveGradient}
         frontColor={barColor}
         barBorderRadius={barBorderRadius}
-        labelTextStyle={{ fontSize: 8, color: colors.textMuted }}
+        labelTextStyle={{ fontSize: 8, color: theme.textMuted }}
         spacing={containerWidth / 40}
         {...rest}
       />
@@ -79,7 +83,7 @@ const SpendingBarChart = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   container: {
     width: '100%',
   },

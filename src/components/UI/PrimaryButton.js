@@ -10,83 +10,9 @@ import {
   borderRadius,
   shadowPrimary,
 } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../constants/responsive';
 
-/**
- * ─────────────────────────────────────────────────────────────────
- *  VARIANT DEFINITIONS
- *  Each entry describes the full visual appearance of one variant.
- *  Add a new variant here — nothing else in the component changes.
- * ─────────────────────────────────────────────────────────────────
- *
- *  bg            Background color  (transparent for non-filled)
- *  borderColor   Border color      (undefined = no border)
- *  labelColor    Label `color` prop (key from colors or hex string)
- *  shadow        Whether to apply shadowPrimary
- */
-const VARIANTS = {
-  /** Solid filled green — primary CTA */
-  primary: {
-    bg: colors.primary,
-    borderColor: undefined,
-    labelColor: 'onPrimary',
-    shadow: true,
-  },
-
-  /** Transparent with green border */
-  outline: {
-    bg: 'transparent',
-    borderColor: colors.primary,
-    labelColor: 'primary',
-    shadow: false,
-  },
-
-  /** No background, no border — text-only */
-  ghost: {
-    bg: 'transparent',
-    borderColor: undefined,
-    labelColor: 'primary',
-    shadow: false,
-  },
-
-  /** Destructive / danger action */
-  danger: {
-    bg: colors.error,
-    borderColor: undefined,
-    labelColor: 'onPrimary',
-    shadow: false,
-  },
-
-  /** Danger outlined variant */
-  dangerOutline: {
-    bg: 'transparent',
-    borderColor: colors.error,
-    labelColor: 'error',
-    shadow: false,
-  },
-
-  /** Secondary blue filled */
-  secondary: {
-    bg: colors.secondary,
-    borderColor: undefined,
-    labelColor: 'onPrimary',
-    shadow: false,
-  },
-
-  /** Muted surface — less prominent action */
-  surface: {
-    bg: colors.surfaceContainer,
-    borderColor: undefined,
-    labelColor: 'primary',
-    shadow: false,
-  },
-};
-
-/**
- * SIZE DEFINITIONS
- * Controls height, horizontal padding, and label type/weight.
- */
 const SIZES = {
   sm: {
     height: hp(4),
@@ -125,6 +51,53 @@ const PrimaryButton = ({
   style,
   labelStyle,
 }) => {
+  const theme = useThemeColors();
+
+  const VARIANTS = {
+    primary: {
+      bg: theme.primary,
+      borderColor: undefined,
+      labelColor: 'onPrimary',
+      shadow: true,
+    },
+    outline: {
+      bg: 'transparent',
+      borderColor: theme.primary,
+      labelColor: 'primary',
+      shadow: false,
+    },
+    ghost: {
+      bg: 'transparent',
+      borderColor: undefined,
+      labelColor: 'primary',
+      shadow: false,
+    },
+    danger: {
+      bg: theme.error,
+      borderColor: undefined,
+      labelColor: 'onPrimary',
+      shadow: false,
+    },
+    dangerOutline: {
+      bg: 'transparent',
+      borderColor: theme.error,
+      labelColor: 'error',
+      shadow: false,
+    },
+    secondary: {
+      bg: theme.secondary,
+      borderColor: undefined,
+      labelColor: 'onPrimary',
+      shadow: false,
+    },
+    surface: {
+      bg: theme.surfaceContainer,
+      borderColor: undefined,
+      labelColor: 'primary',
+      shadow: false,
+    },
+  };
+
   const v = VARIANTS[variant] ?? VARIANTS.primary;
   const s = SIZES[size] ?? SIZES.lg;
 
@@ -157,11 +130,7 @@ const PrimaryButton = ({
     >
       {loading ? (
         <ActivityIndicator
-          color={
-            resolvedLabelColor === 'onPrimary'
-              ? colors.white
-              : colors[resolvedLabelColor] ?? resolvedLabelColor
-          }
+          color={theme.onPrimary}
           size="small"
         />
       ) : (
@@ -195,7 +164,6 @@ const styles = StyleSheet.create({
   inner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   label: {
     textAlign: 'center',

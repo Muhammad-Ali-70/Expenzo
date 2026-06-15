@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { TrendingUp } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
+import { useThemeColors } from '@hooks/useThemeColors';
 
-const ProgressBar = ({ percent, color }) => (
-  <View style={styles.track}>
+const ProgressBar = ({ percent, color, s }) => (
+  <View style={s.track}>
     <View
       style={[
-        styles.fill,
+        s.fill,
         { width: `${Math.min(percent, 100)}%`, backgroundColor: color },
       ]}
     />
@@ -25,6 +25,8 @@ const TotalSpendingCard = ({
   dailyAverage = 0,
   percentUsed = 0,
 }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <LinearGradient
       colors={['#006c49', '#00a86b']}
@@ -42,7 +44,7 @@ const TotalSpendingCard = ({
           TOTAL SPENDING
         </Label>
         <View style={styles.badge}>
-          <TrendingUp size={wp(3.2)} color={colors.onPrimary} strokeWidth={2} />
+          <TrendingUp size={wp(3.2)} color={theme.onPrimary} strokeWidth={2} />
           <Label type="bodyXs" weight="semiBold" color="onPrimary">
             {percentUsed}%
           </Label>
@@ -75,7 +77,7 @@ const TotalSpendingCard = ({
         />
       </View>
 
-      <ProgressBar percent={percentUsed} color="rgba(255,255,255,0.9)" />
+      <ProgressBar percent={percentUsed} color="rgba(255,255,255,0.9)" s={styles} />
 
       <View style={styles.statsRow}>
         <View style={styles.stat}>
@@ -115,7 +117,7 @@ const TotalSpendingCard = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   card: {
     marginHorizontal: wp(5),
     borderRadius: borderRadius.xl,

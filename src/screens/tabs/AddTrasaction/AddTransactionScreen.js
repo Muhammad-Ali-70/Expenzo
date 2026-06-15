@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -19,7 +19,7 @@ import NotesInput from '../../../components/addexpense/NotesInput';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import CategoryModal from '../../../components/modals/CategoryModal';
 import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
-import colors from '../../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import { Label } from '../../../constants/globalstyle';
 import { INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
@@ -54,6 +54,8 @@ const AddTransactionScreen = ({ navigation, route }) => {
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
 
   const toast = useToastService();
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
     if (primaryAccount && sourceId === null) {
@@ -124,7 +126,13 @@ const AddTransactionScreen = ({ navigation, route }) => {
         {TYPES.map(t => (
           <TouchableOpacity
             key={t}
-            style={[styles.toggleBtn, type === t && styles.toggleBtnActive(t)]}
+            style={[
+              styles.toggleBtn,
+              type === t && {
+                backgroundColor:
+                  t === 'expense' ? theme.error : theme.primary,
+              },
+            ]}
             onPress={() => setType(t)}
             activeOpacity={0.8}
           >
@@ -214,41 +222,39 @@ const AddTransactionScreen = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  toggleWrap: {
-    flexDirection: 'row',
-    marginHorizontal: wp(5),
-    marginTop: hp(2),
-    backgroundColor: colors.surfacePrimary,
-    borderRadius: 12,
-    padding: 4,
-    gap: 4,
-  },
-  toggleBtn: {
-    flex: 1,
-    paddingVertical: hp(1.2),
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  toggleBtnActive: type => ({
-    backgroundColor: type === 'expense' ? colors.error : colors.primary,
-  }),
-  scrollContent: {
-    paddingBottom: hp(2),
-  },
-  form: {
-    paddingTop: hp(2.5),
-    gap: hp(2.5),
-  },
-  footer: {
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(2),
-    backgroundColor: colors.background,
-  },
-});
+const createStyles = t =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: t.background,
+    },
+    toggleWrap: {
+      flexDirection: 'row',
+      marginHorizontal: wp(5),
+      marginTop: hp(2),
+      backgroundColor: t.surfacePrimary,
+      borderRadius: 12,
+      padding: 4,
+      gap: 4,
+    },
+    toggleBtn: {
+      flex: 1,
+      paddingVertical: hp(1.2),
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    scrollContent: {
+      paddingBottom: hp(2),
+    },
+    form: {
+      paddingTop: hp(2.5),
+      gap: hp(2.5),
+    },
+    footer: {
+      paddingHorizontal: wp(5),
+      paddingVertical: hp(2),
+      backgroundColor: t.background,
+    },
+  });
 
 export default AddTransactionScreen;

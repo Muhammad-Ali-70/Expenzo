@@ -11,7 +11,7 @@ import colors from '../../constants/colors';
 import { Label } from '../../constants/globalstyle';
 import { useAccounts } from '../../database/hooks/useAccounts';
 import { useDatabase } from '@nozbe/watermelondb/hooks';
-import useAppStore from '../../store/useAppStore';
+import useAppStore from '@store/useAppStore';
 
 const TYPE_LABEL = {
   wallet: 'Wallet',

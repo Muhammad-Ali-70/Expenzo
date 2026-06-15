@@ -92,5 +92,6 @@ export const selectIsAuthenticated = state => !!state.token;
 export const selectIsOnboarded = state => !!state.user?.isOnboarded;
 export const selectAuthLoading = state => state.isLoading;
 export const selectAuthError = state => state.error;
+export const selectDisplayName = state => state.user?.name || state.user?.email?.split('@')[0] || 'User';
 
 export default useAuthStore;

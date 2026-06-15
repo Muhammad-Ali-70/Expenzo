@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
   View,
   ScrollView,
@@ -13,13 +13,12 @@ import SettingsProfileCard from '../../../components/settings/SettingsProfileCar
 import SettingsSection from '../../../components/settings/SettingsSection';
 import SettingsRow from '../../../components/settings/SettingsRow';
 import { Label, borderRadius } from '../../../constants/globalstyle';
-import colors from '../../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import SignOutButton from '../../../components/settings/SignOutButton';
-import { useToastService } from '../../../utils/ToastService';
 import { useAccounts } from '../../../database/hooks/useAccounts';
-import useAppStore from '../../../store/useAppStore';
-import useAuthStore from '../../../store/useAuthStore';
+import useAppStore from '@store/useAppStore';
+import useAuthStore, { selectDisplayName } from '../../../store/useAuthStore';
 
 const TYPE_LABEL = {
   wallet: 'Wallet',
@@ -27,9 +26,11 @@ const TYPE_LABEL = {
   digitalWallet: 'Digital Wallet',
 };
 
-// Inline account row — matches the visual style of DatabaseTestScreen
-const AccountRow = ({ account, isLast }) => (
-  <View style={[styles.accountRow, !isLast && styles.accountRowDivider]}>
+const AccountRow = ({ account, isLast, tc }) => (
+  <View style={[
+    styles.accountRow,
+    !isLast && { borderBottomWidth: 0.5, borderBottomColor: tc.outlineVariant },
+  ]}>
     <View style={[styles.accountDot, { backgroundColor: account.color }]} />
     <View style={styles.accountInfo}>
       <Label type="bodySmall" weight="semiBold" color="textMain">
@@ -47,15 +48,17 @@ const AccountRow = ({ account, isLast }) => (
 );
 
 const SettingsScreen = ({ navigation }) => {
-  const [user, setUser] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
-
+  const user = useAuthStore(s => s.user);
+  const displayName = useAuthStore(selectDisplayName);
   const { accounts, loading, totalBalance } = useAccounts();
   const resetOnboarding = useAppStore(s => s.resetOnboarding);
+  const theme = useAppStore(s => s.theme);
+  const toggleTheme = useAppStore(s => s.toggleTheme);
   const logout = useAuthStore(s => s.logout);
 
-  const displayName =
-    user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
+  const darkMode = theme === 'dark';
+  const themeColors = useThemeColors();
+
   const email = user?.email ?? '';
 
   const handleSignOut = () => {
@@ -93,7 +96,7 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.safe}>
+    <View style={[styles.safe, { backgroundColor: themeColors.background }]}>
       <HomeHeader onBellPress={() => {}} />
 
       <ScrollView
@@ -116,15 +119,15 @@ const SettingsScreen = ({ navigation }) => {
             rightElement={
               <Switch
                 value={darkMode}
-                onValueChange={setDarkMode}
+                onValueChange={toggleTheme}
                 trackColor={{
-                  false: colors.outlineVariant,
-                  true: colors.primaryContainer,
+                  false: themeColors.outlineVariant,
+                  true: themeColors.primaryContainer,
                 }}
-                thumbColor={colors.surfacePrimary}
+                thumbColor={themeColors.surfacePrimary}
               />
             }
-            onPress={() => setDarkMode(p => !p)}
+            onPress={toggleTheme}
             showDivider
           />
           <SettingsRow
@@ -178,14 +181,15 @@ const SettingsScreen = ({ navigation }) => {
             <>
               {accounts.map((account, idx) => (
                 <AccountRow
-                  key={account.id}
+                  key={account._id || account.id}
                   account={account}
                   isLast={idx === accounts.length - 1}
+                  tc={themeColors}
                 />
               ))}
 
               {/* Total balance footer */}
-              <View style={styles.totalRow}>
+              <View style={[styles.totalRow, { borderTopColor: themeColors.outlineVariant }]}>
                 <Label type="bodyXs" weight="regular" color="textMuted">
                   Total Balance
                 </Label>
@@ -204,10 +208,10 @@ const SettingsScreen = ({ navigation }) => {
             activeOpacity={0.7}
             style={styles.clearRow}
           >
-            <View style={styles.clearIcon}>
+            <View style={[styles.clearIcon, { backgroundColor: darkMode ? '#3B1A1A' : '#FFF0F0' }]}>
               <Trash2
                 size={wp(4.5)}
-                color={colors.error ?? '#e53935'}
+                color={themeColors.error}
                 strokeWidth={1.8}
               />
             </View>
@@ -222,7 +226,7 @@ const SettingsScreen = ({ navigation }) => {
             <Label
               type="bodyXs"
               weight="semiBold"
-              style={styles.destructiveLabel}
+              style={[styles.destructiveLabel, { color: themeColors.error }]}
             >
               Reset
             </Label>
@@ -247,23 +251,17 @@ const SettingsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingBottom: hp(12),
   },
 
-  // Account rows
   accountRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: wp(4),
     paddingVertical: hp(1.8),
     gap: wp(3),
-  },
-  accountRowDivider: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.outlineVariant,
   },
   accountDot: {
     width: wp(3),
@@ -281,14 +279,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     paddingVertical: hp(1.5),
     borderTopWidth: 0.5,
-    borderTopColor: colors.outlineVariant,
   },
   loadingRow: {
     paddingHorizontal: wp(4),
     paddingVertical: hp(2),
   },
 
-  // Danger zone
   clearRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -300,7 +296,6 @@ const styles = StyleSheet.create({
     width: wp(9),
     height: wp(9),
     borderRadius: borderRadius.lg,
-    backgroundColor: '#FFF0F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -308,9 +303,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: hp(0.3),
   },
-  destructiveLabel: {
-    color: colors.error ?? '#e53935',
-  },
+  destructiveLabel: {},
 
   version: {
     textAlign: 'center',

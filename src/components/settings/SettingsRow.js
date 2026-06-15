@@ -13,7 +13,8 @@ import {
   LogOut,
 } from 'lucide-react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
+import { useIsDarkMode } from '@hooks/useIsDarkMode';
 import { hp, wp } from '../../constants/responsive';
 
 const ICONS = {
@@ -28,16 +29,28 @@ const ICONS = {
   logout: LogOut,
 };
 
-const ICON_THEMES = {
-  moon: { bg: '#EFF6FF', color: colors.bankAccount },
-  currency: { bg: '#E6FFF5', color: colors.primary },
-  bell: { bg: '#EFF6FF', color: colors.bankAccount },
-  upload: { bg: '#FFF3E6', color: '#F97316' },
-  cloud: { bg: '#F5F3FF', color: colors.savings },
-  user: { bg: '#E6FFF5', color: colors.primary },
-  shield: { bg: '#FFF3E6', color: '#F97316' },
-  help: { bg: '#F5F3FF', color: colors.savings },
-  logout: { bg: '#FFF0F0', color: colors.error },
+const LIGHT_ICON_THEMES = {
+  moon: { bg: '#EFF6FF' },
+  currency: { bg: '#E6FFF5' },
+  bell: { bg: '#EFF6FF' },
+  upload: { bg: '#FFF3E6' },
+  cloud: { bg: '#F5F3FF' },
+  user: { bg: '#E6FFF5' },
+  shield: { bg: '#FFF3E6' },
+  help: { bg: '#F5F3FF' },
+  logout: { bg: '#FFF0F0' },
+};
+
+const DARK_ICON_THEMES = {
+  moon: { bg: '#1E3A5F' },
+  currency: { bg: '#0B3D2E' },
+  bell: { bg: '#1E3A5F' },
+  upload: { bg: '#3D2E0B' },
+  cloud: { bg: '#2E1E5E' },
+  user: { bg: '#0B3D2E' },
+  shield: { bg: '#3D2E0B' },
+  help: { bg: '#2E1E5E' },
+  logout: { bg: '#3B1A1A' },
 };
 
 const SettingsRow = ({
@@ -49,17 +62,17 @@ const SettingsRow = ({
   onPress,
   showDivider = true,
 }) => {
+  const theme = useThemeColors();
   const IconComponent = ICONS[iconName];
-  const theme = ICON_THEMES[iconName] ?? {
-    bg: colors.surfaceContainer,
-    color: colors.primary,
-  };
+  const isDark = useIsDarkMode();
+  const iconThemes = isDark ? DARK_ICON_THEMES : LIGHT_ICON_THEMES;
+  const iconTheme = iconThemes[iconName] ?? { bg: theme.surfaceContainer };
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
       {IconComponent ? (
-        <View style={[styles.iconBox, { backgroundColor: theme.bg }]}>
-          <IconComponent size={wp(4.5)} color={theme.color} strokeWidth={1.8} />
+        <View style={[styles.iconBox, { backgroundColor: iconTheme.bg }]}>
+          <IconComponent size={wp(4.5)} color={theme.primary} strokeWidth={1.8} />
         </View>
       ) : null}
 
@@ -88,13 +101,13 @@ const SettingsRow = ({
         {rightElement ?? (
           <ChevronRight
             size={wp(4)}
-            color={colors.textMuted}
+            color={theme.textMuted}
             strokeWidth={1.8}
           />
         )}
       </View>
 
-      {showDivider && <View style={styles.divider} />}
+      {showDivider && <View style={[styles.divider, { backgroundColor: theme.outlineVariant }]} />}
     </TouchableOpacity>
   );
 };
@@ -131,7 +144,6 @@ const styles = StyleSheet.create({
     left: wp(16),
     right: 0,
     height: 0.5,
-    backgroundColor: colors.outlineVariant,
   },
 });
 

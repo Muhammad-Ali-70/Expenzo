@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../constants/responsive';
 import {
   User,
@@ -27,7 +27,7 @@ const ICON_MAP = {
   card: CreditCard,
 };
 
-const AppIcon = ({ name, size = wp(4.5), color = colors.textMuted }) => {
+const AppIcon = ({ name, size = wp(4.5), color }) => {
   const Icon = ICON_MAP[name];
   return Icon ? <Icon size={size} color={color} /> : null;
 };
@@ -44,12 +44,14 @@ const AppTextInput = ({
   ...props
 }) => {
   const [focused, setFocused] = useState(false);
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const borderColor = error
-    ? colors.error
+    ? theme.error
     : focused
-    ? colors.primary
-    : colors.outlineVariant;
+    ? theme.primary
+    : theme.outlineVariant;
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
@@ -67,13 +69,13 @@ const AppTextInput = ({
       <View style={[styles.inputRow, { borderColor }]}>
         {leftIconName ? (
           <View style={styles.leftIcon}>
-            <AppIcon name={leftIconName} />
+            <AppIcon name={leftIconName} color={theme.textMuted} />
           </View>
         ) : null}
 
         <TextInput
           style={[styles.input, inputStyle]}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           secureTextEntry={secureTextEntry}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -86,7 +88,7 @@ const AppTextInput = ({
             onPress={onRightIconPress}
             activeOpacity={0.7}
           >
-            <AppIcon name={rightIconName} />
+            <AppIcon name={rightIconName} color={theme.textMuted} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -100,13 +102,13 @@ const AppTextInput = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   wrapper: { marginBottom: hp(1) },
   label: { marginBottom: hp(0.7) },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderWidth: 1,
     borderRadius: borderRadius.lg,
     height: hp(6),
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   rightIcon: { marginLeft: wp(2.5) },
   input: {
     flex: 1,
-    color: colors.textMain,
+    color: t.textMain,
     fontSize: 14,
     paddingVertical: 0,
   },

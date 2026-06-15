@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import AppTextInput from '../../components/ui/AppTextInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import AuthTagline from '../../components/auth/AuthTagline';
@@ -26,6 +26,8 @@ const SignUpScreen = ({ navigation }) => {
   toastRef.current = toast;
 
   const { signup, isLoading } = useAuthStore();
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const [fullName, setFullName] = useState('Argon James');
   const [email, setEmail] = useState('tridduxasifeu-6204@yopmail.com');
@@ -194,9 +196,9 @@ const SignUpScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   flex: { flex: 1 },
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1, backgroundColor: t.background },
   scroll: {
     paddingHorizontal: wp(5),
     paddingTop: hp(2),

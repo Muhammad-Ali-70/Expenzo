@@ -3,7 +3,7 @@ import { storage } from './storage';
 import { ENV } from '../config/env';
 
 const apiClient = axios.create({
-  baseURL: ENV.BASE_URL,
+  baseURL: 'https://expenzo-backend-production.up.railway.app/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

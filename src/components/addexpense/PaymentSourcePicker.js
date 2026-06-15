@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -11,11 +11,14 @@ import SelectableIcon from '../ui/SelectableIcon';
 import useAccountStore from '../../store/useAccountStore';
 import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
 import { getAccountMeta } from '../../utils/accountMetaLookup';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
   const accounts = useAccountStore(s => s.accounts);
   const loading = useAccountStore(s => s.loading);
+
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const quickAccounts = [
     ...accounts.filter(a => a.type === 'wallet'),
@@ -25,7 +28,7 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
   if (loading) {
     return (
       <View style={styles.section}>
-        <ActivityIndicator size="small" color={colors.primary} />
+        <ActivityIndicator size="small" color={theme.primary} />
       </View>
     );
   }
@@ -68,7 +71,7 @@ const PaymentSourcePicker = ({ activeId, onSelect, onSeeAll }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   section: { marginHorizontal: wp(5), gap: hp(1.2) },
   header: {
     flexDirection: 'row',

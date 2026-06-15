@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import PaymentIcon from '../common/Paymenticon';
 import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
 import AccountGroupModal from '../modals/home/AccountGroupModal';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 // The three buckets we always show, in order
 const BUCKETS = [
@@ -16,12 +16,20 @@ const BUCKETS = [
 ];
 
 const AccountCard = ({ type, label, total, onPress }) => {
+  const theme = useThemeColors();
   const meta = getAccountTypeMeta(type);
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.75}
-      style={styles.card}
+      style={{
+        flex: 1,
+        backgroundColor: theme.surfacePrimary,
+        borderRadius: borderRadius.lg,
+        paddingVertical: hp(1.8),
+        alignItems: 'center',
+        gap: hp(0.7),
+      }}
     >
       <PaymentIcon
         name={meta.iconName}
@@ -34,7 +42,7 @@ const AccountCard = ({ type, label, total, onPress }) => {
         type="bodyXs"
         weight="regular"
         color="textMuted"
-        style={styles.label}
+        style={{ marginTop: hp(0.2) }}
       >
         {label}
       </Label>
@@ -50,6 +58,9 @@ const AccountCard = ({ type, label, total, onPress }) => {
 
 const AccountBreakdownRow = ({ accounts = [] }) => {
   const [activeType, setActiveType] = useState(null);
+
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   // Group accounts by type, compute total per bucket
   const byType = type => accounts.filter(a => a.type === type);
@@ -82,7 +93,7 @@ const AccountBreakdownRow = ({ accounts = [] }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginHorizontal: wp(5),
@@ -91,7 +102,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     paddingVertical: hp(1.8),
     alignItems: 'center',
