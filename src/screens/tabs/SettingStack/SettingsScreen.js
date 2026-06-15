@@ -19,7 +19,7 @@ import SignOutButton from '../../../components/settings/SignOutButton';
 import { useToastService } from '../../../utils/ToastService';
 import { useAccounts } from '../../../database/hooks/useAccounts';
 import useAppStore from '../../../store/useAppStore';
-import useAuthStore from '../../../store/useAuthStore';
+import useAuthStore, { selectDisplayName } from '../../../store/useAuthStore';
 
 const TYPE_LABEL = {
   wallet: 'Wallet',
@@ -47,15 +47,14 @@ const AccountRow = ({ account, isLast }) => (
 );
 
 const SettingsScreen = ({ navigation }) => {
-  const [user, setUser] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
+  const user = useAuthStore(s => s.user);
+  const displayName = useAuthStore(selectDisplayName);
   const { accounts, loading, totalBalance } = useAccounts();
   const resetOnboarding = useAppStore(s => s.resetOnboarding);
   const logout = useAuthStore(s => s.logout);
 
-  const displayName =
-    user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
   const email = user?.email ?? '';
 
   const handleSignOut = () => {
@@ -178,7 +177,7 @@ const SettingsScreen = ({ navigation }) => {
             <>
               {accounts.map((account, idx) => (
                 <AccountRow
-                  key={account.id}
+                  key={account._id || account.id}
                   account={account}
                   isLast={idx === accounts.length - 1}
                 />
