@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { View } from 'react-native';
 import {
   Wallet,
   Landmark,
@@ -20,9 +20,9 @@ import {
   BookOpen,
   Briefcase,
 } from 'lucide-react-native';
-import colors from '../../constants/colors';
 import { borderRadius } from '../../constants/globalstyle';
 import { wp } from '../../constants/responsive';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const ICON_REGISTRY = {
   wallet: Wallet,
@@ -48,12 +48,15 @@ const ICON_REGISTRY = {
 const PaymentIcon = ({
   name = 'wallet',
   size = wp(5.5),
-  color = colors.surfacePrimary,
-  backgroundColor = colors.primary,
+  color: _color,
+  backgroundColor: _backgroundColor,
   containerSize = wp(11),
   radius = borderRadius.lg,
   style,
 }) => {
+  const theme = useThemeColors();
+  const color = _color ?? theme.surfacePrimary;
+  const backgroundColor = _backgroundColor ?? theme.primary;
   const IconComponent = ICON_REGISTRY[name] ?? Wallet;
 
   return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Modal,
@@ -13,7 +13,7 @@ import { borderRadius, Label } from '../../../constants/globalstyle';
 import CurrencyView from '../../common/CurrencyView';
 import PaymentIcon from '../../common/Paymenticon';
 import { hp, wp } from '../../../constants/responsive';
-import colors from '../../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const TYPE_TITLE = {
   wallet: 'Wallet',
@@ -21,19 +21,19 @@ const TYPE_TITLE = {
   digitalWallet: 'Digital Wallets',
 };
 
-const AccountItem = ({ account, isLast }) => {
+const AccountItem = ({ account, isLast, s }) => {
   const meta = getAccountTypeMeta(account.type);
   return (
-    <View style={[styles.item, !isLast && styles.itemDivider]}>
+    <View style={[s.item, !isLast && s.itemDivider]}>
       <View
-        style={[styles.initials, { backgroundColor: account.color + '22' }]}
+        style={[s.initials, { backgroundColor: account.color + '22' }]}
       >
         <Label type="bodyXs" weight="bold" style={{ color: account.color }}>
           {account.initials}
         </Label>
       </View>
 
-      <View style={styles.itemInfo}>
+      <View style={s.itemInfo}>
         <Label type="bodySmall" weight="semiBold" color="textMain">
           {account.label}
         </Label>
@@ -57,6 +57,8 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
   const meta = getAccountTypeMeta(type);
   const title = TYPE_TITLE[type] ?? 'Accounts';
 
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const total = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
 
   return (
@@ -90,7 +92,7 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
                   activeOpacity={0.7}
                   style={styles.closeBtn}
                 >
-                  <X size={wp(4.5)} color={colors.textMuted} strokeWidth={2} />
+                  <X size={wp(4.5)} color={theme.textMuted} strokeWidth={2} />
                 </TouchableOpacity>
               </View>
 
@@ -104,6 +106,7 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
                   <AccountItem
                     account={item}
                     isLast={index === accounts.length - 1}
+                    s={styles}
                   />
                 )}
               />
@@ -128,7 +131,7 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.xl,
     paddingTop: hp(2.5),
     maxHeight: '75%',
@@ -155,7 +158,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingBottom: hp(1.5),
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.outlineVariant,
+    borderBottomColor: t.outlineVariant,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     width: wp(8),
     height: wp(8),
     borderRadius: wp(4),
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: t.surfaceSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
   },
   itemDivider: {
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.outlineVariant,
+    borderBottomColor: t.outlineVariant,
   },
   initials: {
     width: wp(10),
@@ -203,7 +206,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingVertical: hp(1.8),
     borderTopWidth: 0.5,
-    borderTopColor: colors.outlineVariant,
+    borderTopColor: t.outlineVariant,
   },
 });
 

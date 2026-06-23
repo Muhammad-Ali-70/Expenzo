@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Modal,
@@ -15,7 +15,6 @@ import {
   ArrowUpRight,
 } from 'lucide-react-native';
 import { wp, hp } from '../../../constants/responsive';
-import colors from '../../../constants/colors';
 import { Label, borderRadius } from '../../../constants/globalstyle';
 import CurrencyView from '../../common/CurrencyView';
 import PaymentIcon from '../../common/Paymenticon';
@@ -24,6 +23,7 @@ import {
   ACCOUNT_TYPE_META,
 } from '../../../constants/theme/accountMeta';
 import { formatDateTime } from '../../../utils/transactionUtils';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const ACCOUNT_TYPE_LABEL = {
   wallet: 'Wallet',
@@ -31,12 +31,12 @@ const ACCOUNT_TYPE_LABEL = {
   digitalWallet: 'Digital Wallet',
 };
 
-const DetailRow = ({ icon: Icon, label, value, valueColor }) => (
-  <View style={styles.detailRow}>
-    <View style={styles.detailIconWrap}>
-      <Icon size={wp(4)} color={colors.textMuted} strokeWidth={1.8} />
+const DetailRow = ({ icon: Icon, label, value, valueColor, t, s }) => (
+  <View style={s.detailRow}>
+    <View style={s.detailIconWrap}>
+      <Icon size={wp(4)} color={t.textMuted} strokeWidth={1.8} />
     </View>
-    <View style={styles.detailText}>
+    <View style={s.detailText}>
       <Label type="bodyXs" weight="regular" color="textMuted">
         {label}
       </Label>
@@ -52,6 +52,9 @@ const DetailRow = ({ icon: Icon, label, value, valueColor }) => (
 );
 
 const TransactionDetailModal = ({ visible, transaction, onClose }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   if (!transaction) return null;
 
   const {
@@ -93,7 +96,7 @@ const TransactionDetailModal = ({ visible, transaction, onClose }) => {
                   activeOpacity={0.7}
                   style={styles.closeBtn}
                 >
-                  <X size={wp(4.5)} color={colors.black} strokeWidth={2} />
+                  <X size={wp(4.5)} color={theme.black} strokeWidth={2} />
                 </TouchableOpacity>
               </View>
 
@@ -210,10 +213,12 @@ const TransactionDetailModal = ({ visible, transaction, onClose }) => {
                     icon={Calendar}
                     label="Date & Time"
                     value={formatDateTime(date)}
+                    t={theme}
+                    s={styles}
                   />
 
                   {note ? (
-                    <DetailRow icon={FileText} label="Note" value={note} />
+                    <DetailRow icon={FileText} label="Note" value={note} t={theme} s={styles} />
                   ) : null}
                 </View>
               </ScrollView>
@@ -225,7 +230,7 @@ const TransactionDetailModal = ({ visible, transaction, onClose }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -235,7 +240,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.xl,
     paddingTop: hp(2.5),
     maxHeight: '85%',
@@ -252,13 +257,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingBottom: hp(1.5),
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.outlineVariant,
+    borderBottomColor: t.outlineVariant,
   },
   closeBtn: {
     width: wp(8),
     height: wp(8),
     borderRadius: wp(4),
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: t.surfaceSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -284,7 +289,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 0.5,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: t.outlineVariant,
     marginBottom: hp(2),
   },
   details: {

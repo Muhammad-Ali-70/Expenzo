@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import OnboardingHeader from '../../components/onboarding/Onboardingheader';
 import OnboardingTagline from '../../components/onboarding/Onboardingtagline';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
@@ -26,6 +26,8 @@ const OnboardingScreen = () => {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [digitalWallets, setDigitalWallets] = useState([]);
   const [saving, setSaving] = useState(false);
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const handleGetStarted = useCallback(async () => {
     if (!walletBalance) return;
@@ -146,8 +148,8 @@ const OnboardingScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surfacePrimary },
+const createStyles = t => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: t.surfacePrimary },
   flex: { flex: 1 },
   scrollContent: { paddingBottom: hp(3) },
   cta: { paddingHorizontal: wp(5), marginTop: hp(3) },

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Label, shadowPrimary } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const OnboardingHeader = ({ title = 'Expenzo.', showSkip = true, onSkip }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       <Label type="h4" weight="bold" color="primary">
@@ -26,7 +28,7 @@ const OnboardingHeader = ({ title = 'Expenzo.', showSkip = true, onSkip }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -34,7 +36,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingTop: hp(1),
     paddingBottom: hp(1),
-    backgroundColor: colors.background,
+    backgroundColor: t.background,
     ...shadowPrimary,
   },
   hitSlop: {

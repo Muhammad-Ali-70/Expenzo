@@ -4,31 +4,38 @@ import { ToastProvider } from 'react-native-toast-notifications';
 import { setToastRef } from '../utils/ToastService';
 import { hp, wp } from '../constants/responsive';
 import { borderRadiusPrimary, Label } from '../constants/globalstyle';
+import { useIsDarkMode } from '@hooks/useIsDarkMode';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const TOAST_CONFIG = {
   success: {
-    bg: '#F0FDF4',
-    border: '#86EFAC',
-    color: '#16A34A',
     emoji: '✅',
   },
   danger: {
-    bg: '#FEF2F2',
-    border: '#FCA5A5',
-    color: '#DC2626',
     emoji: '❌',
   },
   warning: {
-    bg: '#fff5e4',
-    border: '#d0ad76',
-    color: '#B45309',
     emoji: '⚠️',
   },
 };
 
+const LIGHT_TOAST = {
+  success: { bg: '#F0FDF4', border: '#86EFAC', color: '#16A34A' },
+  danger: { bg: '#FEF2F2', border: '#FCA5A5', color: '#DC2626' },
+  warning: { bg: '#fff5e4', border: '#d0ad76', color: '#B45309' },
+};
+
+const DARK_TOAST = {
+  success: { bg: '#052E16', border: '#166534', color: '#4ADE80' },
+  danger: { bg: '#450A0A', border: '#991B1B', color: '#F87171' },
+  warning: { bg: '#451A03', border: '#92400E', color: '#FBBF24' },
+};
+
 const CustomToast = ({ message, type }) => {
-  const config = TOAST_CONFIG[type] ?? TOAST_CONFIG.success;
+  const isDark = useIsDarkMode();
+  const palette = isDark ? DARK_TOAST : LIGHT_TOAST;
+  const config = palette[type] ?? palette.success;
+  const meta = TOAST_CONFIG[type] ?? TOAST_CONFIG.success;
 
   return (
     <View
@@ -38,7 +45,7 @@ const CustomToast = ({ message, type }) => {
       ]}
     >
       <Label type="bodySmall" weight="regular" style={styles.emoji}>
-        {config.emoji}
+        {meta.emoji}
       </Label>
       <Label
         type="bodySmall"

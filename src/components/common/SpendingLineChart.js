@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const fillDays = (dailySpending = [], daysInMonth) => {
   const map = {};
@@ -18,11 +18,13 @@ const fillDays = (dailySpending = [], daysInMonth) => {
 const SpendingLineChart = ({
   dailySpending = [],
   height = hp(13),
-  color = colors.primary,
+  color: _color,
   ...rest
 }) => {
   const [width, setWidth] = useState(0);
   const { width: screenWidth } = useWindowDimensions();
+  const theme = useThemeColors();
+  const color = _color ?? theme.primary;
 
   const daysInMonth = new Date(
     new Date().getFullYear(),
@@ -55,20 +57,20 @@ const SpendingLineChart = ({
         color={color}
         thickness={3}
         areaChart
-        startFillColor={colors.primary}
-        endFillColor={colors.gradientPrimary}
+        startFillColor={theme.primary}
+        endFillColor={theme.gradientPrimary}
         startOpacity={0.2}
         endOpacity={0.05}
         maxValue={maxVal * 1.3}
         noOfSections={3}
-        yAxisTextStyle={{ fontSize: 10, color: colors.black }}
-        xAxisLabelTextStyle={{ fontSize: 9, color: colors.black }}
+        yAxisTextStyle={{ fontSize: 10, color: theme.black }}
+        xAxisLabelTextStyle={{ fontSize: 9, color: theme.black }}
         yAxisLabelText="PKR"
-        yAxisLabelTextStyle={{ fontSize: 9, color: colors.black }}
+        yAxisLabelTextStyle={{ fontSize: 9, color: theme.black }}
         yAxisThickness={0}
         xAxisThickness={0.5}
-        xAxisColor={colors.outlineVariant}
-        rulesColor={colors.outlineVariant}
+        xAxisColor={theme.outlineVariant}
+        rulesColor={theme.outlineVariant}
         rulesType="dashed"
         dashWidth={3}
         dashGap={3}

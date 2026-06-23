@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import PaymentIcon from '../common/Paymenticon';
 import { ACCOUNT_TYPE_META } from '../../constants/theme/accountMeta';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const AccountTag = ({ label, type }) => {
   const meta = ACCOUNT_TYPE_META[type] ?? ACCOUNT_TYPE_META.wallet;
+  const theme = useThemeColors();
   return (
     <View
       style={[
-        styles.tag,
         {
+          paddingHorizontal: wp(2),
+          paddingVertical: hp(0.3),
+          flexShrink: 0,
+          borderWidth: 1,
+          borderRadius: borderRadius.sm,
           backgroundColor: meta.iconBg,
           borderColor: meta.iconColor,
         },
@@ -38,6 +43,8 @@ const RecentActivityItem = ({
   onPress,
 }) => {
   const isPositive = amount >= 0;
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
@@ -86,11 +93,11 @@ const RecentActivityItem = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     paddingVertical: wp(2),
     paddingHorizontal: wp(2),
@@ -110,13 +117,7 @@ const styles = StyleSheet.create({
   titleText: {
     flexShrink: 1,
   },
-  tag: {
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(0.3),
-    flexShrink: 0,
-    borderWidth: 1,
-    borderRadius: borderRadius.sm,
-  },
+
 });
 
 export default RecentActivityItem;

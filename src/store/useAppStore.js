@@ -1,3 +1,4 @@
+import { Appearance } from 'react-native';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { storage } from '../services/storage';
@@ -11,9 +12,7 @@ const mmkvStorage = {
 const useAppStore = create(
   persist(
     set => ({
-      // ── Onboarding — keyed by Supabase user ID ──────────────────────────────
-      // Shape: { [userId]: true }
-      // This ensures each account has its own onboarding state on this device.
+      // ── Onboarding ─ keyed by Supabase user ID ──────────────────────────────
       onboardingByUser: {},
 
       setOnboardingComplete: userId =>
@@ -36,7 +35,6 @@ const useAppStore = create(
           };
         }),
 
-      // Hard reset — clears ALL users (used by danger zone / dev tools)
       resetOnboarding: () =>
         set({
           onboardingByUser: {},
@@ -57,6 +55,13 @@ const useAppStore = create(
 
       currency: 'PKR',
       setCurrency: currency => set({ currency }),
+
+      // ── Theme ───────────────────────────────────────────────────────────────
+      // On first launch, read system appearance preference; persist preserves user choice
+      theme: Appearance.getColorScheme() || 'light',
+      setTheme: theme => set({ theme }),
+      toggleTheme: () =>
+        set(state => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
     }),
 
     {
@@ -65,12 +70,13 @@ const useAppStore = create(
       partialize: state => ({
         onboardingByUser: state.onboardingByUser,
         currency: state.currency,
+        theme: state.theme,
       }),
     },
   ),
 );
 
-// ── Selectors (use these everywhere instead of raw state) ────────────────────
+// ── Selectors (use these everywhere instead of raw state) ──────────────────
 
 /** Returns true only if THIS user has completed onboarding on this device. */
 export const selectIsOnboarded = userId => state =>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   ScrollView,
@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { Label } from '../../constants/globalstyle';
 import OtpInput from '../../components/ui/OtpInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
@@ -27,6 +27,8 @@ const VerifyOTPScreen = ({ navigation, route }) => {
   const [otpError, setOtpError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const handleVerify = useCallback(async () => {
     if (otp.length < 6) {
@@ -142,9 +144,9 @@ const VerifyOTPScreen = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   flex: { flex: 1 },
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1, backgroundColor: t.background },
   scroll: {
     paddingHorizontal: wp(5),
     paddingTop: hp(2),

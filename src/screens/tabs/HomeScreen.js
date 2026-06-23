@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, ScrollView, RefreshControl, StyleSheet } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 import HomeHeader from '../../components/home/HomeHeader';
 import BalanceSummaryCard from '../../components/home/BalanceSummaryCard';
@@ -19,6 +19,9 @@ import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
 import { Label } from '../../constants/globalstyle';
 
 const HomeScreen = ({ navigation }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const accounts = useAccountStore(s => s.accounts);
   const fetchAccounts = useAccountStore(s => s.fetchAccounts);
 
@@ -99,8 +102,8 @@ const HomeScreen = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+            colors={[theme.primary]}
+            tintColor={theme.primary}
           />
         }
       >
@@ -131,26 +134,25 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  flex: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: hp(12),
-  },
-  loadingWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: hp(1.5),
-    textAlign: 'center',
-  },
-});
+const createStyles = t =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+      backgroundColor: t.background,
+    },
+    flex: { flex: 1 },
+    scrollContent: {
+      paddingBottom: hp(12),
+    },
+    loadingWrap: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: hp(1.5),
+      textAlign: 'center',
+    },
+  });
 
 export default HomeScreen;

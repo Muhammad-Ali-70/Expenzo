@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronDown, Plus } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
 import { borderRadius, Label } from '../../../constants/globalstyle';
-import colors from '../../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import PaymentIcon from '../../common/Paymenticon';
 import DigitalWalletPickerModal from '../../modals/DigitalWalletPickerModal';
 import CardShell, {
@@ -46,6 +46,8 @@ const DailyPayCard = ({
     onAccountsChange?.(accounts);
   }, [accounts, onAccountsChange]);
 
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const footer =
     accounts.length > 0 ? (
       <>
@@ -106,7 +108,7 @@ const DailyPayCard = ({
               </Label>
               <ChevronDown
                 size={wp(3)}
-                color={colors.primary}
+                color={theme.primary}
                 strokeWidth={2}
               />
             </TouchableOpacity>
@@ -120,7 +122,7 @@ const DailyPayCard = ({
         style={styles.addBtn}
       >
         <View style={styles.addIcon}>
-          <Plus size={wp(3.2)} color={colors.primary} strokeWidth={2.5} />
+          <Plus size={wp(3.2)} color={theme.primary} strokeWidth={2.5} />
         </View>
         <Label type="bodyXs" weight="semiBold" color="primary">
           Add another wallet
@@ -145,17 +147,17 @@ const DailyPayCard = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: wp(1),
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: t.primary,
     borderRadius: borderRadius.full,
     paddingHorizontal: wp(2.5),
     paddingVertical: hp(0.5),
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: t.surfaceContainerLow,
   },
   addBtn: {
     flexDirection: 'row',
@@ -171,7 +173,7 @@ const styles = StyleSheet.create({
     height: wp(5),
     borderRadius: borderRadius.full,
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: t.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

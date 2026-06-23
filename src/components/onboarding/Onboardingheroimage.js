@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 import { borderRadius, shadowCard } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
 
 const OnboardingHeroImage = ({ source, aspectRatio = 1.3, style }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const cardWidth = wp(70);
   const cardHeight = cardWidth / aspectRatio;
 
@@ -17,7 +19,7 @@ const OnboardingHeroImage = ({ source, aspectRatio = 1.3, style }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     paddingVertical: hp(2),
@@ -25,7 +27,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: borderRadius.xxl,
     overflow: 'hidden',
-    backgroundColor: colors.surfaceSecondary,
+    backgroundColor: t.surfaceSecondary,
     ...shadowCard,
   },
   image: {

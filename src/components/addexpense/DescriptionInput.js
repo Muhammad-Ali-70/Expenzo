@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
 import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import fonts from '../../constants/fonts';
+import { useThemeColors } from '@hooks/useThemeColors';
 
-const DescriptionInput = ({ value, onChangeText }) => (
+const DescriptionInput = ({ value, onChangeText }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
+  return (
   <View style={styles.card}>
     <Label type="bodyXs" weight="medium" color="textMuted">
       What's this for?
@@ -16,17 +20,18 @@ const DescriptionInput = ({ value, onChangeText }) => (
       value={value}
       onChangeText={onChangeText}
       placeholder="Lunch at Cafe Blue"
-      placeholderTextColor={colors.outlineVariant}
+      placeholderTextColor={theme.outlineVariant}
       maxLength={80}
       returnKeyType="done"
     />
   </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   card: {
     marginHorizontal: wp(5),
-    backgroundColor: colors.surfacePrimary,
+    backgroundColor: t.surfacePrimary,
     borderRadius: borderRadius.lg,
     paddingHorizontal: wp(4),
     paddingVertical: hp(2),
@@ -36,7 +41,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: RFValue(15),
     fontFamily: fonts.regular,
-    color: colors.textMain,
+    color: t.textMain,
     padding: 0,
     includeFontPadding: false,
   },

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Label } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
-import colors from '../../constants/colors';
+import { useThemeColors } from '@hooks/useThemeColors';
 
 const SectionDivider = ({ label, style }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={[styles.row, style]}>
       <View style={styles.line} />
@@ -16,7 +18,7 @@ const SectionDivider = ({ label, style }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = t => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -26,7 +28,7 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: t.outlineVariant,
   },
   label: {
     marginHorizontal: wp(3),
