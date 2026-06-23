@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Trash2 } from 'lucide-react-native';
+import { Trash2, TrendingUp } from 'lucide-react-native';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
 import SettingsSection from '../../../components/settings/SettingsSection';
@@ -15,6 +15,7 @@ import SettingsRow from '../../../components/settings/SettingsRow';
 import { Label, borderRadius } from '../../../constants/globalstyle';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
+import { useNavigation } from '@react-navigation/native';
 import SignOutButton from '../../../components/settings/SignOutButton';
 import { useAccounts } from '../../../database/hooks/useAccounts';
 import useAppStore from '@store/useAppStore';
@@ -47,7 +48,7 @@ const AccountRow = ({ account, isLast, tc }) => (
   </View>
 );
 
-const SettingsScreen = ({ navigation }) => {
+const SettingsScreen = () => {
   const user = useAuthStore(s => s.user);
   const displayName = useAuthStore(selectDisplayName);
   const { accounts, loading, totalBalance } = useAccounts();
@@ -58,6 +59,8 @@ const SettingsScreen = ({ navigation }) => {
 
   const darkMode = theme === 'dark';
   const themeColors = useThemeColors();
+
+  const navigation = useNavigation();
 
   const email = user?.email ?? '';
 
@@ -112,6 +115,13 @@ const SettingsScreen = ({ navigation }) => {
 
         {/* ── Preferences ── */}
         <SettingsSection title="PREFERENCES">
+          <SettingsRow
+            iconName="trending-up"
+            title="Debt Calculator"
+            subtitle="Manage your debts and loans"
+            onPress={() => navigation.navigate('DebtStack')}
+            showDivider
+          />
           <SettingsRow
             iconName="moon"
             title="Dark Mode"
