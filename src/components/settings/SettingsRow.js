@@ -11,6 +11,7 @@ import {
   Shield,
   HelpCircle,
   LogOut,
+  TrendingUp,
 } from 'lucide-react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import { useThemeColors } from '@hooks/useThemeColors';
@@ -27,6 +28,7 @@ const ICONS = {
   shield: Shield,
   help: HelpCircle,
   logout: LogOut,
+  trendingup: TrendingUp,
 };
 
 const LIGHT_ICON_THEMES = {
@@ -39,6 +41,7 @@ const LIGHT_ICON_THEMES = {
   shield: { bg: '#FFF3E6' },
   help: { bg: '#F5F3FF' },
   logout: { bg: '#FFF0F0' },
+  trendingup: { bg: '#e2e8f8' },
 };
 
 const DARK_ICON_THEMES = {
@@ -51,6 +54,7 @@ const DARK_ICON_THEMES = {
   shield: { bg: '#3D2E0B' },
   help: { bg: '#2E1E5E' },
   logout: { bg: '#3B1A1A' },
+  trendingup: { bg: '#0B3D2E' },
 };
 
 const SettingsRow = ({
@@ -72,7 +76,11 @@ const SettingsRow = ({
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
       {IconComponent ? (
         <View style={[styles.iconBox, { backgroundColor: iconTheme.bg }]}>
-          <IconComponent size={wp(4.5)} color={theme.primary} strokeWidth={1.8} />
+          <IconComponent
+            size={wp(4.5)}
+            color={theme.primary}
+            strokeWidth={1.8}
+          />
         </View>
       ) : null}
 
@@ -107,7 +115,11 @@ const SettingsRow = ({
         )}
       </View>
 
-      {showDivider && <View style={[styles.divider, { backgroundColor: theme.outlineVariant }]} />}
+      {showDivider && (
+        <View
+          style={[styles.divider, { backgroundColor: theme.outlineVariant }]}
+        />
+      )}
     </TouchableOpacity>
   );
 };

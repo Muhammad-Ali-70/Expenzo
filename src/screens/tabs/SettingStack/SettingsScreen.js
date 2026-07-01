@@ -124,7 +124,7 @@ const SettingsScreen = () => {
             iconName="trending-up"
             title="Debt Calculator"
             subtitle="Manage your debts and loans"
-            onPress={() => navigation.navigate('DebtStack')}
+            onPress={() => navigation.navigate('DebtScreen')}
             showDivider
           />
           <SettingsRow

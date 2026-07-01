@@ -30,7 +30,7 @@ const SignUpScreen = ({ navigation }) => {
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const [fullName, setFullName] = useState('Argon James');
-  const [email, setEmail] = useState('tridduxasifeu-6204@yopmail.com');
+  const [email, setEmail] = useState('woufijouyise-5856@yopmail.com');
   const [password, setPassword] = useState('admin@123');
   const [confirmPassword, setConfirmPassword] = useState('admin@123');
   const [agreedToTerms, setAgreedToTerms] = useState(true);
@@ -196,20 +196,21 @@ const SignUpScreen = ({ navigation }) => {
   );
 };
 
-const createStyles = t => StyleSheet.create({
-  flex: { flex: 1 },
-  safe: { flex: 1, backgroundColor: t.background },
-  scroll: {
-    paddingHorizontal: wp(5),
-    paddingTop: hp(2),
-    paddingBottom: hp(4),
-  },
-  ctaWrapper: { marginTop: hp(2.5) },
-  divider: { paddingHorizontal: 0 },
-  googleLogo: {
-    width: 25,
-    height: 25,
-  },
-});
+const createStyles = t =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    safe: { flex: 1, backgroundColor: t.background },
+    scroll: {
+      paddingHorizontal: wp(5),
+      paddingTop: hp(2),
+      paddingBottom: hp(4),
+    },
+    ctaWrapper: { marginTop: hp(2.5) },
+    divider: { paddingHorizontal: 0 },
+    googleLogo: {
+      width: 25,
+      height: 25,
+    },
+  });
 
 export default SignUpScreen;

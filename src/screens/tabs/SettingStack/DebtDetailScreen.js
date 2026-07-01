@@ -8,7 +8,7 @@ import ScreenHeader from '../../../components/common/Screenheader';
 import PrimaryLoader from '../../../components/ui/PrimaryLoader';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { getDebtByIdApi, deleteDebtApi } from '../../../services/debtService';
-import { format } from 'date-fns';
+import { formatDate } from '../../../utils/date';
 import { ThemedView } from '../../../components/ui/ThemedView'; // Assuming this component exists
 
 const DebtDetailScreen = ({ navigation, route }) => {
@@ -136,11 +136,11 @@ const DebtDetailScreen = ({ navigation, route }) => {
         </View>
         <View style={styles.detailCard}>
           <Label type="bodySmall" weight="semiBold" color="textMuted">Start Date</Label>
-          <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{format(new Date(debt.startDate), 'MMM dd, yyyy')}</Label>
+          <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{formatDate(debt.startDate)}</Label>
         </View>
         <View style={styles.detailCard}>
           <Label type="bodySmall" weight="semiBold" color="textMuted">Due Date</Label>
-          <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{format(new Date(debt.dueDate), 'MMM dd, yyyy')}</Label>
+          <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{formatDate(debt.dueDate)}</Label>
         </View>
         {debt.interestRate && (
           <View style={styles.detailCard}>

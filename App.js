@@ -8,14 +8,16 @@ import ToastCustomProvider from '@contexts/ToastProvider.js';
 import RootNavigator from '@navigations/RootNavigator.js';
 import { initSentry } from '@services/sentry.js';
 import { Label } from '@constants/globalstyle.js';
-import PrimaryButton from '@components/ui/PrimaryButton.js';
+import PrimaryButton from './src/components/ui/PrimaryButton';
 
 initSentry();
 
 const ErrorFallback = ({ resetError }) => {
   const theme = useThemeColors();
   return (
-    <View style={[fallbackStyles.container, { backgroundColor: theme.background }]}>
+    <View
+      style={[fallbackStyles.container, { backgroundColor: theme.background }]}
+    >
       <Label
         type="displayMd"
         weight="bold"
@@ -52,12 +54,20 @@ const AppContent = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.white }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: colors.background }} />
-      <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        edges={['top']}
+        style={{ backgroundColor: colors.background }}
+      />
+      <View
+        style={[styles.mainContainer, { backgroundColor: colors.background }]}
+      >
         <StatusBar hidden={false} barStyle={barStyle} translucent />
         <RootNavigator />
       </View>
-      <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.white }} />
+      <SafeAreaView
+        edges={['bottom']}
+        style={{ backgroundColor: colors.white }}
+      />
     </View>
   );
 };

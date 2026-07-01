@@ -18,13 +18,16 @@ import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { getRandomLoadingText } from '../../../constants/dummy/loadingTexts';
 import { getDebtsApi } from '../../../services/debtService';
 import { useDebounce } from '../../../hooks/useDebounce'; // Assuming you have or will create this hook
-import { format } from 'date-fns';
+import { formatDate } from '../../../utils/date';
 
 const DebtItem = ({ debt, onPress, themeColors, styles }) => (
   <TouchableOpacity
     style={[
       styles.debtItem,
-      { backgroundColor: themeColors.surfacePrimary, borderColor: themeColors.outlineVariant },
+      {
+        backgroundColor: themeColors.surfacePrimary,
+        borderColor: themeColors.outlineVariant,
+      },
     ]}
     onPress={() => onPress(debt.id)}
   >
@@ -33,10 +36,14 @@ const DebtItem = ({ debt, onPress, themeColors, styles }) => (
         {debt.description || 'No Description'}
       </Label>
       <Label type="bodyXs" weight="regular" color="textMuted">
-        {debt.counterpartyName} - Due: {format(new Date(debt.dueDate), 'MMM dd, yyyy')}
+        {debt.counterpartyName} - Due: {formatDate(debt.dueDate)}
       </Label>
     </View>
-    <Label type="bodySmall" weight="semiBold" color={debt.totalAmount >= 0 ? 'primary' : 'error'}>
+    <Label
+      type="bodySmall"
+      weight="semiBold"
+      color={debt.totalAmount >= 0 ? 'primary' : 'error'}
+    >
       PKR {debt.totalAmount?.toLocaleString() ?? '0'}
     </Label>
   </TouchableOpacity>
@@ -57,33 +64,36 @@ const DebtScreen = ({ navigation }) => {
 
   const debouncedSearch = useDebounce(search, 400);
 
-  const fetchDebts = useCallback(async (isRefresh = false, searchParam = debouncedSearch, pageNum = 1) => {
-    if (isRefresh) setLoading(true);
-    else if (pageNum === 1) setLoading(true);
-    else setLoadingMore(true);
+  const fetchDebts = useCallback(
+    async (isRefresh = false, searchParam = debouncedSearch, pageNum = 1) => {
+      if (isRefresh) setLoading(true);
+      else if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
 
-    try {
-      const response = await getDebtsApi({
-        search: searchParam,
-        page: pageNum,
-        limit: 10,
-      });
-      if (isRefresh || pageNum === 1) {
-        setDebts(response.data);
-      } else {
-        setDebts(prev => [...prev, ...response.data]);
+      try {
+        const response = await getDebtsApi({
+          search: searchParam,
+          page: pageNum,
+          limit: 10,
+        });
+        if (isRefresh || pageNum === 1) {
+          setDebts(response.data);
+        } else {
+          setDebts(prev => [...prev, ...response.data]);
+        }
+        setHasMore(response.data.length === 10);
+        setPage(pageNum);
+      } catch (err) {
+        console.error('Failed to load debts:', err);
+        // Handle error display
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
       }
-      setHasMore(response.data.length === 10);
-      setPage(pageNum);
-    } catch (err) {
-      console.error('Failed to load debts:', err);
-      // Handle error display
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, [debouncedSearch]);
+    },
+    [debouncedSearch],
+  );
 
   useEffect(() => {
     fetchDebts(true);
@@ -100,9 +110,17 @@ const DebtScreen = ({ navigation }) => {
     }
   }, [hasMore, loadingMore, loading, debouncedSearch, page, fetchDebts]);
 
-  const renderItem = useCallback(({ item }) => (
-    <DebtItem debt={item} onPress={(id) => navigation.navigate('DebtDetailScreen', { id })} themeColors={theme} styles={styles} />
-  ), [navigation, theme, styles]);
+  const renderItem = useCallback(
+    ({ item }) => (
+      <DebtItem
+        debt={item}
+        onPress={id => navigation.navigate('DebtDetailScreen', { id })}
+        themeColors={theme}
+        styles={styles}
+      />
+    ),
+    [navigation, theme, styles],
+  );
 
   const renderEmpty = () => {
     if (loading) return null;
