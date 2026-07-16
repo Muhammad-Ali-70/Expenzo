@@ -37,3 +37,16 @@ export const resetPasswordApi = async ({ resetToken, newPassword }) => {
   });
   return response.data;
 };
+
+export const verifySignupOtpApi = async ({ email, otp }) => {
+  const response = await apiClient.post('/auth/verify-signup-otp', {
+    email,
+    otp,
+  });
+  return response.data;
+};
+
+export const resendSignupOtpApi = async ({ email }) => {
+  const response = await apiClient.post('/auth/resend-signup-otp', { email });
+  return response.data;
+};

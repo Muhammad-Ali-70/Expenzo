@@ -14,14 +14,18 @@ import OtpInput from '../../components/ui/OtpInput';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import AuthTagline from '../../components/auth/AuthTagline';
 import { useToastService } from '../../utils/ToastService';
-import { verifyOtpApi, forgotPasswordApi } from '../../services/authService';
+import { verifyOtpApi, forgotPasswordApi, resendSignupOtpApi } from '../../services/authService';
+import useAuthStore from '../../store/useAuthStore';
 
 const VerifyOTPScreen = ({ navigation, route }) => {
-  const { email } = route.params;
+  const { email, source = 'forgot-password' } = route.params;
 
   const toast = useToastService();
   const toastRef = useRef(toast);
   toastRef.current = toast;
+
+  const verifySignupOtp = useAuthStore(s => s.verifySignupOtp);
+  const isSignupFlow = source === 'signup';
 
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
@@ -40,8 +44,17 @@ const VerifyOTPScreen = ({ navigation, route }) => {
     setLoading(true);
 
     try {
-      const { resetToken } = await verifyOtpApi({ email, otp });
-      navigation.navigate('ResetPasswordScreen', { resetToken });
+      if (isSignupFlow) {
+        const result = await verifySignupOtp({ email, otp });
+        if (result.success) {
+          toastRef.current.success('Email verified successfully!');
+        } else {
+          setOtpError(result.message || 'Verification failed');
+        }
+      } else {
+        const { resetToken } = await verifyOtpApi({ email, otp });
+        navigation.navigate('ResetPasswordScreen', { resetToken });
+      }
     } catch (e) {
       setOtpError(
         e?.response?.data?.message ||
@@ -50,21 +63,25 @@ const VerifyOTPScreen = ({ navigation, route }) => {
     } finally {
       setLoading(false);
     }
-  }, [otp, email, navigation]);
+  }, [otp, email, isSignupFlow, verifySignupOtp, navigation]);
 
   const handleResend = useCallback(async () => {
     setResending(true);
     setOtp('');
     setOtpError('');
     try {
-      await forgotPasswordApi({ email });
+      if (isSignupFlow) {
+        await resendSignupOtpApi({ email });
+      } else {
+        await forgotPasswordApi({ email });
+      }
       toastRef.current.success('A new OTP has been sent to your email.');
     } catch (e) {
       toastRef.current.error('Failed to resend OTP. Please try again.');
     } finally {
       setResending(false);
     }
-  }, [email]);
+  }, [email, isSignupFlow]);
 
   return (
     <KeyboardAvoidingView
@@ -79,8 +96,12 @@ const VerifyOTPScreen = ({ navigation, route }) => {
           keyboardShouldPersistTaps="handled"
         >
           <AuthTagline
-            title="Enter OTP"
-            subtitle={`We sent a 6-digit code to ${email}. It expires in 10 minutes.`}
+            title={isSignupFlow ? 'Verify Email' : 'Enter OTP'}
+            subtitle={
+              isSignupFlow
+                ? `We sent a 6-digit code to ${email}. Verify to activate your account.`
+                : `We sent a 6-digit code to ${email}. It expires in 10 minutes.`
+            }
           />
 
           <Label
@@ -134,7 +155,7 @@ const VerifyOTPScreen = ({ navigation, route }) => {
               activeOpacity={0.7}
             >
               <Label type="bodySmall" weight="semiBold" color="textMuted">
-                ← Change email
+                {isSignupFlow ? '← Back to Sign Up' : '← Change email'}
               </Label>
             </TouchableOpacity>
           </View>

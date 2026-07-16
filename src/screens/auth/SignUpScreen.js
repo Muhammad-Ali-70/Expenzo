@@ -63,9 +63,10 @@ const SignUpScreen = ({ navigation }) => {
     });
 
     if (result.success) {
-      toastRef.current.success(
-        `Welcome to Expenzo, ${fullName.split(' ')[0]}!`,
-      );
+      navigation.navigate('VerifyOTPScreen', {
+        email: result.email,
+        source: 'signup',
+      });
     } else {
       toastRef.current.error(
         result.message || 'Sign up failed. Please try again.',

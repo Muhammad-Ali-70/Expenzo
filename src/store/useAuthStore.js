@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { storage, mmkvStorage } from '../services/storage';
-import { signupApi, loginApi, getMeApi } from '../services/authService';
+import { signupApi, loginApi, getMeApi, verifySignupOtpApi } from '../services/authService';
 import useAccountStore from './useAccountStore';
 
 const withLoading = async (set, fn) => {
@@ -28,11 +28,15 @@ const useAuthStore = create(
 
       // ── Actions ────────────────────────────────────────────────────────────
 
-      // No fetchAccounts here — user has no accounts yet at signup time.
-      // Accounts are created during onboarding; boot-time fetch covers returning users.
       signup: ({ name, email, password }) =>
         withLoading(set, async () => {
-          const { token, user } = await signupApi({ name, email, password });
+          const data = await signupApi({ name, email, password });
+          return { success: true, email: data.email };
+        }),
+
+      verifySignupOtp: ({ email, otp }) =>
+        withLoading(set, async () => {
+          const { token, user } = await verifySignupOtpApi({ email, otp });
           storage.set('token', token);
           set({ token, user });
           return { success: true };
