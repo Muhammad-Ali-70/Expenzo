@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { wp } from '../../constants/responsive';
 import FilterTag from './FilterTag';
 
-const FilterTagList = ({ tags = [], activeId, onSelect }) => (
+const FilterTagList = ({ tags = [], activeId, isFilterActive, onSelect }) => (
   <ScrollView
     horizontal
     showsHorizontalScrollIndicator={false}
@@ -14,7 +14,7 @@ const FilterTagList = ({ tags = [], activeId, onSelect }) => (
         key={tag.id}
         label={tag.label}
         icon={tag.icon}
-        active={activeId === tag.id}
+        active={isFilterActive ? isFilterActive(tag.id) : activeId === tag.id}
         onPress={() => onSelect(tag.id)}
       />
     ))}

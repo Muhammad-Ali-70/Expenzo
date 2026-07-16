@@ -6,7 +6,15 @@ import { groupTransactions } from '../../utils/transactionUtils';
  * Drop-in replacement for the WatermelonDB useTransactions hook.
  * Fetches from the backend API with pagination and search support.
  */
-export const useTransactions = ({ accountId, month, year } = {}) => {
+export const useTransactions = ({ 
+  accountId, 
+  month, 
+  year,
+  dateFrom,
+  dateTo,
+  minAmount,
+  maxAmount
+} = {}) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -26,6 +34,10 @@ export const useTransactions = ({ accountId, month, year } = {}) => {
           accountId,
           month,
           year,
+          dateFrom,
+          dateTo,
+          minAmount,
+          maxAmount,
           page,
           limit: 20,
         });
@@ -44,7 +56,7 @@ export const useTransactions = ({ accountId, month, year } = {}) => {
         setLoadingMore(false);
       }
     },
-    [accountId, month, year],
+    [accountId, month, year, dateFrom, dateTo, minAmount, maxAmount],
   );
 
   // Initial load and when filters change
