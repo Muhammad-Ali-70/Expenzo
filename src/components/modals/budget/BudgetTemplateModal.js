@@ -7,7 +7,7 @@ import {
   FlatList,
   StyleSheet,
 } from 'react-native';
-import { X, Check, Layout } from 'lucide-react-native';
+import { X, Layout } from 'lucide-react-native';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
@@ -35,7 +35,6 @@ const TemplateItem = ({ template, isLast, onPress, s, t }) => {
           {template.categoryLimits.length} categories · {totalFromLimits.toLocaleString()} PKR total
         </Label>
       </View>
-      <Check size={wp(5)} color={t.primary} strokeWidth={2.5} />
     </TouchableOpacity>
   );
 };

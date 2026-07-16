@@ -83,9 +83,11 @@ export const getHomeDataApi = async ({ month, year } = {}) => {
 
 export const exportCSVApi = async () => {
   const response = await apiClient.get('/export/transactions/csv', {
-    responseType: 'blob',
+    responseType: 'text',
+    headers: { Accept: 'text/csv' },
   });
-  return response.data;
+  const text = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+  return text;
 };
 
 export const exportEmailApi = async ({ dateFrom, dateTo } = {}) => {

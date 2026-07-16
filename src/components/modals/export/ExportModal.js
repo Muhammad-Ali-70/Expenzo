@@ -7,10 +7,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   Share,
+  Platform,
 } from 'react-native';
 import { X, Download, Mail } from 'lucide-react-native';
 import { borderRadius, Label } from '../../../constants/globalstyle';
-import PaymentIcon from '../../common/Paymenticon';
 import { hp, wp } from '../../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { exportCSVApi, exportEmailApi } from '../../../services/transactionService';
@@ -21,7 +21,7 @@ const OPTIONS = [
     id: 'csv',
     label: 'Download CSV',
     description: 'Export as CSV file',
-    iconName: 'file-text',
+    icon: Download,
     iconBg: '#EFF6FF',
     iconColor: '#3B82F6',
   },
@@ -29,7 +29,7 @@ const OPTIONS = [
     id: 'email',
     label: 'Send to Email',
     description: 'Receive it in your inbox',
-    iconName: 'mail',
+    icon: Mail,
     iconBg: '#ECFDF5',
     iconColor: '#10B981',
   },
@@ -46,7 +46,13 @@ const ExportModal = ({ visible, onClose }) => {
     try {
       if (format === 'csv') {
         const csvData = await exportCSVApi();
-        await Share.share({ message: csvData, title: 'transactions.csv' });
+        if (!csvData) {
+          throw new Error('No data to export');
+        }
+        await Share.share({
+          message: csvData,
+          ...(Platform.OS === 'ios' ? { title: 'transactions.csv' } : {}),
+        });
         toast.success('CSV ready to save');
       } else if (format === 'email') {
         await exportEmailApi();
@@ -83,13 +89,9 @@ const ExportModal = ({ visible, onClose }) => {
                   activeOpacity={0.7}
                   disabled={loading !== null}
                 >
-                  <PaymentIcon
-                    name={opt.iconName}
-                    backgroundColor={opt.iconBg}
-                    color={opt.iconColor}
-                    containerSize={wp(10)}
-                    size={wp(4.5)}
-                  />
+                  <View style={[styles.iconBox, { backgroundColor: opt.iconBg }]}>
+                    <opt.icon size={wp(4.5)} color={opt.iconColor} strokeWidth={1.8} />
+                  </View>
                   <View style={styles.optionInfo}>
                     <Label type="bodySmall" weight="semiBold" color="textMain">
                       {opt.label}
@@ -144,6 +146,13 @@ const createStyles = (t) =>
       height: wp(8),
       borderRadius: wp(4),
       backgroundColor: t.surfaceSecondary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    iconBox: {
+      width: wp(10),
+      height: wp(10),
+      borderRadius: borderRadius.lg,
       alignItems: 'center',
       justifyContent: 'center',
     },
