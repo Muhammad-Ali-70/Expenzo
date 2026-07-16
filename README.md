@@ -1,97 +1,142 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-# Getting Started
+<div align="center">
+  <img src="https://img.shields.io/badge/version-0.1.0--alpha-green?style=flat-square" alt="Version" />
+  <img src="https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue?style=flat-square" alt="Platform" />
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square" alt="License" />
+</div>
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+<br />
 
-## Step 1: Start Metro
+<div align="center">
+  <h1>Expenzo</h1>
+  <p><strong>Personal Finance, Simplified.</strong></p>
+  <p>Track every rupee. Plan every month. Take control of your money.</p>
+</div>
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 📖 About
 
-```sh
-# Using npm
-npm start
+Expenzo is a personal finance management app that helps you track expenses, manage accounts, set monthly budgets, and monitor debts — all in one place. Built for individuals who want a clear, real-time picture of where their money is going without the complexity of traditional finance tools.
 
-# OR using Yarn
-yarn start
+Whether you're managing cash, a bank account, or a digital wallet, Expenzo adapts to how you handle your money.
+
+---
+
+## ✨ What You Can Do
+
+### Track Every Transaction
+Log expenses and income in seconds. Categorize spending, add notes, and review your history with powerful filters.
+
+### Manage All Your Accounts
+Add multiple accounts — wallets, bank accounts, digital wallets (JazzCash, Easypaisa, NayaPay, etc.) — and see your total balance at a glance.
+
+### Plan with Monthly Budgets
+Set a monthly spending limit and optionally assign budgets per category. Visual progress bars show you how much is left, with color-coded warnings when you're close to the limit.
+
+### Stay on Top of Debts
+Track money you owe or are owed. Add interest rates, set due dates, send reminders, and record partial payments.
+
+### Get Notified
+Receive in-app alerts when you're approaching or exceeding your budget, so you're always aware before it's too late.
+
+### Export Your Data
+Download your full transaction history as a CSV file or have it sent directly to your email.
+
+---
+
+## 🎨 Design & Experience
+
+- **Dark & Light Modes** — Seamless theme that follows your system preference or manual toggle.
+- **Clean Interface** — Built with a focus on readability and quick interactions.
+- **Responsive Layout** — Optimized for phones of all sizes.
+
+---
+
+## 🧱 Built With
+
+| Layer | Technology |
+|-------|-----------|
+| Mobile Framework | React Native |
+| State Management | Zustand |
+| Local Storage | MMKV |
+| Navigation | React Navigation |
+| Charts | Gifted Charts |
+| Backend | Node.js + Express |
+| Database | MongoDB |
+| Authentication | JWT + bcrypt |
+| Animations | Lottie |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18 or later
+- Android Studio (for Android) or Xcode (for iOS)
+- React Native CLI ([setup guide](https://reactnative.dev/docs/set-up-your-environment))
+
+### Install & Run
+
+```bash
+# Clone the project
+git clone https://github.com/your-org/Expenzo.git
+cd Expenzo
+
+# Install dependencies
+npm install
+
+# Start Metro bundler
+npx react-native start
+
+# In a second terminal, run the app
+npx react-native run-android   # for Android
+# or
+npx react-native run-ios       # for iOS
 ```
 
-## Step 2: Build and run your app
+> **Note:** The app requires the Expenzo backend to be running. See the [backend repository](https://github.com/your-org/Expenzo-Backend) for setup instructions.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## 📱 App Preview
 
-```sh
-# Using npm
-npm run android
+| Screen | Description |
+|--------|-------------|
+| **Dashboard** | Monthly spending summary, daily chart, recent activity, account balances |
+| **Transactions** | Add expenses/income with category, account, date, and notes |
+| **History** | Scroll through past transactions with search and filter by type, account, date, or amount |
+| **Budget Planner** | Set monthly budgets, view category breakdowns, track spending vs limits |
+| **Debt Tracker** | Manage outstanding and receivable debts with interest and reminders |
+| **Settings** | Profile, theme toggle, currency, account list, export |
+| **Notifications** | Budget alerts and category warnings in one place |
 
-# OR using Yarn
-yarn android
-```
+---
 
-### iOS
+## 🗺️ What's Coming Next
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+- Push notifications for budget alerts
+- Multi-currency support
+- Spending insights and trends
+- Budget template presets
+- Cloud sync and backup
+- Biometric authentication
+- Receipt scanning
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+---
 
-```sh
-bundle install
-```
+## 🐛 Reporting Issues
 
-Then, and every time you update your native dependencies, run:
+Found a bug or have a suggestion? Open an issue on the [GitHub repository](https://github.com/your-org/Expenzo/issues).
 
-```sh
-bundle exec pod install
-```
+---
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📄 License
 
-```sh
-# Using npm
-npm run ios
+Expenzo is released under the MIT License.
 
-# OR using Yarn
-yarn ios
-```
+---
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+<div align="center">
+  <p><em>Made with focus — for people who want to master their money.</em></p>
+</div>
