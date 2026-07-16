@@ -80,3 +80,18 @@ export const getHomeDataApi = async ({ month, year } = {}) => {
   });
   return response.data;
 };
+
+export const exportCSVApi = async () => {
+  const response = await apiClient.get('/export/transactions/csv', {
+    responseType: 'blob',
+  });
+  return response.data;
+};
+
+export const exportEmailApi = async ({ dateFrom, dateTo } = {}) => {
+  const response = await apiClient.post('/export/transactions/email', {
+    dateFrom,
+    dateTo,
+  });
+  return response.data;
+};

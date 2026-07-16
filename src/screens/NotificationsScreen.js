@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Bell, CheckCheck } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '@hooks/useThemeColors';
 import ScreenHeader from '../components/common/Screenheader';
 import useNotificationStore from '../store/useNotificationStore';
@@ -67,6 +68,7 @@ const NotificationItem = ({ item, onPress, s }) => (
 const NotificationScreen = ({ navigation }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const nav = useNavigation();
   const {
     notifications,
     loading,
@@ -81,12 +83,24 @@ const NotificationScreen = ({ navigation }) => {
   }, []);
 
   const handleNotificationPress = useCallback(
-    async notification => {
+    async (notification) => {
       if (!notification.read) {
         await markAsRead(notification._id);
       }
+
+      if (notification.type === 'budget_warning' || notification.type === 'budget_exceeded') {
+        nav.navigate('TabNavigator', { screen: 'Plan' });
+      } else if (notification.type === 'category_warning' || notification.type === 'category_exceeded') {
+        nav.navigate('TabNavigator', {
+          screen: 'Plan',
+          params: {
+            screen: 'CategoryDetail',
+            params: { category: notification.data?.category },
+          },
+        });
+      }
     },
-    [markAsRead],
+    [markAsRead, nav],
   );
 
   const handleLoadMore = useCallback(() => {
