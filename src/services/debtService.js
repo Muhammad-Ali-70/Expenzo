@@ -11,7 +11,10 @@ export const getDebtsApi = async ({
   const response = await apiClient.get('/debts', {
     params: { debtType, status, search, page, limit },
   });
-  return response.data;
+  return {
+    data: response.data.debts || [],
+    pagination: response.data.pagination
+  };
 };
 
 // GET /api/debts/summary

@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { PlusCircle, Search } from 'lucide-react-native';
@@ -29,7 +28,7 @@ const DebtItem = ({ debt, onPress, themeColors, styles }) => (
         borderColor: themeColors.outlineVariant,
       },
     ]}
-    onPress={() => onPress(debt.id)}
+    onPress={() => onPress(debt._id)}
   >
     <View style={styles.debtInfo}>
       <Label type="bodySmall" weight="semiBold" color="textMain">
@@ -81,7 +80,7 @@ const DebtScreen = ({ navigation }) => {
         } else {
           setDebts(prev => [...prev, ...response.data]);
         }
-        setHasMore(response.data.length === 10);
+        setHasMore(response.pagination?.hasNextPage || false);
         setPage(pageNum);
       } catch (err) {
         console.error('Failed to load debts:', err);
@@ -213,6 +212,7 @@ const createStyles = t =>
     searchWrap: {
       paddingHorizontal: wp(5),
       marginBottom: hp(1.5),
+      marginTop: hp(1),
     },
     scrollContent: {
       paddingBottom: hp(12),

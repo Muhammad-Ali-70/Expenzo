@@ -11,12 +11,19 @@ import { CheckCircle } from 'lucide-react-native';
 import ScreenHeader from '../../../components/common/Screenheader';
 import AppTextInput from '../../../components/ui/AppTextInput';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
-import DateTimeRow from '../../../components/addexpense/DateTimeRow'; // Re-using existing component
+import ToggleButtons from '../../../components/ui/ToggleButtons';
+import DebtDatePicker from '../../../components/ui/DebtDatePicker';
+import AdditionalDebtFields from '../../../components/debt/AdditionalDebtFields';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
-import { createDebtApi, getDebtByIdApi, updateDebtApi } from '../../../services/debtService';
+import {
+  createDebtApi,
+  getDebtByIdApi,
+  updateDebtApi,
+} from '../../../services/debtService';
 import { useToastService } from '../../../utils/ToastService';
 import { ThemedView } from '../../../components/ui/ThemedView';
+import PrimaryLoader from '../../../components/ui/PrimaryLoader';
 
 const AddEditDebtScreen = ({ navigation, route }) => {
   const { debtId } = route.params || {};
@@ -32,9 +39,14 @@ const AddEditDebtScreen = ({ navigation, route }) => {
   const [counterpartyEmail, setCounterpartyEmail] = useState('');
   const [startDate, setStartDate] = useState(new Date());
   const [dueDate, setDueDate] = useState(new Date());
-  const [interestRate, setInterestRate] = useState('');
-  const [interestType, setInterestType] = useState('simple'); // Default to simple
-  const [category, setCategory] = useState('');
+  const [debtType, setDebtType] = useState('outstanding');
+  const [interestRate, setInterestRate] = useState('0');
+  const [interestType, setInterestType] = useState('none');
+  const [interestFrequency, setInterestFrequency] = useState('monthly');
+  const [category, setCategory] = useState('Personal');
+  const [reminderDaysBefore, setReminderDaysBefore] = useState('3');
+  const [reminderFrequency, setReminderFrequency] = useState('once');
+  const [reminderChannels, setReminderChannels] = useState(['email']);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingDebt, setLoadingDebt] = useState(isEditing);
@@ -50,9 +62,18 @@ const AddEditDebtScreen = ({ navigation, route }) => {
           setCounterpartyEmail(data.counterpartyEmail || '');
           setStartDate(new Date(data.startDate));
           setDueDate(new Date(data.dueDate));
-          setInterestRate(data.interestRate?.toString() || '');
-          setInterestType(data.interestType || 'simple');
-          setCategory(data.category || '');
+          setDebtType(data.debtType || 'outstanding');
+          setInterestRate(data.interestRate?.toString() || '0');
+          setInterestType(data.interestType || 'none');
+          setInterestFrequency(data.interestFrequency || 'monthly');
+          setCategory(
+            data.category
+              ? data.category.charAt(0).toUpperCase() + data.category.slice(1)
+              : 'Personal',
+          );
+          setReminderDaysBefore(data.reminderDaysBefore?.toString() || '3');
+          setReminderFrequency(data.reminderFrequency || 'once');
+          setReminderChannels(data.reminderChannels || ['email']);
           setNotes(data.notes || '');
         } catch (err) {
           console.error('Failed to fetch debt for editing:', err);
@@ -66,16 +87,27 @@ const AddEditDebtScreen = ({ navigation, route }) => {
     }
   }, [isEditing, debtId, navigation]);
 
+  useEffect(() => {
+    if (interestType === 'none') {
+      setInterestRate('0');
+    }
+  }, [interestType]);
+
   const handleSave = useCallback(async () => {
     const parsedAmount = parseFloat(totalAmount);
-    const parsedInterestRate = interestRate ? parseFloat(interestRate) : undefined;
+    const parsedInterestRate = interestRate
+      ? parseFloat(interestRate)
+      : undefined;
 
     if (!parsedAmount || parsedAmount <= 0) {
       Alert.alert('Invalid Amount', 'Please enter a valid total amount.');
       return;
     }
     if (!counterpartyName.trim()) {
-      Alert.alert('Counterparty Required', 'Please enter the counterparty name.');
+      Alert.alert(
+        'Counterparty Required',
+        'Please enter the counterparty name.',
+      );
       return;
     }
     if (dueDate < startDate) {
@@ -86,15 +118,20 @@ const AddEditDebtScreen = ({ navigation, route }) => {
     setSaving(true);
     try {
       const debtData = {
+        debtType,
         description: description.trim(),
         totalAmount: parsedAmount,
         counterpartyName: counterpartyName.trim(),
         counterpartyEmail: counterpartyEmail.trim(),
         startDate: startDate.toISOString(),
         dueDate: dueDate.toISOString(),
-        interestRate: parsedInterestRate,
+        interestRate: interestType === 'none' ? 0 : parsedInterestRate || 0,
         interestType,
-        category: category.trim(),
+        interestFrequency,
+        category: category.trim().toLowerCase(),
+        reminderDaysBefore: parseInt(reminderDaysBefore) || 3,
+        reminderFrequency,
+        reminderChannels,
         notes: notes.trim(),
       };
 
@@ -108,7 +145,9 @@ const AddEditDebtScreen = ({ navigation, route }) => {
       navigation.goBack(); // Navigate back to DebtScreen
     } catch (e) {
       console.error('Save debt failed:', e);
-      const message = e?.message ?? `Could not ${isEditing ? 'update' : 'create'} debt. Please try again.`;
+      const message =
+        e?.message ??
+        `Could not ${isEditing ? 'update' : 'create'} debt. Please try again.`;
       toast.error(message);
     } finally {
       setSaving(false);
@@ -119,10 +158,15 @@ const AddEditDebtScreen = ({ navigation, route }) => {
     counterpartyEmail,
     startDate,
     dueDate,
+    debtType,
     description,
     interestRate,
     interestType,
+    interestFrequency,
     category,
+    reminderDaysBefore,
+    reminderFrequency,
+    reminderChannels,
     notes,
     isEditing,
     debtId,
@@ -133,7 +177,10 @@ const AddEditDebtScreen = ({ navigation, route }) => {
   if (loadingDebt) {
     return (
       <ThemedView style={styles.safe}>
-        <ScreenHeader title={isEditing ? 'Edit Debt' : 'Add Debt'} onBack={() => navigation.goBack()} />
+        <ScreenHeader
+          title={isEditing ? 'Edit Debt' : 'Add Debt'}
+          onBack={() => navigation.goBack()}
+        />
         <View style={styles.loadingWrap}>
           <PrimaryLoader width={100} height={100} />
         </View>
@@ -150,6 +197,17 @@ const AddEditDebtScreen = ({ navigation, route }) => {
         title={isEditing ? 'Edit Debt' : 'Add Debt'}
         onBack={() => navigation.goBack()}
       />
+
+      <View style={styles.toggleWrap}>
+        <ToggleButtons
+          options={[
+            { value: 'outstanding', label: 'Outstanding', color: theme.error },
+            { value: 'receivable', label: 'Receivable', color: theme.primary },
+          ]}
+          activeValue={debtType}
+          onSelect={setDebtType}
+        />
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -190,33 +248,34 @@ const AddEditDebtScreen = ({ navigation, route }) => {
             leftIconName="mail"
             returnKeyType="next"
           />
-          <DateTimeRow label="Start Date" date={startDate} onChange={setStartDate} />
-          <DateTimeRow label="Due Date" date={dueDate} onChange={setDueDate} />
-          <AppTextInput
-            label="Interest Rate (Optional)"
-            placeholder="e.g., 5.0"
-            value={interestRate}
-            onChangeText={setInterestRate}
-            keyboardType="numeric"
-            returnKeyType="next"
-            rightIconName="trending-up"
+          <DebtDatePicker
+            label="Start Date"
+            date={startDate}
+            onChange={setStartDate}
           />
-          {/* A picker for interestType (simple/compound) could be added here */}
-          <AppTextInput
-            label="Category (Optional)"
-            placeholder="e.g., Education, Personal"
-            value={category}
-            onChangeText={setCategory}
-            returnKeyType="next"
+          <DebtDatePicker
+            label="Due Date"
+            date={dueDate}
+            onChange={setDueDate}
+            minimumDate={startDate}
           />
-          <AppTextInput
-            label="Notes (Optional)"
-            placeholder="Any additional notes about the debt"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={3}
-            inputStyle={styles.notesInput}
+          <AdditionalDebtFields
+            interestType={interestType}
+            onInterestTypeChange={setInterestType}
+            interestRate={interestRate}
+            onInterestRateChange={setInterestRate}
+            interestFrequency={interestFrequency}
+            onInterestFrequencyChange={setInterestFrequency}
+            category={category}
+            onCategoryChange={setCategory}
+            reminderDaysBefore={reminderDaysBefore}
+            onReminderDaysBeforeChange={setReminderDaysBefore}
+            reminderFrequency={reminderFrequency}
+            onReminderFrequencyChange={setReminderFrequency}
+            reminderChannels={reminderChannels}
+            onReminderChannelsChange={setReminderChannels}
+            notes={notes}
+            onNotesChange={setNotes}
           />
         </View>
       </ScrollView>
@@ -241,22 +300,23 @@ const createStyles = t =>
       flex: 1,
       backgroundColor: t.background,
     },
+    toggleWrap: {
+      marginHorizontal: wp(5),
+      marginTop: hp(2),
+      marginBottom: hp(1),
+    },
     scrollContent: {
       paddingBottom: hp(2),
     },
     form: {
-      paddingTop: hp(2.5),
+      paddingTop: hp(1.5),
       paddingHorizontal: wp(5),
-      gap: hp(2.5),
+      gap: hp(0.5),
     },
     footer: {
       paddingHorizontal: wp(5),
       paddingVertical: hp(2),
       backgroundColor: t.background,
-    },
-    notesInput: {
-      height: hp(10), // Adjust height for multiline input
-      textAlignVertical: 'top',
     },
     loadingWrap: {
       flex: 1,
