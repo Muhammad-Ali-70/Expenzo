@@ -6,14 +6,23 @@ import CurrencyView from '../common/CurrencyView';
 import SpendingLineChart from '../common/SpendingLineChart';
 import { useThemeColors } from '@hooks/useThemeColors';
 
+const getBarColor = (status) => {
+  if (status === 'over') return '#EF4444';
+  if (status === 'warning') return '#F59E0B';
+  return null; // uses theme.primary
+};
+
 const MonthlySpendingCard = ({
   spendingAmount = 0,
   dailySpending = [],
-  budgetPercent = 72,
+  budgetPercent = 0,
+  remainingAmount,
+  budgetStatus,
   remainingLabel,
 }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const barColor = getBarColor(budgetStatus) || theme.primary;
 
   return (
   <View style={styles.card}>
@@ -43,7 +52,7 @@ const MonthlySpendingCard = ({
       </View>
       <View style={styles.track}>
         <View
-          style={[styles.fill, { width: `${Math.min(budgetPercent, 100)}%` }]}
+          style={[styles.fill, { width: `${Math.min(budgetPercent, 100)}%`, backgroundColor: barColor }]}
         />
       </View>
       {remainingLabel && (
@@ -53,7 +62,9 @@ const MonthlySpendingCard = ({
           color="textMuted"
           style={styles.remaining}
         >
-          {remainingLabel}
+          {remainingAmount !== undefined
+            ? `${remainingAmount.toLocaleString()} PKR remaining`
+            : remainingLabel}
         </Label>
       )}
     </View>
@@ -88,7 +99,6 @@ const createStyles = t => StyleSheet.create({
   },
   fill: {
     height: '100%',
-    backgroundColor: t.primary,
     borderRadius: borderRadius.full,
   },
   remaining: {

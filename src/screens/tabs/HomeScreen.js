@@ -28,6 +28,7 @@ const HomeScreen = ({ navigation }) => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [dailySpending, setDailySpending] = useState([]);
+  const [budget, setBudget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingText] = useState(getRandomLoadingText);
@@ -41,6 +42,7 @@ const HomeScreen = ({ navigation }) => {
       const data = await getHomeDataApi({ month, year });
       setTotalExpenses(data.totalExpenses);
       setDailySpending(data.dailySpending);
+      setBudget(data.budget);
 
       const groups = groupTransactions(data.recentTransactions);
       setRecentTransactions(groups.flatMap(g => g.transactions));
@@ -119,8 +121,10 @@ const HomeScreen = ({ navigation }) => {
         <MonthlySpendingCard
           spendingAmount={totalExpenses}
           dailySpending={dailySpending}
-          budgetPercent={72}
-          remainingLabel="Track your spending this month."
+          budgetPercent={budget?.percentUsed ?? 0}
+          remainingAmount={budget?.remaining}
+          budgetStatus={budget?.status}
+          remainingLabel={budget ? undefined : "Set a budget in Plan tab"}
         />
 
         <SmartInsightCard message="Tap any account card to see its breakdown." />
