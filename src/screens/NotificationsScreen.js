@@ -2,7 +2,6 @@
 import {
   View,
   StyleSheet,
-  ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
@@ -10,6 +9,7 @@ import { Bell, CheckCheck } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '@hooks/useThemeColors';
 import ScreenHeader from '../components/common/Screenheader';
+import PrimaryLoader from '../components/ui/PrimaryLoader';
 import useNotificationStore from '../store/useNotificationStore';
 import { hp, wp } from '../constants/responsive';
 import { borderRadius, Label } from '../constants/globalstyle';
@@ -122,14 +122,8 @@ const NotificationScreen = ({ navigation }) => {
 
   const renderFooter = useCallback(() => {
     if (!loading) return null;
-    return (
-      <ActivityIndicator
-        size="small"
-        color={theme.primary}
-        style={styles.loadingMore}
-      />
-    );
-  }, [loading, theme.primary, styles]);
+    return <PrimaryLoader width={40} height={40} />;
+  }, [loading, styles]);
 
   const hasUnread = notifications.some(n => !n.read);
 

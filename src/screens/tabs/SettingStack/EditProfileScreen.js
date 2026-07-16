@@ -97,22 +97,24 @@ const EditProfileScreen = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.avatarSection}>
-          <TouchableOpacity onPress={handlePickImage} activeOpacity={0.8}>
-            <View style={styles.avatarWrap}>
-              {avatarSource ? (
-                <Image source={avatarSource} style={styles.avatarImage} />
-              ) : (
-                <View style={styles.avatarFallback}>
-                  <Label type="h2" weight="bold" color="onPrimary">
-                    {initials}
-                  </Label>
-                </View>
-              )}
-              <View style={[styles.editBadge, { backgroundColor: theme.primary }]}>
-                <Camera size={wp(4)} color={theme.onPrimary} strokeWidth={2} />
+          <View style={styles.avatarWrap}>
+            {avatarSource ? (
+              <Image source={avatarSource} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarFallback}>
+                <Label type="h2" weight="bold" color="onPrimary">
+                  {initials}
+                </Label>
               </View>
-            </View>
-          </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={handlePickImage}
+              activeOpacity={0.8}
+              style={[styles.editBadge, { backgroundColor: theme.primary }]}
+            >
+              <Camera size={wp(4)} color={theme.onPrimary} strokeWidth={2} />
+            </TouchableOpacity>
+          </View>
           <Label type="bodyXs" weight="regular" color="textMuted" style={{ marginTop: hp(1) }}>
             Tap to change photo
           </Label>

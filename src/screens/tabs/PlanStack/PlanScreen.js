@@ -58,7 +58,6 @@ const PlanScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={[styles.safe, styles.center]}>
-        <HomeHeader />
         <PrimaryLoader width={80} height={80} />
         <Label type="bodySmall" weight="regular" color="textMuted" style={{ marginTop: hp(2) }}>
           Loading budget...
