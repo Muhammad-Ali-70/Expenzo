@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   ScrollView,
@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Trash2, TrendingUp } from 'lucide-react-native';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
 import SettingsSection from '../../../components/settings/SettingsSection';
@@ -17,6 +16,7 @@ import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import SignOutButton from '../../../components/settings/SignOutButton';
+import ExportModal from '../../../components/modals/export/ExportModal';
 import { useAccounts } from '../../../database/hooks/useAccounts';
 import useAppStore from '@store/useAppStore';
 import useAuthStore, { selectDisplayName } from '../../../store/useAuthStore';
@@ -54,10 +54,10 @@ const AccountRow = ({ account, isLast, tc }) => (
 );
 
 const SettingsScreen = () => {
+  const [exportModalVisible, setExportModalVisible] = useState(false);
   const user = useAuthStore(s => s.user);
   const displayName = useAuthStore(selectDisplayName);
   const { accounts, loading, totalBalance } = useAccounts();
-  const resetOnboarding = useAppStore(s => s.resetOnboarding);
   const theme = useAppStore(s => s.theme);
   const toggleTheme = useAppStore(s => s.toggleTheme);
   const logout = useAuthStore(s => s.logout);
@@ -68,7 +68,6 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
 
   const email = user?.email ?? '';
-
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
       { text: 'Cancel', style: 'cancel' },
@@ -80,32 +79,9 @@ const SettingsScreen = () => {
     ]);
   };
 
-  const handleClearData = () => {
-    Alert.alert(
-      'Clear All Data?',
-      'This permanently deletes all accounts and transactions and resets the app to onboarding. This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear Everything',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // TODO: call API endpoint to clear user data
-              resetOnboarding();
-            } catch (e) {
-              console.error('Clear failed:', e);
-              Alert.alert('Error', 'Something went wrong. Check console.');
-            }
-          },
-        },
-      ],
-    );
-  };
-
   return (
     <View style={[styles.safe, { backgroundColor: themeColors.background }]}>
-      <HomeHeader onBellPress={() => {}} />
+      <HomeHeader />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -115,13 +91,14 @@ const SettingsScreen = () => {
           name={displayName}
           email={email}
           isPremium={false}
-          avatarSource={null}
+          avatarUrl={user?.avatar}
+          onEditPress={() => navigation.navigate('EditProfile')}
         />
 
         {/* ── Preferences ── */}
         <SettingsSection title="PREFERENCES">
           <SettingsRow
-            iconName="trending-up"
+            iconName="trendingup"
             title="Debt Calculator"
             subtitle="Manage your debts and loans"
             onPress={() => navigation.navigate('DebtScreen')}
@@ -160,20 +137,13 @@ const SettingsScreen = () => {
           <SettingsRow
             iconName="bell"
             title="Notifications"
-            onPress={() => {}}
+            onPress={() => navigation.navigate('Notifications')}
             showDivider
           />
           <SettingsRow
             iconName="upload"
             title="Export Transactions"
-            onPress={() => {}}
-            showDivider
-          />
-          <SettingsRow
-            iconName="cloud"
-            title="Cloud Backup"
-            subtitle="Last synced 2h ago"
-            onPress={() => {}}
+            onPress={() => setExportModalVisible(true)}
             showDivider={false}
           />
         </SettingsSection>
@@ -222,41 +192,6 @@ const SettingsScreen = () => {
         </SettingsSection>
 
         {/* ── Danger zone ── */}
-        <SettingsSection title="DANGER ZONE">
-          <TouchableOpacity
-            onPress={handleClearData}
-            activeOpacity={0.7}
-            style={styles.clearRow}
-          >
-            <View
-              style={[
-                styles.clearIcon,
-                { backgroundColor: darkMode ? '#3B1A1A' : '#FFF0F0' },
-              ]}
-            >
-              <Trash2
-                size={wp(4.5)}
-                color={themeColors.error}
-                strokeWidth={1.8}
-              />
-            </View>
-            <View style={styles.clearText}>
-              <Label type="bodySmall" weight="semiBold" color="textMain">
-                Clear All Data
-              </Label>
-              <Label type="bodyXs" weight="regular" color="textMuted">
-                Delete all accounts &amp; transactions
-              </Label>
-            </View>
-            <Label
-              type="bodyXs"
-              weight="semiBold"
-              style={[styles.destructiveLabel, { color: themeColors.error }]}
-            >
-              Reset
-            </Label>
-          </TouchableOpacity>
-        </SettingsSection>
 
         <SignOutButton onPress={handleSignOut} />
 
@@ -269,6 +204,11 @@ const SettingsScreen = () => {
           Expenzo v1.0.01 (2026)
         </Label>
       </ScrollView>
+
+      <ExportModal
+        visible={exportModalVisible}
+        onClose={() => setExportModalVisible(false)}
+      />
     </View>
   );
 };
@@ -309,26 +249,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     paddingVertical: hp(2),
   },
-
-  clearRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: wp(4),
-    paddingVertical: hp(1.8),
-    gap: wp(3),
-  },
-  clearIcon: {
-    width: wp(9),
-    height: wp(9),
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  clearText: {
-    flex: 1,
-    gap: hp(0.3),
-  },
-  destructiveLabel: {},
 
   version: {
     textAlign: 'center',

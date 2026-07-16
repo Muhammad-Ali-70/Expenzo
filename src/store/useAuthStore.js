@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { storage, mmkvStorage } from '../services/storage';
-import { signupApi, loginApi, getMeApi, verifySignupOtpApi } from '../services/authService';
+import { signupApi, loginApi, getMeApi, verifySignupOtpApi, updateProfileApi, uploadAvatarApi } from '../services/authService';
 import useAccountStore from './useAccountStore';
 
 const withLoading = async (set, fn) => {
@@ -58,6 +58,22 @@ const useAuthStore = create(
         set(state => ({
           user: state.user ? { ...state.user, isOnboarded: true } : state.user,
         })),
+
+      updateProfile: ({ name, phoneNumber }) =>
+        withLoading(set, async () => {
+          const user = await updateProfileApi({ name, phoneNumber });
+          set({ user });
+          return { success: true };
+        }),
+
+      uploadAvatar: (imageUri) =>
+        withLoading(set, async () => {
+          const { avatar } = await uploadAvatarApi(imageUri);
+          set(state => ({
+            user: state.user ? { ...state.user, avatar } : state.user,
+          }));
+          return { success: true, avatar };
+        }),
 
       fetchMe: () =>
         withLoading(set, async () => {

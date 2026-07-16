@@ -50,3 +50,26 @@ export const resendSignupOtpApi = async ({ email }) => {
   const response = await apiClient.post('/auth/resend-signup-otp', { email });
   return response.data;
 };
+
+export const getProfileApi = async () => {
+  const response = await apiClient.get('/users/profile');
+  return response.data;
+};
+
+export const updateProfileApi = async ({ name, phoneNumber }) => {
+  const response = await apiClient.put('/users/profile', { name, phoneNumber });
+  return response.data;
+};
+
+export const uploadAvatarApi = async (imageUri) => {
+  const formData = new FormData();
+  formData.append('avatar', {
+    uri: imageUri,
+    type: 'image/jpeg',
+    name: 'avatar.jpg',
+  });
+  const response = await apiClient.post('/users/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};

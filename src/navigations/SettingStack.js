@@ -4,6 +4,7 @@ import SettingsScreen from '../screens/tabs/SettingStack/SettingsScreen';
 import DebtScreen from '../screens/tabs/SettingStack/DebtScreen';
 import DebtDetailScreen from '../screens/tabs/SettingStack/DebtDetailScreen';
 import AddEditDebtScreen from '../screens/tabs/SettingStack/AddEditDebtScreen';
+import EditProfileScreen from '../screens/tabs/SettingStack/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ const SettingStack = () => {
       <Stack.Screen name="DebtScreen" component={DebtScreen} />
       <Stack.Screen name="DebtDetailScreen" component={DebtDetailScreen} />
       <Stack.Screen name="AddEditDebtScreen" component={AddEditDebtScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 };
