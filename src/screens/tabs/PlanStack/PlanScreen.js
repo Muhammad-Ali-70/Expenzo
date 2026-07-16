@@ -1,62 +1,93 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Pencil } from 'lucide-react-native';
 import HomeHeader from '../../../components/home/HomeHeader';
 import TotalSpendingCard from '../../../components/totalspending/TotalSpendingCard';
-import CategoryBreakdownList from '../../../components/totalspending/CategoryBreakdownList';
+import CategoryBreakdownItem from '../../../components/totalspending/CategoryBreakdownItem';
 import SmartInsightCard from '../../../components/home/SmartInsightCard';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
+import useBudgetStore from '../../../store/useBudgetStore';
+import PrimaryLoader from '../../../components/ui/PrimaryLoader';
+import PrimaryButton from '../../../components/ui/PrimaryButton';
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const generateInsight = (spending) => {
+  if (!spending) return null;
+  const highest = spending.byCategory?.reduce((max, cat) => cat.percentUsed > (max?.percentUsed || 0) ? cat : max, null);
+  const lowest = spending.byCategory?.reduce((min, cat) => cat.percentUsed < (min?.percentUsed || 100) ? cat : min, null);
+
+  if (highest && highest.status === 'over') {
+    return `You're spending over budget on ${highest.label}. Consider reallocating from other categories.`;
+  }
+  if (highest && highest.percentUsed >= 80) {
+    return `You've used ${Math.round(highest.percentUsed)}% of your ${highest.label} budget. You're close to the limit.`;
+  }
+  if (lowest && lowest.percentUsed < 30 && lowest.limit) {
+    return `Great job keeping ${lowest.label} spending low! You've only used ${Math.round(lowest.percentUsed)}% of the budget.`;
+  }
+  return `You've used ${Math.round(spending.percentUsed || 0)}% of your monthly budget. ${spending.remaining > 0 ? `You have ${Math.round(spending.remaining).toLocaleString()} PKR remaining.` : ''}`;
+};
 
 const PlanScreen = ({ navigation }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const { currentBudget, loading, error, fetchCurrentBudget } = useBudgetStore();
 
-  const breakdownItems = useMemo(() => [
-    {
-      id: 'housing',
-      label: 'Housing',
-      iconName: 'home',
-      iconBg: '#EFF6FF',
-      iconColor: theme.bankAccount,
-      spentAmount: 1200,
-      limitAmount: 1500,
-    },
-    {
-      id: 'food',
-      label: 'Food & Drinks',
-      iconName: 'food',
-      iconBg: '#FFF3E6',
-      iconColor: '#F97316',
-      spentAmount: 580,
-      limitAmount: 600,
-    },
-    {
-      id: 'entertainment',
-      label: 'Entertainment',
-      iconName: 'gift',
-      iconBg: '#FFF1F2',
-      iconColor: theme.error,
-      spentAmount: 320,
-      limitAmount: 250,
-      barColor: theme.error,
-    },
-    {
-      id: 'transport',
-      label: 'Transport',
-      iconName: 'car',
-      iconBg: '#F5F3FF',
-      iconColor: theme.savings,
-      spentAmount: 120,
-      limitAmount: 400,
-      barColor: theme.savings,
-    },
-  ], [theme]);
+  useEffect(() => {
+    fetchCurrentBudget();
+  }, []);
+
+  const now = new Date();
+  const monthLabel = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  const spending = currentBudget?.spending;
+  const budget = currentBudget?.budget;
+
+  const insight = useMemo(() => generateInsight(spending), [spending]);
+
+  const handleEditBudget = useCallback(() => {
+    navigation.navigate('EditBudget');
+  }, [navigation]);
+
+  const handleCategoryDetails = useCallback((category) => {
+    navigation.navigate('CategoryDetail', { category });
+  }, [navigation]);
+
+  if (loading) {
+    return (
+      <View style={[styles.safe, styles.center]}>
+        <HomeHeader />
+        <PrimaryLoader width={80} height={80} />
+        <Label type="bodySmall" weight="regular" color="textMuted" style={{ marginTop: hp(2) }}>
+          Loading budget...
+        </Label>
+      </View>
+    );
+  }
+
+  if (error || !budget) {
+    return (
+      <View style={[styles.safe, styles.center]}>
+        <HomeHeader />
+        <Label type="bodySmall" weight="regular" color="textMuted" style={styles.emptyText}>
+          {error || 'No budget set for this month'}
+        </Label>
+        <PrimaryButton
+          variant="primary"
+          size="lg"
+          label="Set Up Budget"
+          onPress={handleEditBudget}
+          style={{ marginTop: hp(2) }}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.safe}>
-      <HomeHeader onBellPress={() => {}} />
+      <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -64,19 +95,14 @@ const PlanScreen = ({ navigation }) => {
       >
         <View style={styles.monthRow}>
           <View>
-            <Label
-              type="bodyXs"
-              weight="semiBold"
-              color="textMuted"
-              style={styles.monthLabel}
-            >
+            <Label type="bodyXs" weight="semiBold" color="textMuted" style={styles.monthLabel}>
               MONTHLY BUDGET
             </Label>
             <Label type="headingMedium" weight="bold" color="textMain">
-              September 2023
+              {monthLabel}
             </Label>
           </View>
-          <TouchableOpacity style={styles.editBtn} activeOpacity={0.75}>
+          <TouchableOpacity style={styles.editBtn} onPress={handleEditBudget} activeOpacity={0.75}>
             <Pencil size={wp(3.8)} color={theme.primary} strokeWidth={2} />
             <Label type="bodyXs" weight="semiBold" color="primary">
               Edit Budget
@@ -85,16 +111,41 @@ const PlanScreen = ({ navigation }) => {
         </View>
 
         <TotalSpendingCard
-          spentAmount={3420.5}
-          limitAmount={4200}
-          remainingAmount={779.5}
-          dailyAverage={114}
-          percentUsed={82}
+          spentAmount={spending.total}
+          limitAmount={budget.totalLimit}
+          remainingAmount={spending.remaining}
+          dailyAverage={spending.dailyAverage}
+          percentUsed={spending.percentUsed}
         />
 
-        <CategoryBreakdownList items={breakdownItems} onDetails={() => {}} />
+        <View style={styles.breakdownSection}>
+          <View style={styles.breakdownHeader}>
+            <Label type="headingXs" weight="bold" color="textMain">
+              Category Breakdown
+            </Label>
+          </View>
+          <View style={styles.list}>
+            {spending.byCategory.map((cat) => (
+              <TouchableOpacity
+                key={cat.category}
+                activeOpacity={0.7}
+                onPress={() => handleCategoryDetails(cat.category)}
+              >
+                <CategoryBreakdownItem
+                  iconName={cat.iconName}
+                  iconBg={cat.iconBg}
+                  iconColor={cat.iconColor}
+                  label={cat.label}
+                  spentAmount={cat.spent}
+                  limitAmount={cat.limit || cat.spent}
+                  barColor={cat.status === 'over' ? theme.error : cat.status === 'warning' ? '#F59E0B' : theme.primary}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-        <SmartInsightCard message="You're spending 15% more on entertainment this month. Consider reallocating from your Transport surplus." />
+        {insight && <SmartInsightCard message={insight} />}
       </ScrollView>
     </View>
   );
@@ -105,6 +156,10 @@ const createStyles = t =>
     safe: {
       flex: 1,
       backgroundColor: t.background,
+    },
+    center: {
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     scrollContent: {
       paddingBottom: hp(12),
@@ -129,6 +184,23 @@ const createStyles = t =>
       borderRadius: borderRadius.full,
       paddingHorizontal: wp(3.5),
       paddingVertical: hp(0.9),
+    },
+    breakdownSection: {
+      marginHorizontal: wp(5),
+      marginTop: hp(3),
+      gap: hp(1.5),
+    },
+    breakdownHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    list: {
+      gap: hp(1.2),
+    },
+    emptyText: {
+      textAlign: 'center',
+      paddingHorizontal: wp(10),
     },
   });
 
