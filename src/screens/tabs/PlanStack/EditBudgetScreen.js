@@ -7,7 +7,10 @@ import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
-import { CATEGORIES, getCategoryMeta } from '../../../constants/theme/accountMeta';
+import {
+  CATEGORIES,
+  getCategoryMeta,
+} from '../../../constants/theme/accountMeta';
 import { useToastService } from '../../../utils/ToastService';
 import { getBudgetTemplatesApi } from '../../../services/budgetService';
 import useBudgetStore from '../../../store/useBudgetStore';
@@ -16,7 +19,14 @@ import PaymentIcon from '../../../components/common/Paymenticon';
 
 const ExpenseCategories = CATEGORIES.filter(c => c.id !== 'income');
 
-const CategoryLimitItem = ({ category, value, onChange, onRemove, s, theme }) => (
+const CategoryLimitItem = ({
+  category,
+  value,
+  onChange,
+  onRemove,
+  s,
+  theme,
+}) => (
   <View style={s.limitRow}>
     <View style={s.limitIcon}>
       <PaymentIcon
@@ -28,7 +38,9 @@ const CategoryLimitItem = ({ category, value, onChange, onRemove, s, theme }) =>
       />
     </View>
     <View style={s.limitInfo}>
-      <Label type="bodySmall" weight="semiBold" color="textMain">{category.label}</Label>
+      <Label type="bodySmall" weight="semiBold" color="textMain">
+        {category.label}
+      </Label>
     </View>
     <AppTextInput
       value={value}
@@ -37,7 +49,11 @@ const CategoryLimitItem = ({ category, value, onChange, onRemove, s, theme }) =>
       keyboardType="numeric"
       containerStyle={s.limitInput}
     />
-    <TouchableOpacity onPress={onRemove} activeOpacity={0.7} style={s.removeBtn}>
+    <TouchableOpacity
+      onPress={onRemove}
+      activeOpacity={0.7}
+      style={s.removeBtn}
+    >
       <X size={wp(4)} color={theme.textMuted} strokeWidth={2} />
     </TouchableOpacity>
   </View>
@@ -52,7 +68,8 @@ const EditBudgetScreen = ({ navigation }) => {
   const now = new Date();
   const [totalLimit, setTotalLimit] = useState('');
   const [categoryLimits, setCategoryLimits] = useState([]);
-  const [availableCategories, setAvailableCategories] = useState(ExpenseCategories);
+  const [availableCategories, setAvailableCategories] =
+    useState(ExpenseCategories);
   const [templateModalVisible, setTemplateModalVisible] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -67,37 +84,44 @@ const EditBudgetScreen = ({ navigation }) => {
     fetchTemplates();
   }, []);
 
-  const addCategoryLimit = useCallback((category) => {
-    setCategoryLimits((prev) => [...prev, { category: category.id, limit: '' }]);
-    setAvailableCategories((prev) => prev.filter((c) => c.id !== category.id));
+  const addCategoryLimit = useCallback(category => {
+    setCategoryLimits(prev => [...prev, { category: category.id, limit: '' }]);
+    setAvailableCategories(prev => prev.filter(c => c.id !== category.id));
   }, []);
 
   const updateCategoryLimit = useCallback((categoryId, value) => {
-    setCategoryLimits((prev) =>
-      prev.map((cl) => (cl.category === categoryId ? { ...cl, limit: value } : cl))
+    setCategoryLimits(prev =>
+      prev.map(cl =>
+        cl.category === categoryId ? { ...cl, limit: value } : cl,
+      ),
     );
   }, []);
 
-  const removeCategoryLimit = useCallback((categoryId) => {
-    setCategoryLimits((prev) => prev.filter((cl) => cl.category !== categoryId));
-    const category = ExpenseCategories.find((c) => c.id === categoryId);
+  const removeCategoryLimit = useCallback(categoryId => {
+    setCategoryLimits(prev => prev.filter(cl => cl.category !== categoryId));
+    const category = ExpenseCategories.find(c => c.id === categoryId);
     if (category) {
-      setAvailableCategories((prev) => {
-        if (prev.some((c) => c.id === categoryId)) return prev;
+      setAvailableCategories(prev => {
+        if (prev.some(c => c.id === categoryId)) return prev;
         return [...prev, category].sort((a, b) => a.id.localeCompare(b.id));
       });
     }
   }, []);
 
-  const handleTemplateSelect = useCallback((template) => {
-    const validLimits = template.categoryLimits.filter((cl) =>
-      ExpenseCategories.some((c) => c.id === cl.category)
+  const handleTemplateSelect = useCallback(template => {
+    const validLimits = template.categoryLimits.filter(cl =>
+      ExpenseCategories.some(c => c.id === cl.category),
     );
     setCategoryLimits(
-      validLimits.map((cl) => ({ category: cl.category, limit: String(cl.limit) }))
+      validLimits.map(cl => ({
+        category: cl.category,
+        limit: String(cl.limit),
+      })),
     );
-    const usedCategories = validLimits.map((cl) => cl.category);
-    setAvailableCategories(ExpenseCategories.filter((c) => !usedCategories.includes(c.id)));
+    const usedCategories = validLimits.map(cl => cl.category);
+    setAvailableCategories(
+      ExpenseCategories.filter(c => !usedCategories.includes(c.id)),
+    );
   }, []);
 
   const handleSave = useCallback(async () => {
@@ -112,8 +136,8 @@ const EditBudgetScreen = ({ navigation }) => {
       year: now.getFullYear(),
       totalLimit: parseFloat(totalLimit),
       categoryLimits: categoryLimits
-        .filter((cl) => cl.limit && parseFloat(cl.limit) > 0)
-        .map((cl) => ({ category: cl.category, limit: parseFloat(cl.limit) })),
+        .filter(cl => cl.limit && parseFloat(cl.limit) > 0)
+        .map(cl => ({ category: cl.category, limit: parseFloat(cl.limit) })),
     });
 
     setSaving(false);
@@ -128,13 +152,22 @@ const EditBudgetScreen = ({ navigation }) => {
 
   return (
     <View style={styles.safe}>
-      <ScreenHeader title="Edit Budget" onBack={() => navigation.goBack()} backIcon="close" />
+      <ScreenHeader
+        title="Edit Budget"
+        onBack={() => navigation.goBack()}
+        backIcon="close"
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Label type="bodyXs" weight="semiBold" color="textMuted" style={styles.sectionLabel}>
+        <Label
+          type="bodyXs"
+          weight="semiBold"
+          color="textMuted"
+          style={styles.sectionLabel}
+        >
           TOTAL MONTHLY BUDGET
         </Label>
         <AppTextInput
@@ -146,16 +179,28 @@ const EditBudgetScreen = ({ navigation }) => {
         />
 
         <View style={styles.templateRow}>
-          <Label type="bodySmall" weight="semiBold" color="textMuted">Need a starting point?</Label>
-          <TouchableOpacity onPress={() => setTemplateModalVisible(true)} activeOpacity={0.7}>
-            <Label type="bodySmall" weight="semiBold" color="primary" underline>Use a template</Label>
+          <Label type="bodySmall" weight="semiBold" color="textMuted">
+            Need a starting point?
+          </Label>
+          <TouchableOpacity
+            onPress={() => setTemplateModalVisible(true)}
+            activeOpacity={0.7}
+          >
+            <Label type="bodySmall" weight="semiBold" color="primary" underline>
+              Use a template
+            </Label>
           </TouchableOpacity>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.sectionHeader}>
-          <Label type="bodyXs" weight="semiBold" color="textMuted" style={styles.sectionLabel}>
+          <Label
+            type="bodyXs"
+            weight="semiBold"
+            color="textMuted"
+            style={styles.sectionLabel}
+          >
             CATEGORY LIMITS
           </Label>
           <Label type="bodyXs" weight="regular" color="textMuted">
@@ -163,14 +208,18 @@ const EditBudgetScreen = ({ navigation }) => {
           </Label>
         </View>
 
-        {categoryLimits.map((cl) => {
+        {categoryLimits.map(cl => {
           const meta = getCategoryMeta(cl.category);
           return (
             <CategoryLimitItem
               key={cl.category}
-              category={{ ...meta, label: CATEGORIES.find(c => c.id === cl.category)?.label || meta.id }}
+              category={{
+                ...meta,
+                label:
+                  CATEGORIES.find(c => c.id === cl.category)?.label || meta.id,
+              }}
               value={cl.limit}
-              onChange={(v) => updateCategoryLimit(cl.category, v)}
+              onChange={v => updateCategoryLimit(cl.category, v)}
               onRemove={() => removeCategoryLimit(cl.category)}
               s={styles}
               theme={theme}
@@ -180,11 +229,16 @@ const EditBudgetScreen = ({ navigation }) => {
 
         {availableCategories.length > 0 && (
           <View style={styles.addSection}>
-            <Label type="bodySmall" weight="semiBold" color="textMuted" style={styles.addLabel}>
+            <Label
+              type="bodySmall"
+              weight="semiBold"
+              color="textMuted"
+              style={styles.addLabel}
+            >
               Add a category limit
             </Label>
             <View style={styles.availableList}>
-              {availableCategories.map((cat) => {
+              {availableCategories.map(cat => {
                 const meta = getCategoryMeta(cat.id);
                 return (
                   <TouchableOpacity
@@ -200,8 +254,14 @@ const EditBudgetScreen = ({ navigation }) => {
                       containerSize={wp(7)}
                       size={wp(3.2)}
                     />
-                    <Label type="bodyXs" weight="semiBold" color="textMain">{cat.label}</Label>
-                    <Plus size={wp(3.5)} color={theme.primary} strokeWidth={2.5} />
+                    <Label type="bodyXs" weight="semiBold" color="textMain">
+                      {cat.label}
+                    </Label>
+                    <Plus
+                      size={wp(3.5)}
+                      color={theme.primary}
+                      strokeWidth={2.5}
+                    />
                   </TouchableOpacity>
                 );
               })}
@@ -230,18 +290,26 @@ const EditBudgetScreen = ({ navigation }) => {
   );
 };
 
-const createStyles = (t) =>
+const createStyles = t =>
   StyleSheet.create({
     safe: { flex: 1, backgroundColor: t.background },
     scrollContent: { paddingBottom: hp(12), paddingHorizontal: wp(5) },
-    sectionLabel: { letterSpacing: 0.8, marginBottom: hp(0.8), marginTop: hp(2.5) },
+    sectionLabel: {
+      letterSpacing: 0.8,
+      marginBottom: hp(0.8),
+      marginTop: hp(2.5),
+    },
     templateRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       marginTop: hp(1.5),
     },
-    divider: { height: 1, backgroundColor: t.outlineVariant, marginVertical: hp(2.5) },
+    divider: {
+      height: 1,
+      backgroundColor: t.outlineVariant,
+      marginVertical: hp(2.5),
+    },
     sectionHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -265,8 +333,8 @@ const createStyles = (t) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: wp(1.5),
-      paddingHorizontal: wp(3),
-      paddingVertical: hp(1.2),
+      paddingHorizontal: wp(1.5),
+      paddingVertical: hp(1),
       borderRadius: borderRadius.full,
       backgroundColor: t.surfaceSecondary,
       borderWidth: 1,
