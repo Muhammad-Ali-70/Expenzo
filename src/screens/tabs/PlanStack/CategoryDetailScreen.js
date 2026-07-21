@@ -9,7 +9,7 @@ import TransactionDetailModal from '../../../components/modals/transaction/Trans
 import { useThemeColors } from '@hooks/useThemeColors';
 import { Label } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
-import { getCategoryMeta } from '../../../constants/theme/accountMeta';
+import { getCategoryMeta, getCategoryLabel } from '../../../constants/theme/accountMeta';
 import { getTransactionsApi } from '../../../services/transactionService';
 import useBudgetStore from '../../../store/useBudgetStore';
 
@@ -61,7 +61,7 @@ const CategoryDetailScreen = ({ navigation, route }) => {
   return (
     <View style={styles.safe}>
       <ScreenHeader
-        title={currentBudget?.spending?.byCategory?.find(c => c.category === category)?.label || meta.id || ''}
+        title={breakdown?.label || getCategoryLabel(category)}
         onBack={() => navigation.goBack()}
         backIcon="arrow"
       />

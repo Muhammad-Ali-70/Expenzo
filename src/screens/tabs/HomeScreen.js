@@ -12,6 +12,7 @@ import SmartInsightCard from '../../components/home/SmartInsightCard';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
 
 import useAccountStore from '../../store/useAccountStore';
+import useCategoryStore from '../../store/useCategoryStore';
 import { getHomeDataApi } from '../../services/transactionService';
 import { groupTransactions } from '../../utils/transactionUtils';
 import PrimaryLoader from '../../components/ui/PrimaryLoader';
@@ -24,6 +25,8 @@ const HomeScreen = ({ navigation }) => {
 
   const accounts = useAccountStore(s => s.accounts);
   const fetchAccounts = useAccountStore(s => s.fetchAccounts);
+  const categories = useCategoryStore(s => s.categories);
+  const fetchCategories = useCategoryStore(s => s.fetchCategories);
 
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [recentTransactions, setRecentTransactions] = useState([]);
@@ -56,6 +59,10 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     if (accounts.length === 0) fetchAccounts();
   }, [accounts.length, fetchAccounts]);
+
+  useEffect(() => {
+    if (categories.length === 0) fetchCategories();
+  }, [categories.length, fetchCategories]);
 
   useEffect(() => {
     loadHomeData();

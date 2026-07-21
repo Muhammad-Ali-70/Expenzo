@@ -5,6 +5,7 @@ import useAuthStore, {
   selectIsOnboarded,
 } from '../store/useAuthStore';
 import useAccountStore from '../store/useAccountStore';
+import useCategoryStore from '../store/useCategoryStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
@@ -20,6 +21,7 @@ const RootStackNavigator = () => {
   const token = useAuthStore(selectToken);
   const isOnboarded = useAuthStore(selectIsOnboarded);
   const fetchAccounts = useAccountStore(s => s.fetchAccounts);
+  const fetchCategories = useCategoryStore(s => s.fetchCategories);
 
   useEffect(() => {
     const splashTimer = setTimeout(() => setShowSplash(false), 1500);
@@ -31,6 +33,7 @@ const RootStackNavigator = () => {
   useEffect(() => {
     if (token && isOnboarded) {
       fetchAccounts();
+      fetchCategories();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Intentionally empty deps — we only want this to run once on mount,

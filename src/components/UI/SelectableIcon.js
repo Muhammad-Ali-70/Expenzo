@@ -13,6 +13,7 @@ const SelectableIcon = ({
   label,
   active = false,
   onPress,
+  onLongPress,
   size = 'md',
   imageUri,
   initials,
@@ -28,6 +29,7 @@ const SelectableIcon = ({
   return (
     <TouchableOpacity
       onPress={onPress}
+      onLongPress={onLongPress}
       activeOpacity={1}
       style={[
         styles.base,

@@ -195,7 +195,38 @@ const FALLBACK_CATEGORY = {
   iconColor: '#94A3B8',
 };
 
-export const getCategoryMeta = id => CATEGORY_META[id] ?? FALLBACK_CATEGORY;
+// ─── Custom category registry ────────────────────────────────────────────────
+// Populated at runtime from the backend via registerCustomCategories(). Keeping
+// it here lets the existing meta/label resolvers stay custom-aware without every
+// call site needing to know about custom categories. Keyed by category _id.
+let CUSTOM_CATEGORY_META = {};
+let CUSTOM_CATEGORY_LABEL = {};
+
+// Built-in label lookup across both expense and income categories.
+const BUILTIN_CATEGORY_LABEL = Object.fromEntries(
+  [...CATEGORIES, ...INCOME_CATEGORIES].map(c => [c.id, c.label]),
+);
+
+export const registerCustomCategories = (list = []) => {
+  CUSTOM_CATEGORY_META = {};
+  CUSTOM_CATEGORY_LABEL = {};
+  list.forEach(c => {
+    const id = c._id ?? c.id;
+    if (!id) return;
+    CUSTOM_CATEGORY_META[id] = {
+      iconName: c.iconName,
+      iconBg: c.iconBg,
+      iconColor: c.iconColor,
+    };
+    CUSTOM_CATEGORY_LABEL[id] = c.name;
+  });
+};
+
+export const getCategoryMeta = id =>
+  CATEGORY_META[id] ?? CUSTOM_CATEGORY_META[id] ?? FALLBACK_CATEGORY;
+
+export const getCategoryLabel = id =>
+  BUILTIN_CATEGORY_LABEL[id] ?? CUSTOM_CATEGORY_LABEL[id] ?? id;
 
 // ─── Account type icon/color definitions ─────────────────────────────────────
 // Used in PaymentSourcePicker, PaymentSourceModal, useTransactions

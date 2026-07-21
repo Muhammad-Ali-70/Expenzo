@@ -1,4 +1,8 @@
-import { getCategoryMeta, CATEGORIES } from '../constants/theme/accountMeta';
+import {
+  getCategoryMeta,
+  getCategoryLabel,
+  CATEGORIES,
+} from '../constants/theme/accountMeta';
 
 export const CATEGORY_LABEL = Object.fromEntries(
   CATEGORIES.map(c => [c.id, c.label]),
@@ -88,7 +92,7 @@ export const groupTransactions = (
     }
 
     const meta = getCategoryMeta(t.category);
-    const categoryLabel = CATEGORY_LABEL[t.category] ?? t.category;
+    const categoryLabel = getCategoryLabel(t.category);
     const account = t.accountId ?? null;
     const id = t._id;
 

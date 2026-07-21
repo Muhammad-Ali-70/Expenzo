@@ -18,14 +18,26 @@ import DateTimeRow from '../../../components/addexpense/DateTimeRow';
 import NotesInput from '../../../components/addexpense/NotesInput';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import CategoryModal from '../../../components/modals/CategoryModal';
+import CreateCategoryModal from '../../../components/modals/CreateCategoryModal';
 import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import { Label } from '../../../constants/globalstyle';
-import { INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
+import { CATEGORIES, INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
 import { createTransactionApi } from '../../../services/transactionService';
 import useAccountStore from '../../../store/useAccountStore';
+import useCategoryStore from '../../../store/useCategoryStore';
 import { useToastService } from '../../../utils/ToastService';
+
+const toPickerItem = c => ({
+  id: c._id,
+  label: c.name,
+  iconName: c.iconName,
+  iconBg: c.iconBg,
+  iconColor: c.iconColor,
+  isCustom: true,
+  raw: c,
+});
 
 const TYPES = ['expense', 'income'];
 
@@ -33,6 +45,9 @@ const AddTransactionScreen = ({ navigation, route }) => {
   const initialType = route?.params?.type ?? 'expense';
 
   const accounts = useAccountStore(s => s.accounts);
+
+  const customCategories = useCategoryStore(s => s.categories);
+  const fetchCategories = useCategoryStore(s => s.fetchCategories);
 
   const primaryAccount =
     accounts?.find(a => a.isPrimary) ?? accounts?.[0] ?? null;
@@ -52,10 +67,16 @@ const AddTransactionScreen = ({ navigation, route }) => {
 
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
+  const [createCategoryVisible, setCreateCategoryVisible] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const toast = useToastService();
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   useEffect(() => {
     if (primaryAccount && sourceId === null) {
@@ -65,6 +86,44 @@ const AddTransactionScreen = ({ navigation, route }) => {
   }, [primaryAccount, sourceId]);
 
   const isExpense = type === 'expense';
+
+  // Merge built-in categories with the user's (non-archived) custom ones.
+  const expenseCategories = useMemo(
+    () => [
+      ...CATEGORIES,
+      ...customCategories
+        .filter(c => !c.isArchived && c.type === 'expense')
+        .map(toPickerItem),
+    ],
+    [customCategories],
+  );
+
+  const incomeCategories = useMemo(
+    () => [
+      ...INCOME_CATEGORIES,
+      ...customCategories
+        .filter(c => !c.isArchived && c.type === 'income')
+        .map(toPickerItem),
+    ],
+    [customCategories],
+  );
+
+  const openCreateCategory = () => {
+    setEditingCategory(null);
+    setCreateCategoryVisible(true);
+  };
+
+  const openEditCategory = raw => {
+    setEditingCategory(raw);
+    setCreateCategoryVisible(true);
+  };
+
+  // Auto-select the newly created category (archived edits return null).
+  const handleCategorySaved = cat => {
+    if (!cat) return;
+    if (cat.type === 'expense') setCategory(cat._id);
+    else setIncomeCategory(cat._id);
+  };
 
   const handleSave = async () => {
     const parsedAmount = parseFloat(amount);
@@ -162,13 +221,16 @@ const AddTransactionScreen = ({ navigation, route }) => {
               activeId={category}
               onSelect={setCategory}
               onSeeAll={() => setCategoryModalVisible(true)}
+              onCreateNew={openCreateCategory}
+              categories={expenseCategories}
             />
           ) : (
             <CategoryPicker
               activeId={incomeCategory}
               onSelect={setIncomeCategory}
               onSeeAll={() => setIncomeCategoryModalVisible(true)}
-              categories={INCOME_CATEGORIES}
+              onCreateNew={openCreateCategory}
+              categories={incomeCategories}
             />
           )}
 
@@ -202,6 +264,15 @@ const AddTransactionScreen = ({ navigation, route }) => {
         activeId={category}
         onSelect={setCategory}
         onClose={() => setCategoryModalVisible(false)}
+        categories={expenseCategories}
+        onCreateNew={() => {
+          setCategoryModalVisible(false);
+          openCreateCategory();
+        }}
+        onEditCategory={raw => {
+          setCategoryModalVisible(false);
+          openEditCategory(raw);
+        }}
       />
 
       <CategoryModal
@@ -209,7 +280,15 @@ const AddTransactionScreen = ({ navigation, route }) => {
         activeId={incomeCategory}
         onSelect={setIncomeCategory}
         onClose={() => setIncomeCategoryModalVisible(false)}
-        categories={INCOME_CATEGORIES}
+        categories={incomeCategories}
+        onCreateNew={() => {
+          setIncomeCategoryModalVisible(false);
+          openCreateCategory();
+        }}
+        onEditCategory={raw => {
+          setIncomeCategoryModalVisible(false);
+          openEditCategory(raw);
+        }}
       />
 
       <PaymentSourceModal
@@ -217,6 +296,14 @@ const AddTransactionScreen = ({ navigation, route }) => {
         activeId={sourceId}
         onSelect={setSourceId}
         onClose={() => setSourceModalVisible(false)}
+      />
+
+      <CreateCategoryModal
+        visible={createCategoryVisible}
+        type={type}
+        editingCategory={editingCategory}
+        onClose={() => setCreateCategoryVisible(false)}
+        onSaved={handleCategorySaved}
       />
     </KeyboardAvoidingView>
   );

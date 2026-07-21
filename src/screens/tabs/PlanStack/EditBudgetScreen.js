@@ -10,14 +10,16 @@ import { hp, wp } from '../../../constants/responsive';
 import {
   CATEGORIES,
   getCategoryMeta,
+  getCategoryLabel,
 } from '../../../constants/theme/accountMeta';
 import { useToastService } from '../../../utils/ToastService';
 import { getBudgetTemplatesApi } from '../../../services/budgetService';
 import useBudgetStore from '../../../store/useBudgetStore';
+import useCategoryStore from '../../../store/useCategoryStore';
 import BudgetTemplateModal from '../../../components/modals/budget/BudgetTemplateModal';
 import PaymentIcon from '../../../components/common/Paymenticon';
 
-const ExpenseCategories = CATEGORIES.filter(c => c.id !== 'income');
+const BuiltInExpenseCategories = CATEGORIES.filter(c => c.id !== 'income');
 
 const CategoryLimitItem = ({
   category,
@@ -65,14 +67,37 @@ const EditBudgetScreen = ({ navigation }) => {
   const toast = useToastService();
   const saveBudget = useBudgetStore(s => s.saveBudget);
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const [totalLimit, setTotalLimit] = useState('');
   const [categoryLimits, setCategoryLimits] = useState([]);
-  const [availableCategories, setAvailableCategories] =
-    useState(ExpenseCategories);
   const [templateModalVisible, setTemplateModalVisible] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [saving, setSaving] = useState(false);
+
+  const customCategories = useCategoryStore(s => s.categories);
+
+  // Built-in expense categories + the user's own (non-archived) custom ones.
+  const allExpenseCategories = useMemo(
+    () => [
+      ...BuiltInExpenseCategories,
+      ...customCategories
+        .filter(c => !c.isArchived && c.type === 'expense')
+        .map(c => ({
+          id: c._id,
+          label: c.name,
+          iconName: c.iconName,
+          iconBg: c.iconBg,
+          iconColor: c.iconColor,
+        })),
+    ],
+    [customCategories],
+  );
+
+  // Derived: everything not already assigned a limit.
+  const availableCategories = useMemo(() => {
+    const used = new Set(categoryLimits.map(cl => cl.category));
+    return allExpenseCategories.filter(c => !used.has(c.id));
+  }, [allExpenseCategories, categoryLimits]);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -86,7 +111,6 @@ const EditBudgetScreen = ({ navigation }) => {
 
   const addCategoryLimit = useCallback(category => {
     setCategoryLimits(prev => [...prev, { category: category.id, limit: '' }]);
-    setAvailableCategories(prev => prev.filter(c => c.id !== category.id));
   }, []);
 
   const updateCategoryLimit = useCallback((categoryId, value) => {
@@ -99,30 +123,22 @@ const EditBudgetScreen = ({ navigation }) => {
 
   const removeCategoryLimit = useCallback(categoryId => {
     setCategoryLimits(prev => prev.filter(cl => cl.category !== categoryId));
-    const category = ExpenseCategories.find(c => c.id === categoryId);
-    if (category) {
-      setAvailableCategories(prev => {
-        if (prev.some(c => c.id === categoryId)) return prev;
-        return [...prev, category].sort((a, b) => a.id.localeCompare(b.id));
-      });
-    }
   }, []);
 
-  const handleTemplateSelect = useCallback(template => {
-    const validLimits = template.categoryLimits.filter(cl =>
-      ExpenseCategories.some(c => c.id === cl.category),
-    );
-    setCategoryLimits(
-      validLimits.map(cl => ({
-        category: cl.category,
-        limit: String(cl.limit),
-      })),
-    );
-    const usedCategories = validLimits.map(cl => cl.category);
-    setAvailableCategories(
-      ExpenseCategories.filter(c => !usedCategories.includes(c.id)),
-    );
-  }, []);
+  const handleTemplateSelect = useCallback(
+    template => {
+      const validLimits = template.categoryLimits.filter(cl =>
+        allExpenseCategories.some(c => c.id === cl.category),
+      );
+      setCategoryLimits(
+        validLimits.map(cl => ({
+          category: cl.category,
+          limit: String(cl.limit),
+        })),
+      );
+    },
+    [allExpenseCategories],
+  );
 
   const handleSave = useCallback(async () => {
     if (!totalLimit || parseFloat(totalLimit) <= 0) {
@@ -204,7 +220,7 @@ const EditBudgetScreen = ({ navigation }) => {
             CATEGORY LIMITS
           </Label>
           <Label type="bodyXs" weight="regular" color="textMuted">
-            {categoryLimits.length}/{ExpenseCategories.length} set
+            {categoryLimits.length}/{allExpenseCategories.length} set
           </Label>
         </View>
 
@@ -215,8 +231,7 @@ const EditBudgetScreen = ({ navigation }) => {
               key={cl.category}
               category={{
                 ...meta,
-                label:
-                  CATEGORIES.find(c => c.id === cl.category)?.label || meta.id,
+                label: getCategoryLabel(cl.category),
               }}
               value={cl.limit}
               onChange={v => updateCategoryLimit(cl.category, v)}
