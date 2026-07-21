@@ -16,14 +16,6 @@ import { borderRadius, Label } from '../../../constants/globalstyle';
 import { hp, wp } from '../../../constants/responsive';
 import { useToastService } from '../../../utils/ToastService';
 import useAuthStore from '../../../store/useAuthStore';
-import apiClient from '../../../services/apiClient';
-
-const getImageUrl = (path) => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  const base = apiClient.defaults.baseURL.replace('/api', '');
-  return `${base}${path}`;
-};
 
 const EditProfileScreen = ({ navigation }) => {
   const theme = useThemeColors();
@@ -33,6 +25,7 @@ const EditProfileScreen = ({ navigation }) => {
   const user = useAuthStore((s) => s.user);
   const updateProfile = useAuthStore((s) => s.updateProfile);
   const uploadAvatar = useAuthStore((s) => s.uploadAvatar);
+  const fetchMe = useAuthStore((s) => s.fetchMe);
   const isLoading = useAuthStore((s) => s.isLoading);
 
   const [name, setName] = useState(user?.name || '');
@@ -64,7 +57,10 @@ const EditProfileScreen = ({ navigation }) => {
     });
 
     if (profileResult.success && avatarUri) {
-      await uploadAvatar(avatarUri);
+      const avatarResult = await uploadAvatar(avatarUri);
+      if (avatarResult.success) {
+        await fetchMe();
+      }
     }
 
     if (profileResult.success) {
@@ -73,12 +69,12 @@ const EditProfileScreen = ({ navigation }) => {
     } else {
       toast.error(profileResult.message || 'Failed to update profile');
     }
-  }, [name, phoneNumber, avatarUri, updateProfile, uploadAvatar, navigation, toast]);
+  }, [name, phoneNumber, avatarUri, updateProfile, uploadAvatar, fetchMe, navigation, toast]);
 
   const avatarSource = avatarUri
     ? { uri: avatarUri }
     : user?.avatar
-    ? { uri: getImageUrl(user.avatar) }
+    ? { uri: user.avatar }
     : null;
 
   const initials = user?.name?.charAt(0)?.toUpperCase() || 'U';

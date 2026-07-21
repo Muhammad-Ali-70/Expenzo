@@ -4,20 +4,12 @@ import { Pencil } from 'lucide-react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../constants/responsive';
-import apiClient from '../../services/apiClient';
-
-const getImageUrl = (path) => {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  const base = apiClient.defaults.baseURL.replace('/api', '');
-  return `${base}${path}`;
-};
 
 const SettingsProfileCard = ({ name, email, isPremium, avatarSource, avatarUrl, onEditPress }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const uri = avatarSource?.uri || (avatarUrl ? getImageUrl(avatarUrl) : null);
+  const uri = avatarSource?.uri || avatarUrl || null;
   const initials = name?.charAt(0)?.toUpperCase() ?? 'U';
 
   return (
