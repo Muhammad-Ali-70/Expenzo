@@ -8,6 +8,7 @@ import { groupTransactions } from '../../utils/transactionUtils';
  */
 export const useTransactions = ({ 
   accountId, 
+  categoryIds,
   month, 
   year,
   dateFrom,
@@ -32,6 +33,7 @@ export const useTransactions = ({
       try {
         const data = await getTransactionsApi({
           accountId,
+          categoryIds,
           month,
           year,
           dateFrom,
@@ -56,7 +58,7 @@ export const useTransactions = ({
         setLoadingMore(false);
       }
     },
-    [accountId, month, year, dateFrom, dateTo, minAmount, maxAmount],
+    [accountId, categoryIds, month, year, dateFrom, dateTo, minAmount, maxAmount],
   );
 
   // Initial load and when filters change

@@ -23,6 +23,7 @@ export const createTransactionApi = async ({
 
 export const getTransactionsApi = async ({
   accountId,
+  categoryIds,
   type,
   month,
   year,
@@ -34,21 +35,25 @@ export const getTransactionsApi = async ({
   page = 1,
   limit = 20,
 } = {}) => {
-  const response = await apiClient.get('/transactions', {
-    params: { 
-      accountId, 
-      type, 
-      month, 
-      year, 
-      dateFrom, 
-      dateTo, 
-      minAmount, 
-      maxAmount, 
-      search, 
-      page, 
-      limit 
-    },
-  });
+  const params = { 
+    accountId, 
+    type, 
+    month, 
+    year, 
+    dateFrom, 
+    dateTo, 
+    minAmount, 
+    maxAmount, 
+    search, 
+    page, 
+    limit 
+  };
+
+  if (categoryIds && categoryIds.length > 0) {
+    params.categoryIds = categoryIds.join(',');
+  }
+
+  const response = await apiClient.get('/transactions', { params });
   return response.data;
 };
 

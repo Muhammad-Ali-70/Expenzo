@@ -13,6 +13,7 @@ import {
   User,
   Calendar,
   DollarSign,
+  Tag,
   X,
 } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
@@ -26,17 +27,21 @@ import AmountRangeSection from '../../components/history/AmountRangeSection';
 import RecentActivityItem from '../../components/home/RecentActivityItem';
 import TransactionDetailModal from '../../components/modals/transaction/TransactionDetailModal';
 import AccountFilterModal from '../../components/modals/history/AccountFilterModal';
+import CategoryFilterModal from '../../components/modals/history/CategoryFilterModal';
 import PrimaryLoader from '../../components/ui/PrimaryLoader';
 import PrimaryButton from '../../components/ui/PrimaryButton';
 import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
 import { useTransactions } from '../../database/hooks/useTransactions';
 import useAccountStore from '../../store/useAccountStore';
+import useCategoryStore from '../../store/useCategoryStore';
+import { CATEGORIES, INCOME_CATEGORIES } from '../../constants/theme/accountMeta';
 import { storage } from '../../services/storage';
 
 const FILTER_TAGS = [
   { id: 'all', label: 'All', icon: CalendarDays },
   { id: 'expense', label: 'Expenses', icon: LayoutGrid },
   { id: 'income', label: 'Income', icon: Wallet },
+  { id: 'category', label: 'Category', icon: Tag },
   { id: 'account', label: 'Account', icon: User },
   { id: 'date', label: 'Date', icon: Calendar },
   { id: 'amount', label: 'Amount', icon: DollarSign },
@@ -79,12 +84,16 @@ const HistoryScreen = ({ route }) => {
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const accounts = useAccountStore(s => s.accounts);
+  const customCategories = useCategoryStore(s => s.categories);
+  const fetchCategories = useCategoryStore(s => s.fetchCategories);
 
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [expandedFilter, setExpandedFilter] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [accountModalVisible, setAccountModalVisible] = useState(false);
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [selectedTx, setSelectedTx] = useState(null);
   const [loadingText] = useState(getRandomLoadingText);
 
@@ -100,6 +109,37 @@ const HistoryScreen = ({ route }) => {
   const [maxAmount, setMaxAmount] = useState('');
 
   useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  const allCategories = useMemo(() => {
+    const seen = new Map();
+    
+    [...CATEGORIES, ...INCOME_CATEGORIES].forEach(c => {
+      if (!seen.has(c.label.toLowerCase())) {
+        seen.set(c.label.toLowerCase(), c);
+      }
+    });
+
+    customCategories
+      .filter(c => !c.isArchived)
+      .forEach(c => {
+        const key = c.name.toLowerCase();
+        if (!seen.has(key)) {
+          seen.set(key, {
+            id: c._id,
+            label: c.name,
+            iconName: c.iconName,
+            iconBg: c.iconBg,
+            iconColor: c.iconColor,
+          });
+        }
+      });
+
+    return Array.from(seen.values());
+  }, [customCategories]);
+
+  useEffect(() => {
     const savedFilters = loadFilters();
     if (savedFilters) {
       if (savedFilters.activeFilter) setActiveFilter(savedFilters.activeFilter);
@@ -108,6 +148,9 @@ const HistoryScreen = ({ route }) => {
           a => a._id === savedFilters.selectedAccountId,
         );
         if (account) setSelectedAccount(account);
+      }
+      if (savedFilters.selectedCategoryIds) {
+        setSelectedCategories(savedFilters.selectedCategoryIds);
       }
       if (savedFilters.dateFrom) setDateFrom(savedFilters.dateFrom);
       if (savedFilters.dateTo) setDateTo(savedFilters.dateTo);
@@ -120,13 +163,14 @@ const HistoryScreen = ({ route }) => {
     const filters = {
       activeFilter,
       selectedAccountId: selectedAccount?._id || null,
+      selectedCategoryIds: selectedCategories,
       dateFrom,
       dateTo,
       minAmount,
       maxAmount,
     };
     saveFilters(filters);
-  }, [activeFilter, selectedAccount, dateFrom, dateTo, minAmount, maxAmount]);
+  }, [activeFilter, selectedAccount, selectedCategories, dateFrom, dateTo, minAmount, maxAmount]);
 
   const debouncedSearch = useDebounce(search, 400);
   const debouncedMinAmount = useDebounce(minAmount, 600);
@@ -135,6 +179,7 @@ const HistoryScreen = ({ route }) => {
   const { loading, loadingMore, error, getGrouped, fetchNextPage, refresh } =
     useTransactions({
       accountId: selectedAccount?._id,
+      categoryIds: selectedCategories.length > 0 ? selectedCategories : undefined,
       dateFrom,
       dateTo,
       minAmount: debouncedMinAmount || undefined,
@@ -168,6 +213,9 @@ const HistoryScreen = ({ route }) => {
     if (filterId === 'all' || filterId === 'expense' || filterId === 'income') {
       setActiveFilter(filterId);
       setExpandedFilter(null);
+    } else if (filterId === 'category') {
+      setCategoryModalVisible(true);
+      setExpandedFilter(null);
     } else if (filterId === 'account') {
       setAccountModalVisible(true);
       setExpandedFilter(null);
@@ -179,12 +227,13 @@ const HistoryScreen = ({ route }) => {
   };
 
   const hasActiveFilters = useMemo(() => {
-    return selectedAccount !== null || minAmount !== '' || maxAmount !== '';
-  }, [selectedAccount, minAmount, maxAmount]);
+    return selectedAccount !== null || selectedCategories.length > 0 || minAmount !== '' || maxAmount !== '';
+  }, [selectedAccount, selectedCategories, minAmount, maxAmount]);
 
   const handleClearAllFilters = () => {
     setActiveFilter('all');
     setSelectedAccount(null);
+    setSelectedCategories([]);
     setExpandedFilter(null);
     setMinAmount('');
     setMaxAmount('');
@@ -200,6 +249,7 @@ const HistoryScreen = ({ route }) => {
     if (filterId === 'all' || filterId === 'expense' || filterId === 'income') {
       return activeFilter === filterId;
     }
+    if (filterId === 'category') return selectedCategories.length > 0;
     if (filterId === 'account') return !!selectedAccount;
     if (filterId === 'date') return expandedFilter === 'date';
     if (filterId === 'amount') return expandedFilter === 'amount';
@@ -357,6 +407,14 @@ const HistoryScreen = ({ route }) => {
         selectedAccount={selectedAccount}
         onSelect={setSelectedAccount}
         onClose={() => setAccountModalVisible(false)}
+      />
+
+      <CategoryFilterModal
+        visible={categoryModalVisible}
+        categories={allCategories}
+        selectedCategories={selectedCategories}
+        onSelect={setSelectedCategories}
+        onClose={() => setCategoryModalVisible(false)}
       />
 
       <TransactionDetailModal
