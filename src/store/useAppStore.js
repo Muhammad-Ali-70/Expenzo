@@ -56,6 +56,19 @@ const useAppStore = create(
       currency: 'PKR',
       setCurrency: currency => set({ currency }),
 
+      // ── Investment Defaults ─────────────────────────────────────────────────
+      investmentDefaults: {
+        profitEnabled: true,
+        profitType: 'fixed',
+        profitValue: '0',
+        frequency: 'monthly',
+        returnDay: null,
+      },
+      setInvestmentDefaults: defaults =>
+        set(state => ({
+          investmentDefaults: { ...state.investmentDefaults, ...defaults },
+        })),
+
       // ── Theme ───────────────────────────────────────────────────────────────
       // On first launch, read system appearance preference; persist preserves user choice
       theme: Appearance.getColorScheme() || 'light',
@@ -71,6 +84,7 @@ const useAppStore = create(
         onboardingByUser: state.onboardingByUser,
         currency: state.currency,
         theme: state.theme,
+        investmentDefaults: state.investmentDefaults,
       }),
     },
   ),
