@@ -58,7 +58,7 @@ const RecentActivityItem = ({
             { backgroundColor: '#F0F9FF' },
           ]}
         >
-          <ArrowRightLeft size={wp(5)} color="#0284C7" strokeWidth={1.8} />
+          <ArrowRightLeft size={wp(6)} color="#0284C7" strokeWidth={2} />
         </View>
       ) : (
         <PaymentIcon

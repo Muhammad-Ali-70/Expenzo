@@ -111,7 +111,7 @@ export const groupTransactions = (
         ? t.description?.trim() || 'Transfer'
         : t.description?.trim() || categoryLabel,
       subtitle: isTransfer
-        ? `${account?.label ?? '—'} → ${toAccount?.label ?? '—'}`
+        ? `${account?.label ?? '—'} → ${toAccount?.label ?? '—'} · ${formatTime(dateTs)}`
         : `${categoryLabel} · ${formatTime(dateTs)}`,
       amount: isTransfer ? t.amount : t.type === 'expense' ? -t.amount : t.amount,
       accountLabel: account?.label ?? null,
