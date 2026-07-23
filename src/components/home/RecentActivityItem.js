@@ -10,21 +10,16 @@ import { useThemeColors } from '@hooks/useThemeColors';
 
 const AccountTag = ({ label, type }) => {
   const meta = ACCOUNT_TYPE_META[type] ?? ACCOUNT_TYPE_META.wallet;
-  const theme = useThemeColors();
+  const tagStyles = {
+    paddingHorizontal: wp(2),
+    paddingVertical: hp(0.3),
+    borderWidth: 1,
+    borderRadius: borderRadius.sm,
+    backgroundColor: meta.iconBg,
+    borderColor: meta.iconColor,
+  };
   return (
-    <View
-      style={[
-        {
-          paddingHorizontal: wp(2),
-          paddingVertical: hp(0.3),
-          flexShrink: 0,
-          borderWidth: 1,
-          borderRadius: borderRadius.sm,
-          backgroundColor: meta.iconBg,
-          borderColor: meta.iconColor,
-        },
-      ]}
-    >
+    <View style={tagStyles}>
       <Label type="caption" weight="semiBold" style={{ color: meta.iconColor }}>
         {label}
       </Label>
@@ -49,16 +44,52 @@ const RecentActivityItem = ({
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
+  const renderSubtitle = () => {
+    if (!isTransfer) {
+      return (
+        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+          {subtitle}
+        </Label>
+      );
+    }
+    const parts = subtitle?.split('→') ?? [];
+    return (
+      <View style={styles.transferSubtitle}>
+        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+          {parts[0]?.trim()}
+        </Label>
+        <ArrowRightLeft size={wp(3.5)} color="#10B981" strokeWidth={2.5} />
+        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+          {parts[1]?.trim()}
+        </Label>
+      </View>
+    );
+  };
+
+  const renderAmount = () => {
+    if (isTransfer) {
+      return (
+        <Label type="bodySmall" weight="semiBold" color="textMuted">
+          PKR {Math.abs(amount).toLocaleString()}
+        </Label>
+      );
+    }
+    return (
+      <CurrencyView
+        amount={Math.abs(amount)}
+        type="bodySmall"
+        weight="semiBold"
+        positive={isPositive}
+        negative={!isPositive}
+      />
+    );
+  };
+
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
       {isTransfer ? (
-        <View
-          style={[
-            styles.transferIcon,
-            { backgroundColor: '#F0F9FF' },
-          ]}
-        >
-          <ArrowRightLeft size={wp(6)} color="#0284C7" strokeWidth={2} />
+        <View style={styles.transferIcon}>
+          <ArrowRightLeft size={wp(6)} color="#0284C7" strokeWidth={1.8} />
         </View>
       ) : (
         <PaymentIcon
@@ -82,69 +113,59 @@ const RecentActivityItem = ({
             {title}
           </Label>
           {accountLabel ? (
-            <AccountTag label={isTransfer ? accountLabel : accountLabel} type={accountType} />
+            <AccountTag
+              label={isTransfer ? accountLabel : accountLabel}
+              type={accountType}
+            />
           ) : null}
         </View>
 
-        <Label
-          type="bodyXs"
-          weight="regular"
-          color="textMuted"
-          numberOfLines={1}
-        >
-          {subtitle}
-        </Label>
+        {renderSubtitle()}
       </View>
 
-      {isTransfer ? (
-        <Label type="bodySmall" weight="semiBold" color="textMuted">
-          PKR {Math.abs(amount).toLocaleString()}
-        </Label>
-      ) : (
-        <CurrencyView
-          amount={Math.abs(amount)}
-          type="bodySmall"
-          weight="semiBold"
-          positive={isPositive}
-          negative={!isPositive}
-        />
-      )}
+      {renderAmount()}
     </TouchableOpacity>
   );
 };
 
-const createStyles = t => StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: t.surfacePrimary,
-    borderRadius: borderRadius.lg,
-    paddingVertical: wp(2),
-    paddingHorizontal: wp(2),
-    gap: wp(3),
-    marginBottom: hp(1),
-  },
-  info: {
-    flex: 1,
-    gap: hp(0.3),
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: wp(2),
-    flexShrink: 1,
-  },
-  titleText: {
-    flexShrink: 1,
-  },
-  transferIcon: {
-    width: wp(11),
-    height: wp(11),
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-});
+const createStyles = t =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: t.surfacePrimary,
+      borderRadius: borderRadius.lg,
+      paddingVertical: wp(2),
+      paddingHorizontal: wp(2),
+      gap: wp(3),
+      marginBottom: hp(1),
+    },
+    info: {
+      flex: 1,
+      gap: hp(0.3),
+    },
+    titleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: wp(2),
+      flexShrink: 1,
+    },
+    titleText: {
+      flexShrink: 1,
+    },
+    transferIcon: {
+      width: wp(11),
+      height: wp(11),
+      borderRadius: borderRadius.lg,
+      backgroundColor: '#F0F9FF',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    transferSubtitle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: wp(1.5),
+    },
+  });
 
 export default RecentActivityItem;
