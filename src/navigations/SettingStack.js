@@ -7,6 +7,7 @@ import AddEditDebtScreen from '../screens/tabs/SettingStack/AddEditDebtScreen';
 import EditProfileScreen from '../screens/tabs/SettingStack/EditProfileScreen';
 import InvestmentsScreen from '../screens/tabs/SettingStack/InvestmentsScreen';
 import InvestmentSettingsScreen from '../screens/tabs/SettingStack/InvestmentSettingsScreen';
+import TransferScreen from '../screens/tabs/SettingStack/TransferScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ const SettingStack = () => {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="InvestmentsScreen" component={InvestmentsScreen} />
       <Stack.Screen name="InvestmentSettingsScreen" component={InvestmentSettingsScreen} />
+      <Stack.Screen name="TransferScreen" component={TransferScreen} />
     </Stack.Navigator>
   );
 };

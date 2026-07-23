@@ -112,6 +112,13 @@ const SettingsScreen = () => {
             showDivider
           />
           <SettingsRow
+            iconName="trendingup"
+            title="Transfer Funds"
+            subtitle="Move money between accounts"
+            onPress={() => navigation.navigate('TransferScreen')}
+            showDivider
+          />
+          <SettingsRow
             iconName="moon"
             title="Dark Mode"
             subtitle="Adjust system appearance"

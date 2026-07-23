@@ -38,3 +38,14 @@ export const deleteAccountApi = async id => {
   const response = await apiClient.delete(`/accounts/${id}`);
   return response.data;
 };
+
+// POST /api/accounts/transfer
+export const transferFundsApi = async ({ fromAccountId, toAccountId, amount, description }) => {
+  const response = await apiClient.post('/accounts/transfer', {
+    fromAccountId,
+    toAccountId,
+    amount,
+    description,
+  });
+  return response.data;
+};

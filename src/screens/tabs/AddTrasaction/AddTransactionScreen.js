@@ -8,7 +8,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import { CheckCircle } from 'lucide-react-native';
+import { CheckCircle, ArrowRightLeft } from 'lucide-react-native';
 import ScreenHeader from '../../../components/common/Screenheader';
 import AmountHeader from '../../../components/addexpense/AmountHeader';
 import CategoryPicker from '../../../components/addexpense/CategoryPicker';
@@ -276,6 +276,22 @@ const AddTransactionScreen = ({ navigation, route }) => {
           <DateTimeRow date={date} onChange={setDate} />
 
           <NotesInput value={notes} onChangeText={setNotes} />
+
+          <TouchableOpacity
+            style={styles.transferLink}
+            onPress={() =>
+              navigation?.navigate('TabNavigator', {
+                screen: 'User',
+                params: { screen: 'TransferScreen' },
+              })
+            }
+            activeOpacity={0.7}
+          >
+            <ArrowRightLeft size={wp(4)} color={theme.textMuted} strokeWidth={1.8} />
+            <Label type="bodyXs" weight="regular" color="textMuted">
+              Transfer between accounts
+            </Label>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -376,6 +392,13 @@ const createStyles = t =>
     form: {
       paddingTop: hp(2.5),
       gap: hp(2.5),
+    },
+    transferLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: wp(2),
+      paddingVertical: hp(1),
     },
     footer: {
       paddingHorizontal: wp(5),
