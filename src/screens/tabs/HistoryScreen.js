@@ -15,6 +15,7 @@ import {
   DollarSign,
   Tag,
   X,
+  ArrowRightLeft,
 } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
@@ -42,6 +43,7 @@ const FILTER_TAGS = [
   { id: 'all', label: 'All', icon: CalendarDays },
   { id: 'expense', label: 'Expenses', icon: LayoutGrid },
   { id: 'income', label: 'Income', icon: Wallet },
+  { id: 'transfer', label: 'Transfer', icon: ArrowRightLeft },
   { id: 'category', label: 'Category', icon: Tag },
   { id: 'account', label: 'Account', icon: User },
   { id: 'date', label: 'Date', icon: Calendar },
@@ -202,7 +204,7 @@ const HistoryScreen = ({ route }) => {
   }, [groups]);
 
   const handleFilterSelect = filterId => {
-    if (filterId === 'all' || filterId === 'expense' || filterId === 'income') {
+    if (filterId === 'all' || filterId === 'expense' || filterId === 'income' || filterId === 'transfer') {
       setActiveFilter(filterId);
       setExpandedFilter(null);
     } else if (filterId === 'category') {
@@ -234,7 +236,7 @@ const HistoryScreen = ({ route }) => {
   };
 
   const isFilterActive = filterId => {
-    if (filterId === 'all' || filterId === 'expense' || filterId === 'income') {
+    if (filterId === 'all' || filterId === 'expense' || filterId === 'income' || filterId === 'transfer') {
       return activeFilter === filterId;
     }
     if (filterId === 'category') return selectedCategories.length > 0;
@@ -252,14 +254,16 @@ const HistoryScreen = ({ route }) => {
             <Label type="headingXs" weight="bold" color="textMain">
               {item.label}
             </Label>
-            <Label
-              type="bodySmall"
-              weight="semiBold"
-              color={item.total >= 0 ? 'primary' : 'error'}
-            >
-              {item.total >= 0 ? '+' : ''}PKR{' '}
-              {Math.abs(item.total).toLocaleString()}
-            </Label>
+            {item.total !== 0 && (
+              <Label
+                type="bodySmall"
+                weight="semiBold"
+                color={item.total >= 0 ? 'primary' : 'error'}
+              >
+                {item.total >= 0 ? '+' : ''}PKR{' '}
+                {Math.abs(item.total).toLocaleString()}
+              </Label>
+            )}
           </View>
         );
       }
@@ -270,6 +274,11 @@ const HistoryScreen = ({ route }) => {
           onPress={() => setSelectedTx(item.raw)}
         />
       );
+    },
+    [styles],
+  );
+
+  const renderEmpty = () => {
     },
     [styles],
   );

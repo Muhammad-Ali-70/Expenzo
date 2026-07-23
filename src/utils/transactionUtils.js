@@ -94,18 +94,27 @@ export const groupTransactions = (
     const meta = getCategoryMeta(t.category);
     const categoryLabel = getCategoryLabel(t.category);
     const account = t.accountId ?? null;
+    const toAccount = t.toAccountId ?? null;
     const id = t._id;
+    const isTransfer = t.type === 'transfer';
 
     buckets[key].transactions.push({
       id,
-      iconName: meta.iconName,
-      iconBg: meta.iconBg,
-      iconColor: meta.iconColor,
-      title: t.description?.trim() || categoryLabel,
-      subtitle: `${categoryLabel} · ${formatTime(dateTs)}`,
-      amount: t.type === 'expense' ? -t.amount : t.amount,
+      isTransfer,
+      iconName: isTransfer ? 'transfer' : meta.iconName,
+      iconBg: isTransfer ? '#F0F9FF' : meta.iconBg,
+      iconColor: isTransfer ? '#0284C7' : meta.iconColor,
+      title: isTransfer
+        ? t.description?.trim() || 'Transfer'
+        : t.description?.trim() || categoryLabel,
+      subtitle: isTransfer
+        ? `${account?.label ?? '—'} → ${toAccount?.label ?? '—'}`
+        : `${categoryLabel} · ${formatTime(dateTs)}`,
+      amount: isTransfer ? t.amount : t.type === 'expense' ? -t.amount : t.amount,
       accountLabel: account?.label ?? null,
       accountType: account?.type ?? null,
+      toAccountLabel: toAccount?.label ?? null,
+      toAccountType: toAccount?.type ?? null,
       raw: {
         id,
         type: t.type,
@@ -118,10 +127,17 @@ export const groupTransactions = (
         accountId: account?._id ?? t.accountId,
         accountLabel: account?.label ?? '—',
         accountType: account?.type ?? '—',
+        toAccountId: toAccount?._id ?? null,
+        toAccountLabel: toAccount?.label ?? null,
+        toAccountType: toAccount?.type ?? null,
       },
     });
 
-    buckets[key].total += t.type === 'expense' ? -t.amount : t.amount;
+    if (isTransfer) {
+      buckets[key].total += 0;
+    } else {
+      buckets[key].total += t.type === 'expense' ? -t.amount : t.amount;
+    }
   });
 
   return Object.values(buckets);

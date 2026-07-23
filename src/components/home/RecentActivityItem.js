@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { ArrowRightLeft } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
@@ -40,21 +41,34 @@ const RecentActivityItem = ({
   amount,
   accountLabel,
   accountType,
+  isTransfer,
+  toAccountLabel,
   onPress,
 }) => {
-  const isPositive = amount >= 0;
+  const isPositive = amount >= 0 && !isTransfer;
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.row}>
-      <PaymentIcon
-        name={iconName}
-        backgroundColor={iconBg}
-        color={iconColor}
-        containerSize={wp(11)}
-        size={wp(5.5)}
-      />
+      {isTransfer ? (
+        <View
+          style={[
+            styles.transferIcon,
+            { backgroundColor: '#F0F9FF' },
+          ]}
+        >
+          <ArrowRightLeft size={wp(5)} color="#0284C7" strokeWidth={1.8} />
+        </View>
+      ) : (
+        <PaymentIcon
+          name={iconName}
+          backgroundColor={iconBg}
+          color={iconColor}
+          containerSize={wp(11)}
+          size={wp(5.5)}
+        />
+      )}
 
       <View style={styles.info}>
         <View style={styles.titleRow}>
@@ -68,7 +82,7 @@ const RecentActivityItem = ({
             {title}
           </Label>
           {accountLabel ? (
-            <AccountTag label={accountLabel} type={accountType} />
+            <AccountTag label={isTransfer ? accountLabel : accountLabel} type={accountType} />
           ) : null}
         </View>
 
@@ -76,19 +90,25 @@ const RecentActivityItem = ({
           type="bodyXs"
           weight="regular"
           color="textMuted"
-          transformText="capitalize"
+          numberOfLines={1}
         >
           {subtitle}
         </Label>
       </View>
 
-      <CurrencyView
-        amount={Math.abs(amount)}
-        type="bodySmall"
-        weight="semiBold"
-        positive={isPositive}
-        negative={!isPositive}
-      />
+      {isTransfer ? (
+        <Label type="bodySmall" weight="semiBold" color="textMuted">
+          PKR {Math.abs(amount).toLocaleString()}
+        </Label>
+      ) : (
+        <CurrencyView
+          amount={Math.abs(amount)}
+          type="bodySmall"
+          weight="semiBold"
+          positive={isPositive}
+          negative={!isPositive}
+        />
+      )}
     </TouchableOpacity>
   );
 };
@@ -116,6 +136,13 @@ const createStyles = t => StyleSheet.create({
   },
   titleText: {
     flexShrink: 1,
+  },
+  transferIcon: {
+    width: wp(11),
+    height: wp(11),
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
 });
