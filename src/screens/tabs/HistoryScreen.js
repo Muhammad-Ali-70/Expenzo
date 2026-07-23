@@ -18,6 +18,7 @@ import {
 } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
+import { useNavigation } from '@react-navigation/native';
 import { Label } from '../../constants/globalstyle';
 import HomeHeader from '../../components/home/HomeHeader';
 import SearchBar from '../../components/ui/SearchBar';
@@ -82,6 +83,7 @@ const saveFilters = filters => {
 const HistoryScreen = ({ route }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const navigation = useNavigation();
 
   const accounts = useAccountStore(s => s.accounts);
   const customCategories = useCategoryStore(s => s.categories);
@@ -97,14 +99,8 @@ const HistoryScreen = ({ route }) => {
   const [selectedTx, setSelectedTx] = useState(null);
   const [loadingText] = useState(getRandomLoadingText);
 
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today);
-  thirtyDaysAgo.setDate(today.getDate() - 30);
-
-  const [dateFrom, setDateFrom] = useState(
-    thirtyDaysAgo.toISOString().split('T')[0],
-  );
-  const [dateTo, setDateTo] = useState(today.toISOString().split('T')[0]);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
 
@@ -180,8 +176,8 @@ const HistoryScreen = ({ route }) => {
     useTransactions({
       accountId: selectedAccount?._id,
       categoryIds: selectedCategories.length > 0 ? selectedCategories : undefined,
-      dateFrom,
-      dateTo,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
       minAmount: debouncedMinAmount || undefined,
       maxAmount: debouncedMaxAmount || undefined,
     });
@@ -237,12 +233,8 @@ const HistoryScreen = ({ route }) => {
     setExpandedFilter(null);
     setMinAmount('');
     setMaxAmount('');
-
-    const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
-    setDateFrom(thirtyDaysAgo.toISOString().split('T')[0]);
-    setDateTo(today.toISOString().split('T')[0]);
+    setDateFrom('');
+    setDateTo('');
   };
 
   const isFilterActive = filterId => {
@@ -313,7 +305,7 @@ const HistoryScreen = ({ route }) => {
 
   return (
     <View style={styles.safe}>
-      <HomeHeader onBellPress={() => {}} />
+      <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
 
       <View style={styles.searchWrap}>
         <SearchBar
