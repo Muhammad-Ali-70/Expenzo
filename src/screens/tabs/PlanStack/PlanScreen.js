@@ -69,7 +69,7 @@ const PlanScreen = ({ navigation }) => {
   if (error || !budget) {
     return (
       <View style={[styles.safe, styles.center]}>
-        <HomeHeader />
+        <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
         <Label type="bodySmall" weight="regular" color="textMuted" style={styles.emptyText}>
           {error || 'No budget set for this month'}
         </Label>

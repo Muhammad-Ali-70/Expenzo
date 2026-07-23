@@ -81,7 +81,7 @@ const SettingsScreen = () => {
 
   return (
     <View style={[styles.safe, { backgroundColor: themeColors.background }]}>
-      <HomeHeader />
+      <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -102,6 +102,13 @@ const SettingsScreen = () => {
             title="Debt Calculator"
             subtitle="Manage your debts and loans"
             onPress={() => navigation.navigate('DebtScreen')}
+            showDivider
+          />
+          <SettingsRow
+            iconName="trendingup"
+            title="Investments"
+            subtitle="Track your investment returns"
+            onPress={() => navigation.navigate('InvestmentsScreen')}
             showDivider
           />
           <SettingsRow

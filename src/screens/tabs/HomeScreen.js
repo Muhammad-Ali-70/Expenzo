@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.safe}>
-        <HomeHeader onBellPress={() => {}} />
+        <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
         <View style={styles.loadingWrap}>
           <PrimaryLoader width={100} height={100} />
           <Label
@@ -116,7 +116,7 @@ const HomeScreen = ({ navigation }) => {
           />
         }
       >
-        <HomeHeader onBellPress={() => {}} />
+        <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
 
         <BalanceSummaryCard
           totalBalance={totalBalance}
