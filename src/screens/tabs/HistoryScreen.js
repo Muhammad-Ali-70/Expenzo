@@ -148,8 +148,6 @@ const HistoryScreen = ({ route }) => {
       if (savedFilters.selectedCategoryIds) {
         setSelectedCategories(savedFilters.selectedCategoryIds);
       }
-      if (savedFilters.dateFrom) setDateFrom(savedFilters.dateFrom);
-      if (savedFilters.dateTo) setDateTo(savedFilters.dateTo);
       if (savedFilters.minAmount) setMinAmount(savedFilters.minAmount);
       if (savedFilters.maxAmount) setMaxAmount(savedFilters.maxAmount);
     }
@@ -160,13 +158,11 @@ const HistoryScreen = ({ route }) => {
       activeFilter,
       selectedAccountId: selectedAccount?._id || null,
       selectedCategoryIds: selectedCategories,
-      dateFrom,
-      dateTo,
       minAmount,
       maxAmount,
     };
     saveFilters(filters);
-  }, [activeFilter, selectedAccount, selectedCategories, dateFrom, dateTo, minAmount, maxAmount]);
+  }, [activeFilter, selectedAccount, selectedCategories, minAmount, maxAmount]);
 
   const debouncedSearch = useDebounce(search, 400);
   const debouncedMinAmount = useDebounce(minAmount, 600);
