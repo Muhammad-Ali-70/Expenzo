@@ -25,9 +25,12 @@ import { hp, wp } from '../../../constants/responsive';
 import { Label } from '../../../constants/globalstyle';
 import { CATEGORIES, INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
 import { createTransactionApi } from '../../../services/transactionService';
+import { createInvestmentApi } from '../../../services/investmentService';
 import useAccountStore from '../../../store/useAccountStore';
 import useCategoryStore from '../../../store/useCategoryStore';
+import useAppStore from '../../../store/useAppStore';
 import { useToastService } from '../../../utils/ToastService';
+import InvestmentSetupModal from '../../../components/modals/investment/InvestmentSetupModal';
 
 const toPickerItem = c => ({
   id: c._id,
@@ -65,6 +68,9 @@ const AddTransactionScreen = ({ navigation, route }) => {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const [investmentModalVisible, setInvestmentModalVisible] = useState(false);
+  const [investmentConfig, setInvestmentConfig] = useState(null);
+
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
   const [createCategoryVisible, setCreateCategoryVisible] = useState(false);
@@ -72,6 +78,7 @@ const AddTransactionScreen = ({ navigation, route }) => {
 
   const toast = useToastService();
   const theme = useThemeColors();
+  const investmentDefaults = useAppStore(s => s.investmentDefaults);
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   useEffect(() => {
@@ -84,6 +91,16 @@ const AddTransactionScreen = ({ navigation, route }) => {
       setSourceId(primaryAccount._id);
     }
   }, [primaryAccount, sourceId]);
+
+  // Show investment setup modal when category is investment
+  useEffect(() => {
+    if (isExpense && category === 'investment') {
+      setInvestmentModalVisible(true);
+    }
+    if (category !== 'investment') {
+      setInvestmentConfig(null);
+    }
+  }, [category, isExpense]);
 
   const isExpense = type === 'expense';
 
@@ -139,15 +156,31 @@ const AddTransactionScreen = ({ navigation, route }) => {
 
     setSaving(true);
     try {
-      await createTransactionApi({
-        accountId: sourceId,
-        type,
-        amount: parsedAmount,
-        category: isExpense ? category : incomeCategory,
-        description: description.trim(),
-        note: notes.trim(),
-        date: date.toISOString(),
-      });
+      const isInvestment =
+        isExpense && category === 'investment' && investmentConfig;
+
+      if (isInvestment) {
+        await createInvestmentApi({
+          accountId: sourceId,
+          amount: parsedAmount,
+          category: 'investment',
+          description: description.trim(),
+          note: notes.trim(),
+          date: date.toISOString(),
+          title: description.trim() || 'Investment',
+          ...investmentConfig,
+        });
+      } else {
+        await createTransactionApi({
+          accountId: sourceId,
+          type,
+          amount: parsedAmount,
+          category: isExpense ? category : incomeCategory,
+          description: description.trim(),
+          note: notes.trim(),
+          date: date.toISOString(),
+        });
+      }
 
       useAccountStore.getState().fetchAccounts();
       navigation?.navigate('TabNavigator', {
@@ -296,6 +329,13 @@ const AddTransactionScreen = ({ navigation, route }) => {
         activeId={sourceId}
         onSelect={setSourceId}
         onClose={() => setSourceModalVisible(false)}
+      />
+
+      <InvestmentSetupModal
+        visible={investmentModalVisible}
+        onClose={() => setInvestmentModalVisible(false)}
+        onConfirm={setInvestmentConfig}
+        defaults={investmentDefaults}
       />
 
       <CreateCategoryModal
