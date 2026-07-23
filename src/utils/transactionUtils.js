@@ -94,7 +94,10 @@ export const groupTransactions = (
     const meta = getCategoryMeta(t.category);
     const categoryLabel = getCategoryLabel(t.category);
     const account = t.accountId ?? null;
-    const toAccount = t.toAccountId ?? null;
+    const toAccount =
+      t.toAccountId && typeof t.toAccountId === 'object'
+        ? t.toAccountId
+        : null;
     const id = t._id;
     const isTransfer = t.type === 'transfer';
 
