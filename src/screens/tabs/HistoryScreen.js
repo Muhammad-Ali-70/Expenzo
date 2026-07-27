@@ -279,11 +279,6 @@ const HistoryScreen = ({ route }) => {
   );
 
   const renderEmpty = () => {
-    },
-    [styles],
-  );
-
-  const renderEmpty = () => {
     if (loading) return null;
     return (
       <Label
