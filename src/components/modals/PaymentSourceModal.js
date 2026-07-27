@@ -19,7 +19,7 @@ const PaymentSourceModal = ({ visible, activeId, onSelect, onClose }) => {
     onClose();
   };
 
-  const groups = ['wallet', 'bank', 'digitalWallet']
+  const groups = ['bank', 'digitalWallet']
     .map(type => ({
       type,
       label: ACCOUNT_TYPE_META[type].label.toUpperCase() + 'S',
