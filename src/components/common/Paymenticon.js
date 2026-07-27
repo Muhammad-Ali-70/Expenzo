@@ -19,6 +19,7 @@ import {
   Gift,
   BookOpen,
   Briefcase,
+  Fuel,
 } from 'lucide-react-native';
 import { borderRadius } from '../../constants/globalstyle';
 import { wp } from '../../constants/responsive';
@@ -43,6 +44,7 @@ const ICON_REGISTRY = {
   gift: Gift,
   education: BookOpen,
   work: Briefcase,
+  fuel: Fuel,
 };
 
 const PaymentIcon = ({

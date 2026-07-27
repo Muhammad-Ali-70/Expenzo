@@ -16,6 +16,13 @@ export const CATEGORIES = [
     iconColor: '#3B82F6',
   },
   {
+    id: 'petrol',
+    label: 'Petrol',
+    iconName: 'fuel',
+    iconBg: '#FFF7ED',
+    iconColor: '#EA580C',
+  },
+  {
     id: 'rent',
     label: 'Rent',
     iconName: 'home',
@@ -49,13 +56,6 @@ export const CATEGORIES = [
     iconName: 'coffee',
     iconBg: '#FDF6EC',
     iconColor: '#92400E',
-  },
-  {
-    id: 'travel',
-    label: 'Travel',
-    iconName: 'travel',
-    iconBg: '#EFF6FF',
-    iconColor: '#2563EB',
   },
   {
     id: 'utilities',
