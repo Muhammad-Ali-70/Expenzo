@@ -6,24 +6,26 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
-import { CheckCircle, ArrowRightLeft } from 'lucide-react-native';
-import ScreenHeader from '../../../components/common/Screenheader';
+import { CheckCircle } from 'lucide-react-native';
 import AmountHeader from '../../../components/addexpense/AmountHeader';
 import CategoryPicker from '../../../components/addexpense/CategoryPicker';
 import DescriptionInput from '../../../components/addexpense/DescriptionInput';
 import PaymentSourcePicker from '../../../components/addexpense/PaymentSourcePicker';
 import DateTimeRow from '../../../components/addexpense/DateTimeRow';
 import NotesInput from '../../../components/addexpense/NotesInput';
+import TransactionTypeHeader from '../../../components/addexpense/TransactionTypeHeader';
+import TransferLink from '../../../components/addexpense/TransferLink';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import CategoryModal from '../../../components/modals/CategoryModal';
 import CreateCategoryModal from '../../../components/modals/CreateCategoryModal';
 import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
-import { Label } from '../../../constants/globalstyle';
-import { CATEGORIES, INCOME_CATEGORIES } from '../../../constants/theme/accountMeta';
+import {
+  CATEGORIES,
+  INCOME_CATEGORIES,
+} from '../../../constants/theme/accountMeta';
 import { createTransactionApi } from '../../../services/transactionService';
 import { createInvestmentApi } from '../../../services/investmentService';
 import useAccountStore from '../../../store/useAccountStore';
@@ -31,6 +33,7 @@ import useCategoryStore from '../../../store/useCategoryStore';
 import useAppStore from '../../../store/useAppStore';
 import { useToastService } from '../../../utils/ToastService';
 import InvestmentSetupModal from '../../../components/modals/investment/InvestmentSetupModal';
+import { detectCategory } from '../../../utils/categoryDetector';
 
 const toPickerItem = c => ({
   id: c._id,
@@ -41,8 +44,6 @@ const toPickerItem = c => ({
   isCustom: true,
   raw: c,
 });
-
-const TYPES = ['expense', 'income'];
 
 const AddTransactionScreen = ({ navigation, route }) => {
   const initialType = route?.params?.type ?? 'expense';
@@ -135,6 +136,30 @@ const AddTransactionScreen = ({ navigation, route }) => {
     setCreateCategoryVisible(true);
   };
 
+  const handleDescriptionChange = text => {
+    setDescription(text);
+
+    const detectedCategoryId = detectCategory(text, type);
+
+    if (detectedCategoryId) {
+      if (type === 'expense') {
+        const categoryExists = expenseCategories.some(
+          c => c.id === detectedCategoryId,
+        );
+        if (categoryExists) {
+          setCategory(detectedCategoryId);
+        }
+      } else {
+        const categoryExists = incomeCategories.some(
+          c => c.id === detectedCategoryId,
+        );
+        if (categoryExists) {
+          setIncomeCategory(detectedCategoryId);
+        }
+      }
+    }
+  };
+
   // Auto-select the newly created category (archived edits return null).
   const handleCategorySaved = cat => {
     if (!cat) return;
@@ -208,36 +233,11 @@ const AddTransactionScreen = ({ navigation, route }) => {
       style={styles.safe}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScreenHeader
-        title={isExpense ? 'Add Expense' : 'Add Income'}
-        onBack={() => navigation?.goBack()}
+      <TransactionTypeHeader
+        type={type}
+        onTypeChange={setType}
+        onClose={() => navigation?.goBack()}
       />
-
-      {/* Type Toggle */}
-      <View style={styles.toggleWrap}>
-        {TYPES.map(t => (
-          <TouchableOpacity
-            key={t}
-            style={[
-              styles.toggleBtn,
-              type === t && {
-                backgroundColor:
-                  t === 'expense' ? theme.error : theme.primary,
-              },
-            ]}
-            onPress={() => setType(t)}
-            activeOpacity={0.8}
-          >
-            <Label
-              type="bodySmall"
-              weight="semiBold"
-              color={type === t ? 'white' : 'textMuted'}
-            >
-              {t === 'expense' ? 'Expense' : 'Income'}
-            </Label>
-          </TouchableOpacity>
-        ))}
-      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -247,7 +247,10 @@ const AddTransactionScreen = ({ navigation, route }) => {
         <AmountHeader value={amount} onChangeText={setAmount} />
 
         <View style={styles.form}>
-          <DescriptionInput value={description} onChangeText={setDescription} />
+          <DescriptionInput
+            value={description}
+            onChangeText={handleDescriptionChange}
+          />
 
           {isExpense ? (
             <CategoryPicker
@@ -273,25 +276,18 @@ const AddTransactionScreen = ({ navigation, route }) => {
             onSeeAll={() => setSourceModalVisible(true)}
           />
 
-          <DateTimeRow date={date} onChange={setDate} />
-
-          <NotesInput value={notes} onChangeText={setNotes} />
-
-          <TouchableOpacity
-            style={styles.transferLink}
+          <TransferLink
             onPress={() =>
               navigation?.navigate('TabNavigator', {
                 screen: 'User',
                 params: { screen: 'TransferScreen' },
               })
             }
-            activeOpacity={0.7}
-          >
-            <ArrowRightLeft size={wp(4)} color={theme.textMuted} strokeWidth={1.8} />
-            <Label type="bodyXs" weight="regular" color="textMuted">
-              Transfer between accounts
-            </Label>
-          </TouchableOpacity>
+          />
+
+          <DateTimeRow date={date} onChange={setDate} />
+
+          <NotesInput value={notes} onChangeText={setNotes} />
         </View>
       </ScrollView>
 
@@ -371,34 +367,12 @@ const createStyles = t =>
       flex: 1,
       backgroundColor: t.background,
     },
-    toggleWrap: {
-      flexDirection: 'row',
-      marginHorizontal: wp(5),
-      marginTop: hp(2),
-      backgroundColor: t.surfacePrimary,
-      borderRadius: 12,
-      padding: 4,
-      gap: 4,
-    },
-    toggleBtn: {
-      flex: 1,
-      paddingVertical: hp(1.2),
-      borderRadius: 10,
-      alignItems: 'center',
-    },
     scrollContent: {
       paddingBottom: hp(2),
     },
     form: {
       paddingTop: hp(2.5),
       gap: hp(2.5),
-    },
-    transferLink: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: wp(2),
-      paddingVertical: hp(1),
     },
     footer: {
       paddingHorizontal: wp(5),
