@@ -7,11 +7,18 @@ import { BANK_META, DIGITAL_WALLET_META, getAccountTypeMeta } from '../constants
  */
 export const getAccountMeta = (type, sourceId) => {
   if (sourceId) {
+    let cleanSourceId = sourceId;
+    if (sourceId.startsWith('bank-')) {
+      cleanSourceId = sourceId.replace('bank-', '');
+    } else if (sourceId.startsWith('wallet-')) {
+      cleanSourceId = sourceId.replace('wallet-', '');
+    }
+    
     const meta =
       type === 'bank'
-        ? BANK_META[sourceId]
+        ? BANK_META[cleanSourceId]
         : type === 'digitalWallet'
-        ? DIGITAL_WALLET_META[sourceId]
+        ? DIGITAL_WALLET_META[cleanSourceId]
         : null;
 
     if (meta) {
