@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { ArrowRightLeft } from 'lucide-react-native';
+import { ArrowRight, ArrowRightLeft } from 'lucide-react-native';
 import { hp, wp } from '../../constants/responsive';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import PaymentIcon from '../common/Paymenticon';
 import { ACCOUNT_TYPE_META } from '../../constants/theme/accountMeta';
 import { useThemeColors } from '@hooks/useThemeColors';
+import colors from '../../constants/colors';
 
 const AccountTag = ({ label, type }) => {
   const meta = ACCOUNT_TYPE_META[type] ?? ACCOUNT_TYPE_META.wallet;
@@ -47,7 +48,12 @@ const RecentActivityItem = ({
   const renderSubtitle = () => {
     if (!isTransfer) {
       return (
-        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+        <Label
+          type="bodyXs"
+          weight="regular"
+          color="textMuted"
+          numberOfLines={1}
+        >
           {subtitle}
         </Label>
       );
@@ -55,11 +61,25 @@ const RecentActivityItem = ({
     const parts = subtitle?.split('→') ?? [];
     return (
       <View style={styles.transferSubtitle}>
-        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+        <Label
+          type="bodyXs"
+          weight="regular"
+          color="textMuted"
+          numberOfLines={1}
+        >
           {parts[0]?.trim()}
         </Label>
-        <ArrowRightLeft size={wp(3.5)} color="#10B981" strokeWidth={2.5} />
-        <Label type="bodyXs" weight="regular" color="textMuted" numberOfLines={1}>
+        <ArrowRight
+          size={wp(4)}
+          color={colors.primaryContainer}
+          strokeWidth={2}
+        />
+        <Label
+          type="bodyXs"
+          weight="regular"
+          color="textMuted"
+          numberOfLines={1}
+        >
           {parts[1]?.trim()}
         </Label>
       </View>
