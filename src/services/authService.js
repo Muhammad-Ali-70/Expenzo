@@ -73,3 +73,12 @@ export const uploadAvatarApi = async (imageUri) => {
   });
   return response.data;
 };
+
+export const healthCheckApi = async () => {
+  const baseURL = apiClient.defaults.baseURL.replace('/api', '');
+  const response = await apiClient.get('/health', {
+    baseURL,
+    timeout: 5000,
+  });
+  return response.data;
+};
