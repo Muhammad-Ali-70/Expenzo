@@ -20,7 +20,11 @@ import {
 } from 'lucide-react-native';
 import { hp, wp } from '../../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
-import { Label, borderRadius, shadowCard } from '../../../constants/globalstyle';
+import {
+  Label,
+  borderRadius,
+  shadowCard,
+} from '../../../constants/globalstyle';
 import ScreenHeader from '../../../components/common/Screenheader';
 import AppTextInput from '../../../components/ui/AppTextInput';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
@@ -43,7 +47,7 @@ const TransferScreen = ({ navigation }) => {
   const [fromAccountId, setFromAccountId] = useState(null);
   const [toAccountId, setToAccountId] = useState(null);
   const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState('Transfer');
   const [saving, setSaving] = useState(false);
   const [pickerMode, setPickerMode] = useState(null); // 'from' | 'to' | null
 
@@ -68,13 +72,18 @@ const TransferScreen = ({ navigation }) => {
       return;
     }
     if (!fromAccountId || !toAccountId) {
-      Alert.alert('Missing Accounts', 'Please select both source and destination accounts.');
+      Alert.alert(
+        'Missing Accounts',
+        'Please select both source and destination accounts.',
+      );
       return;
     }
     if (fromAccount && fromAccount.balance < parsedAmount) {
       Alert.alert(
         'Insufficient Balance',
-        `Only PKR ${fromAccount.balance.toLocaleString()} available in ${fromAccount.label}.`,
+        `Only PKR ${fromAccount.balance.toLocaleString()} available in ${
+          fromAccount.label
+        }.`,
       );
       return;
     }
@@ -100,7 +109,16 @@ const TransferScreen = ({ navigation }) => {
     } finally {
       setSaving(false);
     }
-  }, [amount, fromAccountId, toAccountId, fromAccount, description, fetchAccounts, navigation, toast]);
+  }, [
+    amount,
+    fromAccountId,
+    toAccountId,
+    fromAccount,
+    description,
+    fetchAccounts,
+    navigation,
+    toast,
+  ]);
 
   // ── Account picker modal ──
   const pickerAccounts = useMemo(() => {
@@ -149,7 +167,11 @@ const TransferScreen = ({ navigation }) => {
           />
         )}
         <View style={styles.accountCardInfo}>
-          <Label type="bodySmall" weight="semiBold" color={selected ? 'primary' : 'textMain'}>
+          <Label
+            type="bodySmall"
+            weight="semiBold"
+            color={selected ? 'primary' : 'textMain'}
+          >
             {account.label}
           </Label>
           {showBalance && (
@@ -162,7 +184,11 @@ const TransferScreen = ({ navigation }) => {
           )}
         </View>
         {!selected && (
-          <ChevronRight size={wp(4)} color={theme.textMuted} strokeWidth={1.8} />
+          <ChevronRight
+            size={wp(4)}
+            color={theme.textMuted}
+            strokeWidth={1.8}
+          />
         )}
       </TouchableOpacity>
     );
@@ -187,7 +213,13 @@ const TransferScreen = ({ navigation }) => {
         >
           {/* ── From / To flow ── */}
           <View style={styles.flowSection}>
-            <View style={[styles.flowCard, shadowCard, { backgroundColor: theme.surfacePrimary }]}>
+            <View
+              style={[
+                styles.flowCard,
+                shadowCard,
+                { backgroundColor: theme.surfacePrimary },
+              ]}
+            >
               {fromAccount ? (
                 <AccountCard
                   account={fromAccount}
@@ -204,19 +236,30 @@ const TransferScreen = ({ navigation }) => {
                   <Label type="bodySmall" weight="semiBold" color="primary">
                     Select source account
                   </Label>
-                  <ChevronRight size={wp(4)} color={theme.primary} strokeWidth={2} />
+                  <ChevronRight
+                    size={wp(4)}
+                    color={theme.primary}
+                    strokeWidth={2}
+                  />
                 </TouchableOpacity>
               )}
 
               <View style={styles.swapRow}>
                 <View style={styles.connector} />
                 <TouchableOpacity
-                  style={[styles.swapBtn, { backgroundColor: theme.surfaceSecondary }]}
+                  style={[
+                    styles.swapBtn,
+                    { backgroundColor: theme.surfaceSecondary },
+                  ]}
                   onPress={handleSwap}
                   activeOpacity={0.7}
                   disabled={!fromAccountId || !toAccountId}
                 >
-                  <ArrowDownUp size={wp(4.5)} color={theme.primary} strokeWidth={2} />
+                  <ArrowDownUp
+                    size={wp(4.5)}
+                    color={theme.primary}
+                    strokeWidth={2}
+                  />
                 </TouchableOpacity>
                 <View style={styles.connector} />
               </View>
@@ -237,7 +280,11 @@ const TransferScreen = ({ navigation }) => {
                   <Label type="bodySmall" weight="semiBold" color="primary">
                     Select destination account
                   </Label>
-                  <ChevronRight size={wp(4)} color={theme.primary} strokeWidth={2} />
+                  <ChevronRight
+                    size={wp(4)}
+                    color={theme.primary}
+                    strokeWidth={2}
+                  />
                 </TouchableOpacity>
               )}
             </View>
@@ -246,12 +293,27 @@ const TransferScreen = ({ navigation }) => {
           {/* ── Amount ── */}
           {fromAccountId && toAccountId && (
             <View style={styles.amountSection}>
-              <View style={[styles.amountCard, { backgroundColor: theme.surfacePrimary }]}>
-                <Label type="bodySmall" weight="semiBold" color="textMuted" style={styles.amountLabel}>
+              <View
+                style={[
+                  styles.amountCard,
+                  { backgroundColor: theme.surfacePrimary },
+                ]}
+              >
+                <Label
+                  type="bodySmall"
+                  weight="semiBold"
+                  color="textMuted"
+                  style={styles.amountLabel}
+                >
                   AMOUNT TO TRANSFER
                 </Label>
                 <View style={styles.amountInputRow}>
-                  <Label type="displayMd" weight="bold" color="primary" style={styles.currencySign}>
+                  <Label
+                    type="displayMd"
+                    weight="bold"
+                    color="primary"
+                    style={styles.currencySign}
+                  >
                     PKR
                   </Label>
                   <AppTextInput
@@ -265,7 +327,12 @@ const TransferScreen = ({ navigation }) => {
                 </View>
 
                 {fromAccount && parseFloat(amount) > 0 && (
-                  <View style={[styles.balancePreview, { backgroundColor: theme.surfaceSecondary }]}>
+                  <View
+                    style={[
+                      styles.balancePreview,
+                      { backgroundColor: theme.surfaceSecondary },
+                    ]}
+                  >
                     <View style={styles.balanceRow}>
                       <Label type="bodyXs" weight="regular" color="textMuted">
                         {fromAccount.label}
@@ -278,10 +345,14 @@ const TransferScreen = ({ navigation }) => {
                           color="textMuted"
                         />
                         <Label type="bodyXs" weight="regular" color="error">
-                          {' '}→{' '}
+                          {' '}
+                          →{' '}
                         </Label>
                         <CurrencyView
-                          amount={Math.max(0, fromAccount.balance - parseFloat(amount))}
+                          amount={Math.max(
+                            0,
+                            fromAccount.balance - parseFloat(amount),
+                          )}
                           type="bodyXs"
                           weight="semiBold"
                           color="error"
@@ -300,10 +371,13 @@ const TransferScreen = ({ navigation }) => {
                           color="textMuted"
                         />
                         <Label type="bodyXs" weight="regular" color="primary">
-                          {' '}→{' '}
+                          {' '}
+                          →{' '}
                         </Label>
                         <CurrencyView
-                          amount={(toAccount?.balance ?? 0) + parseFloat(amount)}
+                          amount={
+                            (toAccount?.balance ?? 0) + parseFloat(amount)
+                          }
                           type="bodyXs"
                           weight="semiBold"
                           color="primary"
@@ -329,7 +403,13 @@ const TransferScreen = ({ navigation }) => {
             variant="primary"
             size="lg"
             label={saving ? 'Transferring…' : 'Transfer'}
-            icon={<ArrowRightLeft size={wp(5)} color={theme.onPrimary} strokeWidth={2} />}
+            icon={
+              <ArrowRightLeft
+                size={wp(5)}
+                color={theme.onPrimary}
+                strokeWidth={2}
+              />
+            }
             onPress={handleTransfer}
             disabled={saving || !fromAccountId || !toAccountId || !amount}
           />
@@ -347,10 +427,17 @@ const TransferScreen = ({ navigation }) => {
         <TouchableWithoutFeedback onPress={() => setPickerMode(null)}>
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
-              <View style={[styles.pickerCard, { backgroundColor: theme.surfacePrimary }]}>
+              <View
+                style={[
+                  styles.pickerCard,
+                  { backgroundColor: theme.surfacePrimary },
+                ]}
+              >
                 <View style={styles.pickerHeader}>
                   <Label type="bodyMedium" weight="bold" color="textMain">
-                    {pickerMode === 'from' ? 'Source Account' : 'Destination Account'}
+                    {pickerMode === 'from'
+                      ? 'Source Account'
+                      : 'Destination Account'}
                   </Label>
                   <TouchableOpacity
                     onPress={() => setPickerMode(null)}
@@ -364,27 +451,42 @@ const TransferScreen = ({ navigation }) => {
                 <ScrollView contentContainerStyle={styles.pickerList}>
                   {pickerGroups.map(group => (
                     <View key={group.type} style={styles.pickerGroup}>
-                      <Label type="bodyXs" weight="semiBold" color="textMuted" style={styles.pickerGroupLabel}>
+                      <Label
+                        type="bodyXs"
+                        weight="semiBold"
+                        color="textMuted"
+                        style={styles.pickerGroupLabel}
+                      >
                         {group.label}
                       </Label>
                       {group.items.map(account => {
                         const isSelected =
-                          (pickerMode === 'from' && fromAccountId === account._id) ||
+                          (pickerMode === 'from' &&
+                            fromAccountId === account._id) ||
                           (pickerMode === 'to' && toAccountId === account._id);
                         const meta = getAccountTypeMeta(account.type);
-                        const imageMeta = getAccountMeta(account.type, account.sourceId);
+                        const imageMeta = getAccountMeta(
+                          account.type,
+                          account.sourceId,
+                        );
                         return (
                           <TouchableOpacity
                             key={account._id}
                             style={[
                               styles.pickerItem,
-                              isSelected && { backgroundColor: theme.primary + '10' },
-                              !isSelected && { borderBottomWidth: 0.5, borderBottomColor: theme.outlineVariant },
+                              isSelected && {
+                                backgroundColor: theme.primary + '10',
+                              },
+                              !isSelected && {
+                                borderBottomWidth: 0.5,
+                                borderBottomColor: theme.outlineVariant,
+                              },
                             ]}
                             onPress={() => {
                               if (pickerMode === 'from') {
                                 setFromAccountId(account._id);
-                                if (toAccountId === account._id) setToAccountId(null);
+                                if (toAccountId === account._id)
+                                  setToAccountId(null);
                               } else {
                                 setToAccountId(account._id);
                               }
@@ -409,10 +511,18 @@ const TransferScreen = ({ navigation }) => {
                               />
                             )}
                             <View style={styles.pickerItemInfo}>
-                              <Label type="bodySmall" weight="semiBold" color="textMain">
+                              <Label
+                                type="bodySmall"
+                                weight="semiBold"
+                                color="textMain"
+                              >
                                 {account.label}
                               </Label>
-                              <Label type="bodyXs" weight="regular" color="textMuted">
+                              <Label
+                                type="bodyXs"
+                                weight="regular"
+                                color="textMuted"
+                              >
                                 {meta.label}
                               </Label>
                             </View>
