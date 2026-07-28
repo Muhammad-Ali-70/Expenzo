@@ -12,7 +12,11 @@ const useBudgetStore = create((set) => ({
       const data = await getCurrentBudgetApi();
       set({ currentBudget: data, loading: false });
     } catch (err) {
-      set({ error: err?.message || 'Failed to load budget', loading: false });
+      set({ 
+        currentBudget: null,
+        error: err?.message || 'Failed to load budget', 
+        loading: false 
+      });
     }
   },
 
@@ -22,7 +26,11 @@ const useBudgetStore = create((set) => ({
       const data = await getBudgetApi({ month, year });
       set({ currentBudget: data, loading: false });
     } catch (err) {
-      set({ error: err?.message || 'Failed to load budget', loading: false });
+      set({ 
+        currentBudget: null,
+        error: err?.message || 'Failed to load budget', 
+        loading: false 
+      });
     }
   },
 

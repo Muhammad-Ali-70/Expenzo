@@ -68,18 +68,20 @@ const PlanScreen = ({ navigation }) => {
 
   if (error || !budget) {
     return (
-      <View style={[styles.safe, styles.center]}>
+      <View style={styles.safe}>
         <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
-        <Label type="bodySmall" weight="regular" color="textMuted" style={styles.emptyText}>
-          {error || 'No budget set for this month'}
-        </Label>
-        <PrimaryButton
-          variant="primary"
-          size="lg"
-          label="Set Up Budget"
-          onPress={handleEditBudget}
-          style={{ marginTop: hp(2) }}
-        />
+        <View style={styles.emptyContent}>
+          <Label type="bodySmall" weight="regular" color="textMuted" style={styles.emptyText}>
+            {error ? error : 'No budget set for current month'}
+          </Label>
+          <PrimaryButton
+            variant="primary"
+            size="lg"
+            label="Set Up Budget"
+            onPress={handleEditBudget}
+            style={styles.emptyButton}
+          />
+        </View>
       </View>
     );
   }
@@ -197,9 +199,19 @@ const createStyles = t =>
     list: {
       gap: hp(1.2),
     },
+    emptyContent: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     emptyText: {
       textAlign: 'center',
+      marginBottom: hp(2),
       paddingHorizontal: wp(10),
+    },
+    emptyButton: {
+      width: wp(70),
+      alignSelf: 'center',
     },
   });
 
