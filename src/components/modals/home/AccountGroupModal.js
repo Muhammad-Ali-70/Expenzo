@@ -12,8 +12,10 @@ import { getAccountTypeMeta } from '../../../constants/theme/accountMeta';
 import { borderRadius, Label } from '../../../constants/globalstyle';
 import CurrencyView from '../../common/CurrencyView';
 import PaymentIcon from '../../common/Paymenticon';
+import AccountAvatar from '../../ui/AccountAvatar';
 import { hp, wp } from '../../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
+import { getAccountMeta } from '../../../utils/accountMetaLookup';
 
 const TYPE_TITLE = {
   wallet: 'Wallet',
@@ -21,17 +23,27 @@ const TYPE_TITLE = {
   digitalWallet: 'Digital Wallets',
 };
 
-const AccountItem = ({ account, isLast, s }) => {
+const AccountItem = ({ account, isLast, s, theme }) => {
   const meta = getAccountTypeMeta(account.type);
+  const imageMeta = getAccountMeta(account.type, account.sourceId);
   return (
     <View style={[s.item, !isLast && s.itemDivider]}>
-      <View
-        style={[s.initials, { backgroundColor: account.color + '22' }]}
-      >
-        <Label type="bodyXs" weight="bold" style={{ color: account.color }}>
-          {account.initials}
-        </Label>
-      </View>
+      {imageMeta.imageUri ? (
+        <AccountAvatar
+          imageUri={imageMeta.imageUri}
+          initials={imageMeta.initials}
+          color={imageMeta.color}
+          size={wp(10)}
+        />
+      ) : (
+        <PaymentIcon
+          name={meta.iconName}
+          backgroundColor={meta.iconBg}
+          color={meta.iconColor}
+          containerSize={wp(10)}
+          size={wp(4.5)}
+        />
+      )}
 
       <View style={s.itemInfo}>
         <Label type="bodySmall" weight="semiBold" color="textMain">
@@ -103,11 +115,12 @@ const AccountGroupModal = ({ visible, type, accounts = [], onClose }) => {
                 scrollEnabled={accounts.length > 5}
                 contentContainerStyle={styles.list}
                 renderItem={({ item, index }) => (
-                  <AccountItem
-                    account={item}
-                    isLast={index === accounts.length - 1}
-                    s={styles}
-                  />
+                <AccountItem
+                  account={item}
+                  isLast={index === accounts.length - 1}
+                  s={styles}
+                  theme={theme}
+                />
                 )}
               />
 
@@ -187,13 +200,6 @@ const createStyles = t => StyleSheet.create({
   itemDivider: {
     borderBottomWidth: 0.5,
     borderBottomColor: t.outlineVariant,
-  },
-  initials: {
-    width: wp(10),
-    height: wp(10),
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   itemInfo: {
     flex: 1,
