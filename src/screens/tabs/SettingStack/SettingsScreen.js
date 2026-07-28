@@ -164,6 +164,13 @@ const SettingsScreen = () => {
 
         {/* ── Accounts ── */}
         <SettingsSection title="ACCOUNTS">
+          <SettingsRow
+            iconName="settings"
+            title="Manage Accounts"
+            subtitle="Add, edit, or remove accounts"
+            onPress={() => navigation.navigate('ManageAccounts')}
+            showDivider
+          />
           {loading ? (
             <View style={styles.loadingRow}>
               <Label type="bodySmall" weight="regular" color="textMuted">

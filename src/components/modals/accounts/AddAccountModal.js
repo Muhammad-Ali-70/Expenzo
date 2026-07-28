@@ -1,0 +1,144 @@
+import React, { useState, useMemo } from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import BottomSheet from '../../ui/BottomSheet';
+import BankCard from '../../onboarding/AccountSetupCard/BankCard';
+import DailyPayCard from '../../onboarding/AccountSetupCard/DailyPayCard';
+import PrimaryButton from '../../ui/PrimaryButton';
+import { hp, wp } from '../../../constants/responsive';
+import { useThemeColors } from '@hooks/useThemeColors';
+import { createAccountApi } from '../../../services/accountService';
+import { useToastService } from '../../../utils/ToastService';
+import useAccountStore from '../../../store/useAccountStore';
+
+const AddAccountModal = ({ visible, onClose }) => {
+  const theme = useThemeColors();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const toast = useToastService();
+  const fetchAccounts = useAccountStore(s => s.fetchAccounts);
+
+  const [accountType, setAccountType] = useState('bank');
+  const [accounts, setAccounts] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  const handleClose = () => {
+    setAccounts([]);
+    setAccountType('bank');
+    onClose();
+  };
+
+  const handleSave = async () => {
+    if (accounts.length === 0) {
+      toast.warning('Please add at least one account');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const promises = accounts.map((acct, idx) =>
+        createAccountApi({
+          type: accountType,
+          sourceId: acct.id === 'other' ? null : acct.id,
+          label: acct.label,
+          color: acct.color,
+          initials: acct.initials,
+          balance: Number(acct.balance),
+          isPrimary: false,
+          sortOrder: 999 + idx,
+        })
+      );
+
+      await Promise.all(promises);
+      await fetchAccounts();
+      toast.success(`${accounts.length} account${accounts.length > 1 ? 's' : ''} added successfully`);
+      handleClose();
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <BottomSheet visible={visible} onClose={handleClose} title="Add Accounts">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.typeSelector}>
+          <PrimaryButton
+            variant={accountType === 'bank' ? 'primary' : 'outline'}
+            size="sm"
+            label="Bank Account"
+            onPress={() => {
+              setAccountType('bank');
+              setAccounts([]);
+            }}
+            style={styles.typeBtn}
+          />
+          <PrimaryButton
+            variant={accountType === 'digitalWallet' ? 'primary' : 'outline'}
+            size="sm"
+            label="Digital Wallet"
+            onPress={() => {
+              setAccountType('digitalWallet');
+              setAccounts([]);
+            }}
+            style={styles.typeBtn}
+          />
+        </View>
+
+        {accountType === 'bank' ? (
+          <BankCard
+            name="Bank Accounts"
+            description="Add up to 5 bank accounts"
+            iconName="bank"
+            iconColor="#3B82F6"
+            iconBg="#EFF6FF"
+            onAccountsChange={setAccounts}
+          />
+        ) : (
+          <DailyPayCard
+            name="Digital Wallets"
+            description="Add up to 5 digital wallets"
+            iconName="dollar"
+            iconColor="#8B5CF6"
+            iconBg="#F5F3FF"
+            onAccountsChange={setAccounts}
+          />
+        )}
+
+        <View style={styles.footer}>
+          <PrimaryButton
+            variant="primary"
+            size="lg"
+            label={saving ? 'Adding…' : `Add ${accounts.length || ''} Account${accounts.length !== 1 ? 's' : ''}`}
+            onPress={handleSave}
+            disabled={saving || accounts.length === 0}
+          />
+        </View>
+      </ScrollView>
+    </BottomSheet>
+  );
+};
+
+const createStyles = t => StyleSheet.create({
+  content: {
+    paddingHorizontal: wp(5),
+    paddingBottom: hp(2),
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    gap: wp(2),
+    marginBottom: hp(2),
+  },
+  typeBtn: {
+    flex: 1,
+  },
+  footer: {
+    marginTop: hp(3),
+  },
+});
+
+export default AddAccountModal;

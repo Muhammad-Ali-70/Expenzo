@@ -54,9 +54,9 @@ const useAuthStore = create(
 
       // Call this after seedAccounts/createAccount succeeds on the onboarding screen
       // so the navigator re-renders without needing another /me fetch
-      setOnboarded: () =>
+      setOnboarded: (value = true) =>
         set(state => ({
-          user: state.user ? { ...state.user, isOnboarded: true } : state.user,
+          user: state.user ? { ...state.user, isOnboarded: value } : state.user,
         })),
 
       updateProfile: ({ name, phoneNumber }) =>
