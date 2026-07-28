@@ -15,7 +15,6 @@ import AuthTagline from '../../components/auth/AuthTagline';
 import AuthFooter from '../../components/auth/AuthFooter';
 import LoginOptionsRow from '../../components/auth/LoginOptionsRow';
 import SectionDivider from '../../components/onboarding/Sectiondivider';
-import { Label } from '../../constants/globalstyle';
 import { useToastService } from '../../utils/ToastService';
 import GoogleImage from '../../assets/images/static/logos/google.png';
 import useAuthStore from '../../store/useAuthStore';
@@ -29,8 +28,8 @@ const LoginScreen = ({ navigation }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const [email, setEmail] = useState('woufijouyise-5856@yopmail.com');
-  const [password, setPassword] = useState('admin@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [errors, setErrors] = useState({});

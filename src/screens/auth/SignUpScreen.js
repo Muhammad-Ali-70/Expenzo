@@ -29,10 +29,10 @@ const SignUpScreen = ({ navigation }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const [fullName, setFullName] = useState('Argon James');
-  const [email, setEmail] = useState('woufijouyise-5856@yopmail.com');
-  const [password, setPassword] = useState('admin@123');
-  const [confirmPassword, setConfirmPassword] = useState('admin@123');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
