@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
 import SettingsSection from '../../../components/settings/SettingsSection';
@@ -222,7 +223,7 @@ const SettingsScreen = () => {
           color="textMuted"
           style={styles.version}
         >
-          Expenzo v1.0.01 (2026)
+          Expenzo v{DeviceInfo.getVersion()} (Build {DeviceInfo.getBuildNumber()})
         </Label>
       </ScrollView>
 
