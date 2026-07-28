@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Sentry from '@sentry/react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar, View, StyleSheet } from 'react-native';
 import useAppStore from '@store/useAppStore';
@@ -77,11 +78,13 @@ const App = () => {
     <Sentry.ErrorBoundary
       fallback={({ resetError }) => <ErrorFallback resetError={resetError} />}
     >
-      <SafeAreaProvider>
-        <ToastCustomProvider>
-          <AppContent />
-        </ToastCustomProvider>
-      </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <ToastCustomProvider>
+            <AppContent />
+          </ToastCustomProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     </Sentry.ErrorBoundary>
   );
 };
