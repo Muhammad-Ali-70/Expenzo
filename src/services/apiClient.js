@@ -4,7 +4,8 @@ import { ENV } from '../config/env';
 
 const apiClient = axios.create({
   // baseURL: 'https://expenzo-backend-production.up.railway.app/api',
-  baseURL: 'http://10.0.2.2:3000/api', // Use this for Android emulator
+  baseURL: 'https://expenzo-backend-zdh2.onrender.com/api', // RENDER
+  // baseURL: 'http://10.0.2.2:3000/api', // Use this for Android emulator
   // baseURL: ENV.BASE_URL,
   timeout: 10000,
   headers: {
