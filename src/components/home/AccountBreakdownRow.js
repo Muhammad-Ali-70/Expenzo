@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
-import { Label, borderRadius } from '../../constants/globalstyle';
+import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 import PaymentIcon from '../common/Paymenticon';
 import { getAccountTypeMeta } from '../../constants/theme/accountMeta';
@@ -18,18 +18,12 @@ const BUCKETS = [
 const AccountCard = ({ type, label, total, onPress }) => {
   const theme = useThemeColors();
   const meta = getAccountTypeMeta(type);
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.75}
-      style={{
-        flex: 1,
-        backgroundColor: theme.surfacePrimary,
-        borderRadius: borderRadius.lg,
-        paddingVertical: hp(1.8),
-        alignItems: 'center',
-        gap: hp(0.7),
-      }}
+      style={[styles.card, shadowCard]}
     >
       <PaymentIcon
         name={meta.iconName}
