@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, DeviceEventEmitter } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 
 export const SHORTCUT_TYPES = {
@@ -42,10 +42,14 @@ export const initializeShortcuts = () => {
 export const subscribeToShortcuts = callback => {
   try {
     QuickActions.popInitialAction()
-      .then(callback)
+      .then(action => {
+        if (action) {
+          callback(action);
+        }
+      })
       .catch(err => console.error('[AppShortcuts] Error getting initial action:', err));
 
-    const listener = QuickActions.addListener('quickActionShortcut', callback);
+    const listener = DeviceEventEmitter.addListener('quickActionShortcut', callback);
     return () => listener.remove();
   } catch (error) {
     console.error('[AppShortcuts] Error subscribing to shortcuts:', error);
