@@ -23,7 +23,9 @@ export const handleShortcutAction = (shortcutItem, navigation, authStore, toastS
     return;
   }
 
-  executeShortcutNavigation(actionType, navigation);
+  setTimeout(() => {
+    executeShortcutNavigation(actionType, navigation);
+  }, 1000);
 };
 
 export const executeShortcutNavigation = (actionType, navigation) => {
@@ -35,15 +37,21 @@ export const executeShortcutNavigation = (actionType, navigation) => {
   try {
     switch (actionType) {
       case 'ADD_EXPENSE':
-        navigation.navigate('AddTransaction', { type: 'expense' });
+        if (navigation.navigate) {
+          navigation.navigate('AddTransaction', { type: 'expense' });
+        }
         break;
       case 'ADD_INCOME':
-        navigation.navigate('AddTransaction', { type: 'income' });
+        if (navigation.navigate) {
+          navigation.navigate('AddTransaction', { type: 'income' });
+        }
         break;
       case 'VIEW_HISTORY':
-        navigation.navigate('TabNavigator', {
-          screen: 'History',
-        });
+        if (navigation.navigate) {
+          navigation.navigate('TabNavigator', {
+            screen: 'History',
+          });
+        }
         break;
       default:
         console.warn('[DeepLink] Unhandled action type:', actionType);
