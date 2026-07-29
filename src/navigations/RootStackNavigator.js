@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import useAuthStore, {
   selectToken,
   selectIsOnboarded,
@@ -12,10 +13,27 @@ import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import AuthStack from './AuthStack';
 import AddTransactionScreen from '../screens/tabs/AddTrasaction/AddTransactionScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import { executePendingAction } from '../utils/deepLinkHandler';
 
 const Stack = createNativeStackNavigator();
 
-const RootStackNavigator = () => {
+const PendingActionHandler = ({ pendingAction }) => {
+  const navigation = useNavigation();
+  const clearPendingAction = useAuthStore(s => s.clearPendingAction);
+
+  useEffect(() => {
+    if (pendingAction && navigation) {
+      const timer = setTimeout(() => {
+        executePendingAction(pendingAction, navigation, clearPendingAction);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingAction, navigation, clearPendingAction]);
+
+  return null;
+};
+
+const RootStackNavigator = ({ pendingAction }) => {
   const [showSplash, setShowSplash] = useState(true);
 
   const token = useAuthStore(selectToken);
@@ -28,16 +46,12 @@ const RootStackNavigator = () => {
     return () => clearTimeout(splashTimer);
   }, []);
 
-  // Boot-time fetch: token exists but we got here without going through login
-  // (app restarted / killed and reopened). Fires once when the navigator mounts.
   useEffect(() => {
     if (token && isOnboarded) {
       fetchAccounts();
       fetchCategories();
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // Intentionally empty deps — we only want this to run once on mount,
-  // not re-run every time token/isOnboarded change during a session.
+  }, [token, isOnboarded, fetchAccounts, fetchCategories]);
 
   if (showSplash) {
     return (
@@ -64,11 +78,14 @@ const RootStackNavigator = () => {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="TabNavigator" component={TabNavigator} />
-      <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
-      <Stack.Screen name="Notifications" component={NotificationsScreen} />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="TabNavigator" component={TabNavigator} />
+        <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+      </Stack.Navigator>
+      <PendingActionHandler pendingAction={pendingAction} />
+    </>
   );
 };
 

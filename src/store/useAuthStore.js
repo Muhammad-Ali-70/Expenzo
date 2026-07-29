@@ -25,6 +25,7 @@ const useAuthStore = create(
       isLoading: false,
       error: null,
       rememberMe: true,
+      pendingAction: null,
 
       // ── Actions ────────────────────────────────────────────────────────────
 
@@ -85,8 +86,12 @@ const useAuthStore = create(
         storage.remove('token');
         // Clear accounts on logout so stale data isn't shown on next login
         useAccountStore.getState().clearAccounts();
-        set({ user: null, token: null, error: null });
+        set({ user: null, token: null, error: null, pendingAction: null });
       },
+
+      setPendingAction: action => set({ pendingAction: action }),
+      
+      clearPendingAction: () => set({ pendingAction: null }),
 
       clearError: () => set({ error: null }),
     }),
@@ -113,5 +118,6 @@ export const selectIsOnboarded = state => !!state.user?.isOnboarded;
 export const selectAuthLoading = state => state.isLoading;
 export const selectAuthError = state => state.error;
 export const selectDisplayName = state => state.user?.name || state.user?.email?.split('@')[0] || 'User';
+export const selectPendingAction = state => state.pendingAction;
 
 export default useAuthStore;
