@@ -7,7 +7,7 @@ import { Label } from '../../../constants/globalstyle';
 import ScreenHeader from '../../../components/common/Screenheader';
 import PrimaryLoader from '../../../components/ui/PrimaryLoader';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
-import { getDebtByIdApi, deleteDebtApi } from '../../../services/debtService';
+import { getDebtByIdApi, deleteDebtApi, getDebtTransactionsApi } from '../../../services/debtService';
 import { formatDate } from '../../../utils/date';
 import { ThemedView } from '../../../components/ui/ThemedView'; // Assuming this component exists
 
@@ -19,6 +19,8 @@ const DebtDetailScreen = ({ navigation, route }) => {
   const [debt, setDebt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [debtTransactions, setDebtTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
 
   const fetchDebtDetail = useCallback(async () => {
     setLoading(true);
@@ -37,6 +39,25 @@ const DebtDetailScreen = ({ navigation, route }) => {
   useEffect(() => {
     fetchDebtDetail();
   }, [fetchDebtDetail]);
+
+  useEffect(() => {
+    if (debt?._id) {
+      fetchDebtTransactions();
+    }
+  }, [debt?._id]);
+
+  const fetchDebtTransactions = useCallback(async () => {
+    if (!id) return;
+    setLoadingTransactions(true);
+    try {
+      const data = await getDebtTransactionsApi(id, { limit: 10 });
+      setDebtTransactions(data.transactions || []);
+    } catch (err) {
+      console.error('Failed to fetch debt transactions:', err);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  }, [id]);
 
   const handleDeleteDebt = async () => {
     Alert.alert('Delete Debt', 'Are you sure you want to delete this debt? This cannot be undone.', [
@@ -118,6 +139,14 @@ const DebtDetailScreen = ({ navigation, route }) => {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {debt.sourceAccountId && (
+          <View style={styles.detailCard}>
+            <Label type="bodySmall" weight="semiBold" color="textMuted">Source Account</Label>
+            <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>
+              {debt.sourceAccountId.label || 'N/A'}
+            </Label>
+          </View>
+        )}
         <View style={styles.detailCard}>
           <Label type="bodySmall" weight="semiBold" color="textMuted">Description</Label>
           <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{debt.description || 'N/A'}</Label>
@@ -158,6 +187,41 @@ const DebtDetailScreen = ({ navigation, route }) => {
           <View style={styles.detailCard}>
             <Label type="bodySmall" weight="semiBold" color="textMuted">Notes</Label>
             <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{debt.notes}</Label>
+          </View>
+        )}
+
+        {debtTransactions.length > 0 && (
+          <>
+            <Label type="bodyMedium" weight="bold" color="textMain" style={styles.sectionTitle}>
+              Transaction History
+            </Label>
+            {debtTransactions.map(txn => (
+              <View key={txn._id} style={styles.transactionCard}>
+                <View style={styles.transactionRow}>
+                  <View style={styles.transactionInfo}>
+                    <Label type="bodySmall" weight="semiBold" color="textMain">
+                      {txn.description || txn.category}
+                    </Label>
+                    <Label type="bodyXs" weight="regular" color="textMuted">
+                      {formatDate(txn.date)} • {txn.accountId?.label}
+                    </Label>
+                  </View>
+                  <Label
+                    type="bodySmall"
+                    weight="semiBold"
+                    color={txn.type === 'expense' ? 'error' : 'primary'}
+                  >
+                    {txn.type === 'expense' ? '-' : '+'}PKR {txn.amount?.toLocaleString()}
+                  </Label>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+
+        {loadingTransactions && (
+          <View style={styles.loadingTransactions}>
+            <PrimaryLoader width={40} height={40} />
           </View>
         )}
       </ScrollView>
@@ -202,10 +266,35 @@ const createStyles = t =>
       gap: wp(2),
     },
     actionButton: {
-        width: wp(10), // Adjust width to fit icon and make it circular or square
-        height: wp(10), // Adjust height
-        borderRadius: wp(5), // Half of width/height for circular
+        width: wp(10),
+        height: wp(10),
+        borderRadius: wp(5),
         paddingHorizontal: 0,
+    },
+    sectionTitle: {
+      marginTop: hp(2),
+      marginBottom: hp(1),
+    },
+    transactionCard: {
+      backgroundColor: t.surfacePrimary,
+      borderRadius: 12,
+      padding: wp(4),
+      marginBottom: hp(1),
+      borderWidth: 1,
+      borderColor: t.outlineVariant,
+    },
+    transactionRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    transactionInfo: {
+      flex: 1,
+      gap: hp(0.3),
+    },
+    loadingTransactions: {
+      alignItems: 'center',
+      paddingVertical: hp(2),
     },
   });
 

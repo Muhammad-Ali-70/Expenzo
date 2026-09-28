@@ -17,6 +17,7 @@ import { ACCOUNT_CONFIG } from '../../constants/onboarding/initialConfig';
 import useAuthStore from '../../store/useAuthStore';
 import useAccountStore from '../../store/useAccountStore';
 import { seedAccountsApi } from '../../services/accountService';
+import { useToastService } from '../../utils/ToastService';
 
 const OnboardingScreen = () => {
   const setOnboarded = useAuthStore(s => s.setOnboarded);
@@ -28,9 +29,10 @@ const OnboardingScreen = () => {
   const [saving, setSaving] = useState(false);
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const toast = useToastService();
 
   const handleGetStarted = useCallback(async () => {
-    if (!walletBalance) return;
+    if (saving || !walletBalance) return;
     setSaving(true);
     try {
       const accounts = [
@@ -67,28 +69,27 @@ const OnboardingScreen = () => {
 
       await seedAccountsApi({ accounts });
 
-      // Pull the newly created accounts into Zustand before navigating.
-      // setOnboarded() fires after so the navigator transitions only once
-      // accounts are already in the store — no empty state flash.
       await fetchAccounts();
       setOnboarded();
     } catch (e) {
       console.error('Onboarding save failed:', e);
+      toast.error('Failed to save accounts. Please try again.');
     } finally {
       setSaving(false);
     }
   }, [
+    saving,
     walletBalance,
     bankAccounts,
     digitalWallets,
     fetchAccounts,
     setOnboarded,
+    toast,
   ]);
 
-  const handleSkip = useCallback(async () => {
-    // Skipping — no accounts seeded, nothing to fetch.
-    setOnboarded();
-  }, [setOnboarded]);
+  // const handleSkip = useCallback(async () => {
+  //   setOnboarded();
+  // }, [setOnboarded]);
 
   return (
     <View style={styles.safe}>
@@ -97,7 +98,7 @@ const OnboardingScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={hp(1)}
       >
-        <OnboardingHeader onSkip={handleSkip} />
+        <OnboardingHeader showSkip={false} />
 
         <ScrollView
           style={styles.flex}
@@ -139,7 +140,7 @@ const OnboardingScreen = () => {
               size="lg"
               label={saving ? 'Saving…' : 'Get Started'}
               onPress={handleGetStarted}
-              disabled={saving}
+              disabled={saving || !walletBalance}
             />
           </View>
         </ScrollView>

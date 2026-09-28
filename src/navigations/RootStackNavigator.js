@@ -4,16 +4,19 @@ import { useNavigation } from '@react-navigation/native';
 import useAuthStore, {
   selectToken,
   selectIsOnboarded,
+  selectHasSeenCarousel,
 } from '../store/useAuthStore';
 import useAccountStore from '../store/useAccountStore';
 import useCategoryStore from '../store/useCategoryStore';
 import TabNavigator from './TabNavigator';
 import SplashScreen from '../screens/onboarding/SplashScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
+import WelcomeCarouselScreen from '../screens/onboarding/WelcomeCarouselScreen';
 import AuthStack from './AuthStack';
 import AddTransactionScreen from '../screens/tabs/AddTrasaction/AddTransactionScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import { executePendingAction } from '../utils/deepLinkHandler';
+import { DEV_CONFIG } from '../config/dev';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +41,7 @@ const RootStackNavigator = ({ pendingAction }) => {
 
   const token = useAuthStore(selectToken);
   const isOnboarded = useAuthStore(selectIsOnboarded);
+  const hasSeenCarousel = useAuthStore(selectHasSeenCarousel);
   const fetchAccounts = useAccountStore(s => s.fetchAccounts);
   const fetchCategories = useCategoryStore(s => s.fetchCategories);
 
@@ -57,6 +61,16 @@ const RootStackNavigator = ({ pendingAction }) => {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  const shouldShowCarousel = DEV_CONFIG.FORCE_SHOW_CAROUSEL || (!token && !hasSeenCarousel);
+
+  if (shouldShowCarousel) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="WelcomeCarousel" component={WelcomeCarouselScreen} />
       </Stack.Navigator>
     );
   }

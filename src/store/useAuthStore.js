@@ -26,6 +26,7 @@ const useAuthStore = create(
       error: null,
       rememberMe: true,
       pendingAction: null,
+      hasSeenCarousel: false,
 
       // ── Actions ────────────────────────────────────────────────────────────
 
@@ -93,13 +94,18 @@ const useAuthStore = create(
       
       clearPendingAction: () => set({ pendingAction: null }),
 
+      setHasSeenCarousel: (value = true) => set({ hasSeenCarousel: value }),
+
       clearError: () => set({ error: null }),
     }),
     {
       name: 'expenzo-auth-store',
       storage: createJSONStorage(() => mmkvStorage),
       partialize: state => {
-        const partial = { rememberMe: state.rememberMe };
+        const partial = { 
+          rememberMe: state.rememberMe,
+          hasSeenCarousel: state.hasSeenCarousel,
+        };
         if (state.rememberMe) {
           partial.token = state.token;
           partial.user = state.user;
@@ -119,5 +125,6 @@ export const selectAuthLoading = state => state.isLoading;
 export const selectAuthError = state => state.error;
 export const selectDisplayName = state => state.user?.name || state.user?.email?.split('@')[0] || 'User';
 export const selectPendingAction = state => state.pendingAction;
+export const selectHasSeenCarousel = state => !!state.hasSeenCarousel;
 
 export default useAuthStore;

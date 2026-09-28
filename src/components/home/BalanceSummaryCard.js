@@ -6,7 +6,7 @@ import { hp, wp } from '../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { getGradients } from '../../constants/colors';
 import useAppStore from '@store/useAppStore';
-import { Label, borderRadius } from '../../constants/globalstyle';
+import { Label, borderRadius, shadowCard } from '../../constants/globalstyle';
 import CurrencyView from '../common/CurrencyView';
 
 const BalanceSummaryCard = ({ totalBalance = 0, monthlyChange = '+2.4%' }) => {
@@ -20,7 +20,7 @@ const BalanceSummaryCard = ({ totalBalance = 0, monthlyChange = '+2.4%' }) => {
       colors={grads.primary}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.card}
+      style={[styles.card, shadowCard]}
     >
       <Label
         type="bodySmall"

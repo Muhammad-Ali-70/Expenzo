@@ -6,8 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
+import { Label } from '../../../constants/globalstyle';
 import AmountHeader from '../../../components/addexpense/AmountHeader';
 import CategoryPicker from '../../../components/addexpense/CategoryPicker';
 import DescriptionInput from '../../../components/addexpense/DescriptionInput';
@@ -17,6 +19,7 @@ import NotesInput from '../../../components/addexpense/NotesInput';
 import TransactionTypeHeader from '../../../components/addexpense/TransactionTypeHeader';
 import TransferLink from '../../../components/addexpense/TransferLink';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
+import ToggleButtons from '../../../components/ui/ToggleButtons';
 import CategoryModal from '../../../components/modals/CategoryModal';
 import CreateCategoryModal from '../../../components/modals/CreateCategoryModal';
 import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
@@ -28,6 +31,7 @@ import {
 } from '../../../constants/theme/accountMeta';
 import { createTransactionApi } from '../../../services/transactionService';
 import { createInvestmentApi } from '../../../services/investmentService';
+import { getAccountDebtsApi } from '../../../services/debtService';
 import useAccountStore from '../../../store/useAccountStore';
 import useCategoryStore from '../../../store/useCategoryStore';
 import useAppStore from '../../../store/useAppStore';
@@ -76,6 +80,10 @@ const AddTransactionScreen = ({ navigation, route }) => {
   const [sourceModalVisible, setSourceModalVisible] = useState(false);
   const [createCategoryVisible, setCreateCategoryVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [accountDebts, setAccountDebts] = useState([]);
+  const [loadingDebts, setLoadingDebts] = useState(false);
+  const [useDebtMoney, setUseDebtMoney] = useState(false);
+  const [selectedDebtId, setSelectedDebtId] = useState(null);
 
   const toast = useToastService();
   const theme = useThemeColors();
@@ -88,10 +96,36 @@ const AddTransactionScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (primaryAccount && sourceId === null) {
-      // API accounts use _id, WatermelonDB used id
       setSourceId(primaryAccount._id);
     }
   }, [primaryAccount, sourceId]);
+
+  useEffect(() => {
+    if (sourceId && isExpense) {
+      fetchAccountDebts();
+    } else {
+      setAccountDebts([]);
+      setUseDebtMoney(false);
+      setSelectedDebtId(null);
+    }
+  }, [sourceId, isExpense]);
+
+  const fetchAccountDebts = async () => {
+    if (!sourceId) return;
+    setLoadingDebts(true);
+    try {
+      const data = await getAccountDebtsApi(sourceId, { 
+        status: ['active', 'partially_paid', 'overdue'].join(','),
+        debtType: 'outstanding'
+      });
+      setAccountDebts(data.debts || []);
+    } catch (err) {
+      console.error('Failed to fetch account debts:', err);
+      setAccountDebts([]);
+    } finally {
+      setLoadingDebts(false);
+    }
+  };
 
   // Show investment setup modal when category is investment
   useEffect(() => {
@@ -204,6 +238,7 @@ const AddTransactionScreen = ({ navigation, route }) => {
           description: description.trim(),
           note: notes.trim(),
           date: date.toISOString(),
+          debtId: useDebtMoney && selectedDebtId ? selectedDebtId : undefined,
         });
       }
 
@@ -275,6 +310,59 @@ const AddTransactionScreen = ({ navigation, route }) => {
             onSelect={setSourceId}
             onSeeAll={() => setSourceModalVisible(true)}
           />
+
+          {isExpense && accountDebts.length > 0 && (
+            <View style={styles.debtSection}>
+              <Label type="bodyMedium" weight="semiBold" color="textMain">
+                Fund Transaction
+              </Label>
+              <ToggleButtons
+                options={[
+                  { value: false, label: 'Regular Money' },
+                  { value: true, label: 'Debt Money' },
+                ]}
+                activeValue={useDebtMoney}
+                onSelect={setUseDebtMoney}
+              />
+              
+              {useDebtMoney && (
+                <View style={styles.debtPicker}>
+                  <Label type="bodySmall" weight="semiBold" color="textMain">
+                    Select Debt
+                  </Label>
+                  <View style={styles.debtList}>
+                    {accountDebts.map(debt => (
+                      <TouchableOpacity
+                        key={debt._id}
+                        style={[
+                          styles.debtItem,
+                          selectedDebtId === debt._id && styles.debtItemActive,
+                        ]}
+                        onPress={() => setSelectedDebtId(debt._id)}
+                      >
+                        <View style={styles.debtItemInfo}>
+                          <Label 
+                            type="bodySmall" 
+                            weight="semiBold" 
+                            color={selectedDebtId === debt._id ? 'onPrimary' : 'textMain'}
+                          >
+                            {debt.description || debt.counterpartyName}
+                          </Label>
+                          <Label 
+                            type="bodyXs" 
+                            weight="regular" 
+                            color={selectedDebtId === debt._id ? 'onPrimary' : 'textMuted'}
+                          >
+                            Remaining: PKR {debt.remainingAmount?.toLocaleString()}
+                          </Label>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
 
           <TransferLink
             onPress={() =>
@@ -378,6 +466,35 @@ const createStyles = t =>
       paddingHorizontal: wp(5),
       paddingVertical: hp(2),
       backgroundColor: t.background,
+    },
+    debtSection: {
+      marginHorizontal: wp(5),
+      gap: hp(1.5),
+      padding: wp(4),
+      backgroundColor: t.surfacePrimary,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: t.outlineVariant,
+    },
+    debtPicker: {
+      gap: hp(1),
+    },
+    debtList: {
+      gap: hp(1),
+    },
+    debtItem: {
+      padding: wp(3),
+      backgroundColor: t.surfaceContainer,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: t.outlineVariant,
+    },
+    debtItemActive: {
+      backgroundColor: t.primary,
+      borderColor: t.primary,
+    },
+    debtItemInfo: {
+      gap: hp(0.3),
     },
   });
 

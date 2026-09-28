@@ -63,6 +63,7 @@ export const createDebtApi = async ({
   reminderChannels,
   notes,
   attachments,
+  sourceAccountId,
 }) => {
   const response = await apiClient.post('/debts', {
     debtType,
@@ -81,6 +82,7 @@ export const createDebtApi = async ({
     reminderChannels,
     notes,
     attachments,
+    sourceAccountId,
   });
   return response.data;
 };
@@ -127,5 +129,21 @@ export const sendDebtReminderApi = async id => {
 // DELETE /api/debts/:id
 export const deleteDebtApi = async id => {
   const response = await apiClient.delete(`/debts/${id}`);
+  return response.data;
+};
+
+// GET /api/accounts/:accountId/debts
+export const getAccountDebtsApi = async (accountId, { status, debtType } = {}) => {
+  const response = await apiClient.get(`/accounts/${accountId}/debts`, {
+    params: { status, debtType },
+  });
+  return response.data;
+};
+
+// GET /api/debts/:id/transactions
+export const getDebtTransactionsApi = async (debtId, { page = 1, limit = 20 } = {}) => {
+  const response = await apiClient.get(`/debts/${debtId}/transactions`, {
+    params: { page, limit },
+  });
   return response.data;
 };

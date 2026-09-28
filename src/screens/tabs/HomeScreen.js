@@ -7,6 +7,7 @@ import { useThemeColors } from '@hooks/useThemeColors';
 import HomeHeader from '../../components/home/HomeHeader';
 import BalanceSummaryCard from '../../components/home/BalanceSummaryCard';
 import AccountBreakdownRow from '../../components/home/AccountBreakdownRow';
+import DebtSummaryCard from '../../components/home/DebtSummaryCard';
 import MonthlySpendingCard from '../../components/home/MonthlySpendingCard';
 import SmartInsightCard from '../../components/home/SmartInsightCard';
 import RecentActivitySection from '../../components/home/RecentActivitySection';
@@ -14,6 +15,7 @@ import RecentActivitySection from '../../components/home/RecentActivitySection';
 import useAccountStore from '../../store/useAccountStore';
 import useCategoryStore from '../../store/useCategoryStore';
 import { getHomeDataApi } from '../../services/transactionService';
+import { getDebtSummaryApi } from '../../services/debtService';
 import { groupTransactions } from '../../utils/transactionUtils';
 import PrimaryLoader from '../../components/ui/PrimaryLoader';
 import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
@@ -35,6 +37,7 @@ const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingText] = useState(getRandomLoadingText);
+  const [debtSummary, setDebtSummary] = useState({ totalOutstanding: 0, totalReceivable: 0 });
 
   const now = new Date();
   const month = now.getMonth();
@@ -56,6 +59,18 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [month, year]);
 
+  const loadDebtSummary = useCallback(async () => {
+    try {
+      const data = await getDebtSummaryApi();
+      setDebtSummary({
+        totalOutstanding: data.totalOutstanding || 0,
+        totalReceivable: data.totalReceivable || 0,
+      });
+    } catch (err) {
+      console.error('Failed to load debt summary:', err);
+    }
+  }, []);
+
   useEffect(() => {
     if (accounts.length === 0) fetchAccounts();
   }, [accounts.length, fetchAccounts]);
@@ -66,19 +81,21 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     loadHomeData();
-  }, [loadHomeData]);
+    loadDebtSummary();
+  }, [loadHomeData, loadDebtSummary]);
 
   useFocusEffect(
     useCallback(() => {
       loadHomeData();
-    }, [loadHomeData]),
+      loadDebtSummary();
+    }, [loadHomeData, loadDebtSummary]),
   );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([fetchAccounts(), loadHomeData()]);
+    await Promise.all([fetchAccounts(), loadHomeData(), loadDebtSummary()]);
     setRefreshing(false);
-  }, [fetchAccounts, loadHomeData]);
+  }, [fetchAccounts, loadHomeData, loadDebtSummary]);
 
   const totalBalance = accounts.reduce((sum, a) => sum + (a.balance ?? 0), 0);
 
@@ -124,6 +141,15 @@ const HomeScreen = ({ navigation }) => {
         />
 
         <AccountBreakdownRow accounts={accounts} />
+
+        <DebtSummaryCard
+          outstandingTotal={debtSummary.totalOutstanding}
+          receivableTotal={debtSummary.totalReceivable}
+          onPress={() => navigation.navigate('User', { 
+            screen: 'DebtStack', 
+            params: { screen: 'DebtScreen' } 
+          })}
+        />
 
         <MonthlySpendingCard
           spendingAmount={totalExpenses}

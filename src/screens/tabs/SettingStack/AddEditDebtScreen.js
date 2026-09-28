@@ -14,6 +14,8 @@ import PrimaryButton from '../../../components/ui/PrimaryButton';
 import ToggleButtons from '../../../components/ui/ToggleButtons';
 import DebtDatePicker from '../../../components/ui/DebtDatePicker';
 import AdditionalDebtFields from '../../../components/debt/AdditionalDebtFields';
+import PaymentSourcePicker from '../../../components/addexpense/PaymentSourcePicker';
+import PaymentSourceModal from '../../../components/modals/PaymentSourceModal';
 import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import {
@@ -50,6 +52,8 @@ const AddEditDebtScreen = ({ navigation, route }) => {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadingDebt, setLoadingDebt] = useState(isEditing);
+  const [sourceAccountId, setSourceAccountId] = useState(null);
+  const [sourceModalVisible, setSourceModalVisible] = useState(false);
 
   useEffect(() => {
     if (isEditing) {
@@ -75,6 +79,7 @@ const AddEditDebtScreen = ({ navigation, route }) => {
           setReminderFrequency(data.reminderFrequency || 'once');
           setReminderChannels(data.reminderChannels || ['email']);
           setNotes(data.notes || '');
+          setSourceAccountId(data.sourceAccountId?._id || null);
         } catch (err) {
           console.error('Failed to fetch debt for editing:', err);
           Alert.alert('Error', 'Failed to load debt for editing.');
@@ -110,6 +115,13 @@ const AddEditDebtScreen = ({ navigation, route }) => {
       );
       return;
     }
+    if (!sourceAccountId) {
+      Alert.alert(
+        'Source Account Required',
+        'Please select the account where this debt money goes/comes from.',
+      );
+      return;
+    }
     if (dueDate < startDate) {
       Alert.alert('Invalid Dates', 'Due date cannot be before the start date.');
       return;
@@ -133,6 +145,7 @@ const AddEditDebtScreen = ({ navigation, route }) => {
         reminderFrequency,
         reminderChannels,
         notes: notes.trim(),
+        sourceAccountId,
       };
 
       if (isEditing) {
@@ -172,6 +185,7 @@ const AddEditDebtScreen = ({ navigation, route }) => {
     debtId,
     navigation,
     toast,
+    sourceAccountId,
   ]);
 
   if (loadingDebt) {
@@ -248,6 +262,11 @@ const AddEditDebtScreen = ({ navigation, route }) => {
             leftIconName="mail"
             returnKeyType="next"
           />
+          <PaymentSourcePicker
+            activeId={sourceAccountId}
+            onSelect={setSourceAccountId}
+            onSeeAll={() => setSourceModalVisible(true)}
+          />
           <DebtDatePicker
             label="Start Date"
             date={startDate}
@@ -290,6 +309,13 @@ const AddEditDebtScreen = ({ navigation, route }) => {
           disabled={saving}
         />
       </View>
+
+      <PaymentSourceModal
+        visible={sourceModalVisible}
+        activeId={sourceAccountId}
+        onSelect={setSourceAccountId}
+        onClose={() => setSourceModalVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 };

@@ -15,8 +15,8 @@ import SearchBar from '../../../components/ui/SearchBar';
 import PrimaryLoader from '../../../components/ui/PrimaryLoader';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { getRandomLoadingText } from '../../../constants/dummy/loadingTexts';
-import { getDebtsApi } from '../../../services/debtService';
-import { useDebounce } from '../../../hooks/useDebounce'; // Assuming you have or will create this hook
+import { getDebtsApi, getDebtSummaryApi } from '../../../services/debtService';
+import { useDebounce } from '../../../hooks/useDebounce';
 import { formatDate } from '../../../utils/date';
 
 const DebtItem = ({ debt, onPress, themeColors, styles }) => (
@@ -60,6 +60,8 @@ const DebtScreen = ({ navigation }) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loadingText] = useState(getRandomLoadingText);
+  const [summary, setSummary] = useState({ totalOutstanding: 0, totalReceivable: 0 });
+  const [loadingSummary, setLoadingSummary] = useState(true);
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -96,12 +98,29 @@ const DebtScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchDebts(true);
+    fetchSummary();
   }, [debouncedSearch, fetchDebts]);
+
+  const fetchSummary = useCallback(async () => {
+    setLoadingSummary(true);
+    try {
+      const data = await getDebtSummaryApi();
+      setSummary({
+        totalOutstanding: data.totalOutstanding || 0,
+        totalReceivable: data.totalReceivable || 0,
+      });
+    } catch (err) {
+      console.error('Failed to load debt summary:', err);
+    } finally {
+      setLoadingSummary(false);
+    }
+  }, []);
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
     fetchDebts(true, debouncedSearch, 1);
-  }, [debouncedSearch, fetchDebts]);
+    fetchSummary();
+  }, [debouncedSearch, fetchDebts, fetchSummary]);
 
   const fetchNextPage = useCallback(() => {
     if (hasMore && !loadingMore && !loading) {
@@ -152,6 +171,30 @@ const DebtScreen = ({ navigation }) => {
         title="Debt Calculator"
         onBack={() => navigation.goBack()}
       />
+
+      {!loadingSummary && (summary.totalOutstanding > 0 || summary.totalReceivable > 0) && (
+        <View style={styles.summaryCard}>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryItem}>
+              <Label type="bodyXs" weight="regular" color="textMuted">
+                I OWE
+              </Label>
+              <Label type="h6" weight="bold" color="error">
+                PKR {summary.totalOutstanding.toLocaleString()}
+              </Label>
+            </View>
+            <View style={styles.summaryDivider} />
+            <View style={styles.summaryItem}>
+              <Label type="bodyXs" weight="regular" color="textMuted">
+                THEY OWE ME
+              </Label>
+              <Label type="h6" weight="bold" color="primary">
+                PKR {summary.totalReceivable.toLocaleString()}
+              </Label>
+            </View>
+          </View>
+        </View>
+      )}
 
       <View style={styles.searchWrap}>
         <SearchBar
@@ -253,6 +296,30 @@ const createStyles = t =>
       bottom: hp(3),
       width: '100%',
       paddingHorizontal: wp(5),
+    },
+    summaryCard: {
+      marginHorizontal: wp(5),
+      marginTop: hp(2),
+      backgroundColor: t.surfacePrimary,
+      borderRadius: 12,
+      padding: wp(4),
+      borderWidth: 1,
+      borderColor: t.outlineVariant,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+    },
+    summaryItem: {
+      flex: 1,
+      alignItems: 'center',
+      gap: hp(0.5),
+    },
+    summaryDivider: {
+      width: 1,
+      height: hp(4),
+      backgroundColor: t.outlineVariant,
     },
   });
 
