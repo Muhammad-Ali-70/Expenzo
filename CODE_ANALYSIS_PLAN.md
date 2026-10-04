@@ -504,3 +504,83 @@ Assuming **medium depth** analysis:
 ---
 
 **Ready to begin Phase 1: Project Structure & Architecture**
+
+---
+
+# LAUNCH-READINESS FINDINGS (2026-10-04)
+
+Practical issues found in a full scan of both frontend (`Expenzo`) and backend (`Expenzo-Backend`). Focused on things that must work for launch — not deep refactors.
+
+## 🔴 Critical — must fix before launch
+
+### Frontend
+1. **API URL hardcoded to emulator** — `src/services/apiClient.js:8` uses `http://10.0.2.2:3000/api`; the `ENV.BASE_URL` line is commented out. Breaks every API call on a real device, and release builds block cleartext HTTP anyway.
+2. **Release build has no ARM support** — `android/gradle.properties:26` sets `reactNativeArchitectures=x86,x86_64` (emulator only). A release build won't run on real phones. Switch to `armeabi-v7a,arm64-v8a`.
+3. **Release keystore missing** — `android/app/build.gradle:97-103` + `gradle.properties:49` point to `my-expenzo-app.keystore`, which doesn't exist in `android/app/`. Release build will fail until placed.
+4. **APP_ENV still `development`** — `.env` resolves BASE_URL to LAN IP `192.168.18.100`. Must flip to the production value AND restart Metro with `--reset-cache` before bundling (react-native-dotenv inlines at build time).
+5. **"Fund with Debt Money" silently broken** — `src/services/transactionService.js:3-22` drops the `debtId` that `AddTransactionScreen.js:241` passes, so the feature does nothing (backend supports it).
+
+### Backend
+6. **Hardcoded forgot-password OTP `786000`** — `src/controllers/authController.js:123`. Anyone can reset ANY user's password = full account takeover.
+7. **Hardcoded signup OTP `000000`** — `authController.js:35, 50, 251`. Email verification is a no-op.
+8. **All email sending is stubbed out** — `src/config/email.js:11-35` just console.logs. OTP, welcome, debt reminders, and CSV export-by-email (`exportController.js:75` claims success) send nothing.
+9. **Debt payments can modify other users' accounts** — `debtController.js:406` (recordPayment) and `:494` (settleDebt) take `accountId` from the request body with no ownership check → user A can change user B's balance.
+10. **Editing a transaction never adjusts balances** — `transactionController.js:174-184` updates the record only; account balances go permanently wrong.
+11. **Deleting a transaction never reverts the balance** — `transactionController.js:187-198`.
+12. **Deleting a primary account crashes (500)** — `accountController.js:153-154` references `nextAccount` outside its `if`-block scope → ReferenceError, after the archive already committed.
+
+## 🟡 Major — fix soon (bad UX / real risk)
+
+### Frontend
+13. **No 401/expired-token handling** — `apiClient.js:27-34` never clears the token or logs out; expired-JWT users reopen into a broken app.
+14. **`IS_DEV` is always false** — `src/config/env.js:28` compares APP_ENV against the wrong string (`'BASE_URL_DEV'`), so Sentry is always on and dev errors pollute production Sentry.
+15. **PostHog never initialized** — key is wired in env but no `PostHogProvider`/client exists anywhere. You'd launch with zero analytics.
+16. **Dead "Continue with Google" buttons** — `LoginScreen.js:118-130`, `SignUpScreen.js:186` have `onPress={() => {}}`. Hide or wire up before launch.
+17. **Dashboard failure is silent** — `HomeScreen.js:46-59` only console.errors; no error/retry UI. No offline detection (NetInfo) anywhere despite being fully server-dependent.
+18. **Keystore passwords committed to git** — `android/gradle.properties:49-52` are tracked in plaintext. Move to untracked `keystore.properties`.
+19. **`sendDefaultPii: true` in Sentry** — `src/services/sentry.js:7` sends IPs/device IDs; must be declared in Play Store Data Safety form or turned off.
+20. **`isExpense` used before declaration** — `AddTransactionScreen.js:104-138` reference it before the `const` at line 140; works on Hermes today but is a latent bug with stale values on first render.
+21. **Error messages lost** — `VerifyOTPScreen.js:60`, `useAccountStore.js:28,44` read `err.response?.data?.message`, but the interceptor rejects a flattened object with no `.response`; users always get generic errors.
+
+### Backend
+22. **No rate limiting** — login/forgot-password/OTP verify are freely brute-forceable (6-digit OTP, no attempt counter). Add `express-rate-limit` at least on auth routes.
+23. **No helmet; bare `cors()`** — `src/app.js:23`. Lock down before launch.
+24. **No amount validation on money writes** — `transactionController.js:98-154`, `investmentController.js:20-70` accept negative/zero/NaN; a negative "expense" inflates the balance.
+25. **Password length never actually validated** — `authController.js:49` hashes before save, so `minlength: 6` checks the bcrypt hash; a 1-char password passes. No email-format check; missing password → raw 500.
+26. **No env validation at boot** — missing `JWT_SECRET` 500s all auth; no `CLOUDINARY_*` in `.env`, so avatar upload breaks unless set on the host.
+27. **protect.js gaps** — `middleware/protect.js:19`: deleted user → `req.user` null but `next()` still runs; the 15-min password-reset token passes as a full access token (purpose never checked).
+28. **`unhandledRejection` kills the process** — `server.js:6-9` does `process.exit(1)` on any stray rejection; no graceful shutdown. Relies entirely on host auto-restart.
+
+## 🟢 Minor — cleanup when convenient
+
+### Frontend
+29. `env.js:20-21` console.logs APP_ENV + full BASE_URL on every launch; no `transform-remove-console` babel plugin for release.
+30. Dead UI: "Default Currency" row (`SettingsScreen.js:145`), investment list items (`InvestmentsScreen.js:133`) have empty `onPress`.
+31. Login submits with empty email/password — `LoginScreen.js:39-51` has no client-side validation (SignUp validates fine).
+32. WatermelonDB fully initialized but unused (`src/database/`) — hooks were rewritten to REST; dead native dependency adding APK size.
+33. `DatabaseTestScreen.js` dev screen ships in bundle but isn't in any navigator.
+34. Directory typo: `src/screens/tabs/AddTrasaction/`.
+
+### Backend
+35. Auth controller console.logs emails and OTP values (`authController.js:25, 41, 64, 125, 255`).
+36. Account enumeration: `authController.js:244` resend-OTP returns 404 "User not found" while forgot-password is deliberately vague.
+37. Swagger UI (`/api-docs`) public in production — `src/app.js:25`.
+38. Raw user input in `$regex` search — `transactionController.js:39`, `debtController.js:41` (special chars break search).
+39. `deleteDebt` (`debtController.js:546-558`) soft-deletes but never reverses balance/linked transactions — confirm intended.
+40. No balance validation in `updateBalance/updateAccount` (`accountController.js:94, 107`).
+41. CSV export has no formula-injection escaping (`exportController.js:24-34`) — `=HYPERLINK(...)` executes in Excel.
+42. `ToDo.txt` confirms unfinished items: forgot-password integration, Sentry/PostHog; `.env` holds unused RESEND/MAILEROO keys (email provider switch unfinished).
+
+## ✅ Verified working (no action needed)
+- All backend routes mount `protect` correctly; controllers consistently filter by `req.user._id` (except the debt-payment issue above).
+- `.env` files are gitignored and never committed in either repo.
+- Money flows on create/transfer/debt/investment use Mongoose sessions (atomic); error handler hides stack traces in production.
+- Frontend: Sentry error boundary with fallback UI, proguard + shrinkResources with correct keep rules, only INTERNET permission, `allowBackup=false`, signup + add-expense validate input, main screens have loading/empty states.
+
+## Fix-first order (launch blockers)
+1. Hardcoded OTPs (#6, #7) + re-enable email sending (#8)
+2. `apiClient.js` → use `ENV.BASE_URL` (#1) + set APP_ENV for production (#4)
+3. ARM architectures in gradle.properties (#2) + place release keystore (#3)
+4. Transaction update/delete balance reconciliation (#10, #11)
+5. Debt-payment account ownership check (#9) + deleteAccount crash (#12)
+6. debtId dropped in transactionService (#5)
