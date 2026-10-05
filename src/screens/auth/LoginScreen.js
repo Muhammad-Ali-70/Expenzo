@@ -38,9 +38,23 @@ const LoginScreen = ({ navigation }) => {
   const clearError = key => setErrors(prev => ({ ...prev, [key]: undefined }));
 
   const handleLogin = useCallback(async () => {
+    const newErrors = {};
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      newErrors.email = 'Email is required';
+    } else if (!/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      newErrors.email = 'Enter a valid email address';
+    }
+    if (!password) {
+      newErrors.password = 'Password is required';
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
     setErrors({});
 
-    const result = await login({ email: email.trim(), password, rememberMe });
+    const result = await login({ email: trimmedEmail, password, rememberMe });
 
     if (result.success) {
       toastRef.current.success('Welcome back!');
