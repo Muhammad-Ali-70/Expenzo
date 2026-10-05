@@ -584,3 +584,88 @@ Practical issues found in a full scan of both frontend (`Expenzo`) and backend (
 4. Transaction update/delete balance reconciliation (#10, #11)
 5. Debt-payment account ownership check (#9) + deleteAccount crash (#12)
 6. debtId dropped in transactionService (#5)
+
+---
+
+# FIX LOG (2026-10-05)
+
+All 🔴 critical and 🟡 major findings are fixed in code. Static checks pass (ESLint clean, all backend modules load, Gradle signingReport resolves the release keystore). **Not yet runtime-tested** — see "Verify before release" below.
+
+## 🔴 Critical — all 12 fixed
+
+| # | Status | What was done |
+|---|--------|---------------|
+| 1 | ✅ Fixed | `apiClient.js` now uses `ENV.BASE_URL`. `.env` sets `APP_ENV=android-emulator` (same 10.0.2.2 URL as before, but configurable). |
+| 2 | ✅ Fixed | `reactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64` — real phones AND emulator. |
+| 3 | ✅ Fixed | New upload keystore generated (`android/app/my-expenzo-app.keystore`, alias `expenzo-upload`, PKCS12, random password). Verified via `gradlew :app:signingReport`. **BACK UP the keystore + `android/keystore.properties` — losing them means no more app updates.** |
+| 4 | ✅ Fixed (process documented) | `.env` documents the release flip: set `APP_ENV=production-onrender` (Render chosen as prod) + restart Metro with `--reset-cache` before bundling. Still a manual step — on the release checklist below. |
+| 5 | ✅ Fixed | `transactionService.js` forwards `debtId`; "Fund with Debt Money" now reaches the backend. |
+| 6 | ✅ Fixed | Forgot-password OTP is now `crypto.randomInt` 6-digit. |
+| 7 | ✅ Fixed | Signup/resend OTP same — all hardcoded OTPs removed. |
+| 8 | ✅ Fixed | `email.js` sends for real via Gmail SMTP (nodemailer, `EMAIL_USER`/`EMAIL_PASS`): OTP, welcome, reminder, CSV attachment, with shared template. In dev the OTP is also printed to the server console (never in production). **Requires `EMAIL_PASS` to be a Gmail App Password.** |
+| 9 | ✅ Fixed | `recordPayment` + `settleDebt` verify the paying account belongs to the logged-in user. |
+| 10 | ✅ Fixed | `updateTransaction` rewritten: reverts old balance effect, applies new one, atomic session, insufficient-balance check. Transfer/debt-linked/investment-linked transactions are blocked from editing (they carry linked state). |
+| 11 | ✅ Fixed | `deleteTransaction` reverts the balance (both accounts for transfers) before deleting. Debt/investment-linked deletes are blocked with a clear message. |
+| 12 | ✅ Fixed | `deleteAccount`: `nextAccount` declared in function scope — no more ReferenceError. |
+
+## 🟡 Major — all 16 fixed
+
+| # | Status | What was done |
+|---|--------|---------------|
+| 13 | ✅ Fixed | 401 with a stored token → `useAuthStore.logout()` (apiClient interceptor), app returns to login. |
+| 14 | ✅ Fixed | `IS_DEV` = any `APP_ENV` not starting with `production`. Sentry now off in dev. |
+| 15 | ✅ Fixed (needs key) | `PostHogProvider` wired in `App.js`, app-lifecycle events on. No-op until the placeholder `POSTHOG_KEY` in `.env` is replaced with a real key. |
+| 16 | ✅ Fixed | Google buttons + divider commented out on Login/SignUp (`TODO(post-MVP)`). |
+| 17 | ✅ Fixed (partial) | HomeScreen shows an error + Try Again screen on dashboard failure. NetInfo offline detection NOT added (new native dep) — deferred. |
+| 18 | ✅ Fixed | Passwords removed from `gradle.properties`; signing reads git-ignored `android/keystore.properties`. Old password remains in git history but belonged to a keystore that never existed. |
+| 19 | ✅ Fixed | `sendDefaultPii: false` in Sentry. |
+| 20 | ✅ Fixed | `isExpense` declared before the effects that use it; `fetchAccountDebts` is a `useCallback` in the deps array (also fixes a pre-existing lint error). |
+| 21 | ✅ Fixed | VerifyOTP + useAccountStore read `err.message` (the interceptor's flattened shape). |
+| 22 | ✅ Fixed | `express-rate-limit`: 60 req/15min on all auth routes + 10 req/15min on login/OTP/password endpoints. `trust proxy` set for Render. |
+| 23 | ✅ Fixed | `helmet()` added; Swagger `/api-docs` disabled in production; JSON body capped at 1mb. CORS left open deliberately — mobile clients send no Origin, so restricting it buys nothing here. |
+| 24 | ✅ Fixed | Shared `isValidAmount` (finite number > 0) enforced in transactions (create/update), transfers, debt create/payment/settle, investments. Rejects NaN/negative/string amounts. |
+| 25 | ✅ Fixed | Signup validates name/email-format/password length (6–128) BEFORE hashing; login and reset-password validate inputs too. |
+| 26 | ✅ Fixed | Boot fails fast if `MONGO_URI`/`JWT_SECRET` missing; warns for missing email/Cloudinary config. |
+| 27 | ✅ Fixed | `protect.js` rejects purpose-scoped tokens (reset token no longer works as access token) and 401s when the user no longer exists. |
+| 28 | ✅ Fixed | `unhandledRejection` logs instead of killing the process (`uncaughtException` still exits). |
+
+## 🟢 Minor — status
+
+| # | Status | Notes |
+|---|--------|-------|
+| 29 | ✅ Fixed | env.js logs gated behind `__DEV__`; `transform-remove-console` strips console.* (except error/warn) from release bundles. |
+| 30 | ✅ Fixed | Default Currency row removed with the MVP settings cleanup (2026-10-05). Investments screen hidden from Settings entirely. |
+| 31 | ✅ Fixed | Login validates email format + required password client-side. |
+| 32 | ⏳ Deferred | WatermelonDB removal touches native deps — too risky right before launch. Post-MVP cleanup. |
+| 33 | ✅ No action needed | Finding was wrong: nothing imports `DatabaseTestScreen.js`, so Metro never bundles it. Safe to delete whenever. |
+| 34 | ⏳ Deferred | `AddTrasaction/` typo rename churns many imports — post-MVP. |
+| 35 | ✅ Fixed | OTP values/emails no longer logged. One dev-only OTP console line remains, gated on `NODE_ENV !== "production"`, as a deliberate testing aid. |
+| 36 | ✅ Fixed | resend-OTP returns the same vague "If this email exists…" as forgot-password. |
+| 37 | ✅ Fixed | Swagger dev-only (see #23). |
+| 38 | ✅ Fixed | `escapeRegex` applied to transaction + debt search. |
+| 39 | ⏳ Open (by design?) | `deleteDebt` still soft-deletes without reversing balances/linked transactions. Needs a product decision, not a code fix. |
+| 40 | ✅ Fixed | `isValidBalance` on create/update/updateBalance. |
+| 41 | ✅ Fixed | CSV cells escape leading `=+-@` (formula injection) in both export paths. |
+| 42 | ⏳ Open | RESEND/MAILEROO keys in backend `.env` are unused (Gmail chosen) — safe to delete the keys. ToDo.txt items superseded by this log. |
+
+## Release checklist (manual steps that remain)
+
+1. **Back up** `android/app/my-expenzo-app.keystore` + `android/keystore.properties` (password manager / secure drive). Without them you can't update the app.
+2. **Gmail App Password**: ensure `EMAIL_PASS` in backend `.env` is an App Password (Google account → Security → 2-Step Verification → App passwords), then test signup end-to-end.
+3. **PostHog**: replace `POSTHOG_KEY=your_posthog_key_here` in frontend `.env` with the real project key.
+4. **Deploy backend to Render** with env vars: `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASS`, `CLOUDINARY_*`, `NODE_ENV=production`.
+5. **Release build**: set `APP_ENV=production-onrender` in frontend `.env` → `npx react-native start --reset-cache` → build the AAB.
+6. **Play Data Safety form**: declare Sentry crash reporting (PII now off) and PostHog analytics.
+
+## Verify before release (fixes are untested at runtime)
+
+- Signup → OTP email arrives → verify → welcome email.
+- Forgot password → OTP → reset → login with new password.
+- Edit a transaction's amount/account → both account balances correct.
+- Delete a transaction (incl. a transfer) → balances revert.
+- Debt payment from each account type; try editing/deleting a debt-linked transaction (should be blocked with a message).
+- Archive a primary account → next account becomes primary, no 500.
+- Add expense with "Fund with Debt Money" → transaction shows `isDebtFunded`.
+- Kill backend while on Home → error screen with working Try Again.
+- Login with 11 wrong passwords quickly → rate-limit message appears.
+- `cd android && ./gradlew bundleRelease` → AAB installs and runs on a real ARM phone.
