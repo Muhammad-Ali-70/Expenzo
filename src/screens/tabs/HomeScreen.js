@@ -18,6 +18,7 @@ import { getHomeDataApi } from '../../services/transactionService';
 import { getDebtSummaryApi } from '../../services/debtService';
 import { groupTransactions } from '../../utils/transactionUtils';
 import PrimaryLoader from '../../components/ui/PrimaryLoader';
+import PrimaryButton from '../../components/ui/PrimaryButton';
 import { getRandomLoadingText } from '../../constants/dummy/loadingTexts';
 import { Label } from '../../constants/globalstyle';
 
@@ -35,6 +36,7 @@ const HomeScreen = ({ navigation }) => {
   const [dailySpending, setDailySpending] = useState([]);
   const [budget, setBudget] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingText] = useState(getRandomLoadingText);
   const [debtSummary, setDebtSummary] = useState({ totalOutstanding: 0, totalReceivable: 0 });
@@ -52,8 +54,10 @@ const HomeScreen = ({ navigation }) => {
 
       const groups = groupTransactions(data.recentTransactions);
       setRecentTransactions(groups.flatMap(g => g.transactions));
+      setLoadError(null);
     } catch (err) {
       console.error('Failed to load home data:', err);
+      setLoadError(err?.message || 'Could not load your dashboard.');
     } finally {
       setLoading(false);
     }
@@ -113,6 +117,34 @@ const HomeScreen = ({ navigation }) => {
           >
             {loadingText}
           </Label>
+        </View>
+      </View>
+    );
+  }
+
+  // Show a retry screen instead of silently rendering an all-zero dashboard
+  if (loadError) {
+    return (
+      <View style={styles.safe}>
+        <HomeHeader onBellPress={() => navigation.navigate('Notifications')} />
+        <View style={styles.loadingWrap}>
+          <Label type="h3" weight="semiBold" color="textMain" style={styles.errorTitle}>
+            Couldn't load your dashboard
+          </Label>
+          <Label type="bodySmall" weight="regular" color="textMuted" style={styles.errorSubtitle}>
+            {loadError}
+          </Label>
+          <PrimaryButton
+            variant="primary"
+            size="md"
+            label="Try Again"
+            onPress={() => {
+              setLoading(true);
+              setLoadError(null);
+              loadHomeData();
+              loadDebtSummary();
+            }}
+          />
         </View>
       </View>
     );
@@ -191,6 +223,15 @@ const createStyles = t =>
     loadingText: {
       marginTop: hp(1.5),
       textAlign: 'center',
+    },
+    errorTitle: {
+      textAlign: 'center',
+      marginBottom: hp(0.5),
+    },
+    errorSubtitle: {
+      textAlign: 'center',
+      marginBottom: hp(2),
+      paddingHorizontal: wp(10),
     },
   });
 
