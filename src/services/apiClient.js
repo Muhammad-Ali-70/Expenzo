@@ -28,6 +28,16 @@ apiClient.interceptors.response.use(
   error => {
     const errorInfo = handleAxiosError(error);
     console.error('[API Error]', errorInfo.message);
+
+    // Expired/invalid session: clear local auth so the app returns to the
+    // login screen instead of silently failing every request.
+    // (Guarded on a stored token so failed logins don't trigger it.)
+    if (errorInfo.status === 401 && storage.getString('token')) {
+      // Lazy require to avoid a circular import at module init
+      const useAuthStore = require('../store/useAuthStore').default;
+      useAuthStore.getState().logout();
+    }
+
     return Promise.reject(errorInfo);
   },
 );
