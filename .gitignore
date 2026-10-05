@@ -33,6 +33,7 @@ local.properties
 *.hprof
 .cxx/
 *.keystore
+android/keystore.properties
 !debug.keystore
 .kotlin/
 
