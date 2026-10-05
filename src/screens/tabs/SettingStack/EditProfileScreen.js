@@ -56,19 +56,22 @@ const EditProfileScreen = ({ navigation }) => {
       phoneNumber: phoneNumber.trim(),
     });
 
-    if (profileResult.success && avatarUri) {
-      const avatarResult = await uploadAvatar(avatarUri);
-      if (avatarResult.success) {
-        await fetchMe();
-      }
+    if (!profileResult.success) {
+      toast.error(profileResult.message || 'Failed to update profile');
+      return;
     }
 
-    if (profileResult.success) {
-      toast.success('Profile updated');
-      navigation.goBack();
-    } else {
-      toast.error(profileResult.message || 'Failed to update profile');
+    if (avatarUri) {
+      const avatarResult = await uploadAvatar(avatarUri);
+      if (!avatarResult.success) {
+        toast.error(avatarResult.message || 'Failed to upload photo');
+        return;
+      }
+      await fetchMe();
     }
+
+    toast.success('Profile updated');
+    navigation.goBack();
   }, [name, phoneNumber, avatarUri, updateProfile, uploadAvatar, fetchMe, navigation, toast]);
 
   const avatarSource = avatarUri
