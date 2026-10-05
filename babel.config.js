@@ -30,4 +30,10 @@ module.exports = {
       },
     ],
   ],
+  env: {
+    // Release bundles: strip console.* calls (keep errors/warnings for Sentry breadcrumbs)
+    production: {
+      plugins: [['transform-remove-console', { exclude: ['error', 'warn'] }]],
+    },
+  },
 };
