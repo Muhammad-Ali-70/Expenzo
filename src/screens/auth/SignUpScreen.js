@@ -5,7 +5,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Image,
+  // Image, // TODO(post-MVP): Google Sign-In button
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
@@ -14,10 +14,11 @@ import PrimaryButton from '../../components/ui/PrimaryButton';
 import AuthTagline from '../../components/auth/AuthTagline';
 import AuthFooter from '../../components/auth/AuthFooter';
 import TermsAgreementRow from '../../components/auth/TermsAgreementRow';
-import SectionDivider from '../../components/onboarding/Sectiondivider';
+// TODO(post-MVP): Google Sign-In button
+// import SectionDivider from '../../components/onboarding/Sectiondivider';
+// import GoogleImage from '../../assets/images/static/logos/google.png';
 import { validateSignUp } from '../../utils/validation';
 import { useToastService } from '../../utils/ToastService';
-import GoogleImage from '../../assets/images/static/logos/google.png';
 import useAuthStore from '../../store/useAuthStore';
 
 const SignUpScreen = ({ navigation }) => {
@@ -170,6 +171,7 @@ const SignUpScreen = ({ navigation }) => {
             />
           </View>
 
+          {/* TODO(post-MVP): re-enable once Google Sign-In is wired up
           <SectionDivider label="OR CONTINUE WITH" style={styles.divider} />
 
           <PrimaryButton
@@ -185,6 +187,7 @@ const SignUpScreen = ({ navigation }) => {
             }
             onPress={() => {}}
           />
+          */}
 
           <AuthFooter
             prompt="Already have an account?"
