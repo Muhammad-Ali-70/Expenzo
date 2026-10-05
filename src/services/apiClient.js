@@ -2,11 +2,10 @@ import axios from 'axios';
 import { storage } from './storage';
 import { ENV } from '../config/env';
 
+// Resolved from APP_ENV in .env (android-emulator / development / production-onrender).
+// Changing .env requires restarting Metro with --reset-cache.
 const apiClient = axios.create({
-  // baseURL: 'https://expenzo-backend-production.up.railway.app/api',
-  // baseURL: 'https://expenzo-backend-zdh2.onrender.com/api', // RENDER
-  baseURL: 'http://10.0.2.2:3000/api', // Use this for Android emulator
-  // baseURL: ENV.BASE_URL,
+  baseURL: ENV.BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
