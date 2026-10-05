@@ -162,10 +162,12 @@ const HomeScreen = ({ navigation }) => {
 
         <SmartInsightCard message="Tap any account card to see its breakdown." />
 
-        <RecentActivitySection
-          transactions={recentTransactions}
-          onSeeAll={() => navigation?.navigate('History')}
-        />
+        {recentTransactions.length > 0 && (
+          <RecentActivitySection
+            transactions={recentTransactions}
+            onSeeAll={() => navigation?.navigate('History')}
+          />
+        )}
       </ScrollView>
     </View>
   );
