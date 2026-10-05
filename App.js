@@ -1,5 +1,7 @@
 import React from 'react';
 import * as Sentry from '@sentry/react-native';
+import { PostHogProvider } from 'posthog-react-native';
+import { ENV } from './src/config/env';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar, View, StyleSheet } from 'react-native';
@@ -73,6 +75,25 @@ const AppContent = () => {
   );
 };
 
+// Analytics only initializes with a real key in .env (POSTHOG_KEY)
+const hasPostHogKey =
+  !!ENV.POSTHOG_KEY && !ENV.POSTHOG_KEY.includes('your_posthog_key');
+
+const AnalyticsProvider = ({ children }) => {
+  if (!hasPostHogKey) return children;
+  return (
+    <PostHogProvider
+      apiKey={ENV.POSTHOG_KEY}
+      options={{
+        host: ENV.POSTHOG_HOST,
+        captureAppLifecycleEvents: true,
+      }}
+    >
+      {children}
+    </PostHogProvider>
+  );
+};
+
 const App = () => {
   return (
     <Sentry.ErrorBoundary
@@ -80,9 +101,11 @@ const App = () => {
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <ToastCustomProvider>
-            <AppContent />
-          </ToastCustomProvider>
+          <AnalyticsProvider>
+            <ToastCustomProvider>
+              <AppContent />
+            </ToastCustomProvider>
+          </AnalyticsProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </Sentry.ErrorBoundary>
