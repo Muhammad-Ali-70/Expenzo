@@ -8,6 +8,7 @@ export const createTransactionApi = async ({
   description,
   note,
   date,
+  debtId,
 }) => {
   const response = await apiClient.post('/transactions', {
     accountId,
@@ -17,6 +18,7 @@ export const createTransactionApi = async ({
     description,
     note,
     date,
+    debtId,
   });
   return response.data;
 };
