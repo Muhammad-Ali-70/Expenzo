@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   ScrollView,
@@ -100,21 +100,14 @@ const AddTransactionScreen = ({ navigation, route }) => {
     }
   }, [primaryAccount, sourceId]);
 
-  useEffect(() => {
-    if (sourceId && isExpense) {
-      fetchAccountDebts();
-    } else {
-      setAccountDebts([]);
-      setUseDebtMoney(false);
-      setSelectedDebtId(null);
-    }
-  }, [sourceId, isExpense]);
+  // Declared before the effects below that reference it (TDZ hazard otherwise)
+  const isExpense = type === 'expense';
 
-  const fetchAccountDebts = async () => {
+  const fetchAccountDebts = useCallback(async () => {
     if (!sourceId) return;
     setLoadingDebts(true);
     try {
-      const data = await getAccountDebtsApi(sourceId, { 
+      const data = await getAccountDebtsApi(sourceId, {
         status: ['active', 'partially_paid', 'overdue'].join(','),
         debtType: 'outstanding'
       });
@@ -125,7 +118,17 @@ const AddTransactionScreen = ({ navigation, route }) => {
     } finally {
       setLoadingDebts(false);
     }
-  };
+  }, [sourceId]);
+
+  useEffect(() => {
+    if (sourceId && isExpense) {
+      fetchAccountDebts();
+    } else {
+      setAccountDebts([]);
+      setUseDebtMoney(false);
+      setSelectedDebtId(null);
+    }
+  }, [sourceId, isExpense, fetchAccountDebts]);
 
   // Show investment setup modal when category is investment
   useEffect(() => {
@@ -136,8 +139,6 @@ const AddTransactionScreen = ({ navigation, route }) => {
       setInvestmentConfig(null);
     }
   }, [category, isExpense]);
-
-  const isExpense = type === 'expense';
 
   // Merge built-in categories with the user's (non-archived) custom ones.
   const expenseCategories = useMemo(
