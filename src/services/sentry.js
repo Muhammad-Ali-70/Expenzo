@@ -4,7 +4,8 @@ import { ENV } from '../config/env';
 export function initSentry() {
   Sentry.init({
     dsn: ENV.SENTRY_DSN,
-    sendDefaultPii: true,
+    // Off: avoids sending IP/device identifiers (Play Store Data Safety)
+    sendDefaultPii: false,
     enableLogs: true,
     enabled: !ENV.IS_DEV,
     tracesSampleRate: 0.2,
