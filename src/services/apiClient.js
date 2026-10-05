@@ -6,7 +6,9 @@ import { ENV } from '../config/env';
 // Changing .env requires restarting Metro with --reset-cache.
 const apiClient = axios.create({
   baseURL: ENV.BASE_URL,
-  timeout: 10000,
+  // Render's free tier spins the server down when idle; the first request
+  // after a cold start can take 20-30s to wake it back up.
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
