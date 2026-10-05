@@ -25,7 +25,8 @@ const useAccountStore = create((set, get) => ({
       }));
       return { success: true, account: updated };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || err.message };
+      // apiClient's interceptor flattens errors: the server message is err.message
+      return { success: false, message: err.message };
     }
   },
 
@@ -41,7 +42,7 @@ const useAccountStore = create((set, get) => ({
         newPrimaryLabel: response.data.newPrimaryLabel,
       };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || err.message };
+      return { success: false, message: err.message };
     }
   },
 

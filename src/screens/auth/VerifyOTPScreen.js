@@ -56,10 +56,8 @@ const VerifyOTPScreen = ({ navigation, route }) => {
         navigation.navigate('ResetPasswordScreen', { resetToken });
       }
     } catch (e) {
-      setOtpError(
-        e?.response?.data?.message ||
-          'Invalid or expired OTP. Please try again.',
-      );
+      // apiClient's interceptor flattens errors: the server message is e.message
+      setOtpError(e?.message || 'Invalid or expired OTP. Please try again.');
     } finally {
       setLoading(false);
     }
