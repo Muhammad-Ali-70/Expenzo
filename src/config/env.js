@@ -17,13 +17,16 @@ const getBaseURL = () => {
   return BASE_URL_DEV;
 };
 
-console.log('[ENV] APP_ENV:', APP_ENV);
-console.log('[ENV] BASE_URL:', getBaseURL());
+if (__DEV__) {
+  console.log('[ENV] APP_ENV:', APP_ENV);
+  console.log('[ENV] BASE_URL:', getBaseURL());
+}
 
 export const ENV = {
   SENTRY_DSN,
   POSTHOG_KEY,
   POSTHOG_HOST: POSTHOG_HOST ?? 'https://us.i.posthog.com',
   BASE_URL: getBaseURL(),
-  IS_DEV: APP_ENV === 'BASE_URL_DEV',
+  // Anything not explicitly a production APP_ENV counts as dev
+  IS_DEV: !String(APP_ENV ?? '').startsWith('production'),
 };
