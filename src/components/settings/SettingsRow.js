@@ -12,6 +12,8 @@ import {
   HelpCircle,
   LogOut,
   TrendingUp,
+  Calculator,
+  ArrowLeftRight,
 } from 'lucide-react-native';
 import { Label, borderRadius } from '../../constants/globalstyle';
 import { useThemeColors } from '@hooks/useThemeColors';
@@ -29,6 +31,8 @@ const ICONS = {
   help: HelpCircle,
   logout: LogOut,
   trendingup: TrendingUp,
+  calculator: Calculator,
+  transfer: ArrowLeftRight,
 };
 
 const LIGHT_ICON_THEMES = {
@@ -42,6 +46,8 @@ const LIGHT_ICON_THEMES = {
   help: { bg: '#F5F3FF' },
   logout: { bg: '#FFF0F0' },
   trendingup: { bg: '#e2e8f8' },
+  calculator: { bg: '#FFF3E6' },
+  transfer: { bg: '#EFF6FF' },
 };
 
 const DARK_ICON_THEMES = {
@@ -55,6 +61,8 @@ const DARK_ICON_THEMES = {
   help: { bg: '#2E1E5E' },
   logout: { bg: '#3B1A1A' },
   trendingup: { bg: '#0B3D2E' },
+  calculator: { bg: '#3D2E0B' },
+  transfer: { bg: '#1E3A5F' },
 };
 
 const SettingsRow = ({

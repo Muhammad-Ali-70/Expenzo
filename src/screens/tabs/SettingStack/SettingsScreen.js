@@ -1,12 +1,5 @@
-import React, { useState } from 'react';
-import {
-  View,
-  ScrollView,
-  Switch,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import React from 'react';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
@@ -17,9 +10,9 @@ import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import SignOutButton from '../../../components/settings/SignOutButton';
-import ExportModal from '../../../components/modals/export/ExportModal';
+// import ExportModal from '../../../components/modals/export/ExportModal'; // TODO(post-MVP)
 import { useAccounts } from '../../../database/hooks/useAccounts';
-import useAppStore from '@store/useAppStore';
+// import useAppStore from '@store/useAppStore'; // TODO(post-MVP): Dark Mode toggle
 import useAuthStore, { selectDisplayName } from '../../../store/useAuthStore';
 
 const TYPE_LABEL = {
@@ -55,15 +48,16 @@ const AccountRow = ({ account, isLast, tc }) => (
 );
 
 const SettingsScreen = () => {
-  const [exportModalVisible, setExportModalVisible] = useState(false);
+  // TODO(post-MVP): restore with Export Transactions / Dark Mode
+  // const [exportModalVisible, setExportModalVisible] = useState(false);
   const user = useAuthStore(s => s.user);
   const displayName = useAuthStore(selectDisplayName);
   const { accounts, loading, totalBalance } = useAccounts();
-  const theme = useAppStore(s => s.theme);
-  const toggleTheme = useAppStore(s => s.toggleTheme);
+  // const theme = useAppStore(s => s.theme);
+  // const toggleTheme = useAppStore(s => s.toggleTheme);
   const logout = useAuthStore(s => s.logout);
 
-  const darkMode = theme === 'dark';
+  // const darkMode = theme === 'dark';
   const themeColors = useThemeColors();
 
   const navigation = useNavigation();
@@ -96,15 +90,16 @@ const SettingsScreen = () => {
           onEditPress={() => navigation.navigate('EditProfile')}
         />
 
-        {/* ── Preferences ── */}
-        <SettingsSection title="PREFERENCES">
+        {/* ── Money Tools ── */}
+        <SettingsSection title="MONEY TOOLS">
           <SettingsRow
-            iconName="trendingup"
+            iconName="calculator"
             title="Debt Calculator"
             subtitle="Manage your debts and loans"
             onPress={() => navigation.navigate('DebtScreen')}
             showDivider
           />
+          {/* TODO(post-MVP): re-enable Investments
           <SettingsRow
             iconName="trendingup"
             title="Investments"
@@ -112,13 +107,15 @@ const SettingsScreen = () => {
             onPress={() => navigation.navigate('InvestmentsScreen')}
             showDivider
           />
+          */}
           <SettingsRow
-            iconName="trendingup"
+            iconName="transfer"
             title="Transfer Funds"
             subtitle="Move money between accounts"
             onPress={() => navigation.navigate('TransferScreen')}
-            showDivider
+            showDivider={false}
           />
+          {/* TODO(post-MVP): re-enable Dark Mode and Default Currency
           <SettingsRow
             iconName="moon"
             title="Dark Mode"
@@ -145,9 +142,10 @@ const SettingsScreen = () => {
             onPress={() => {}}
             showDivider={false}
           />
+          */}
         </SettingsSection>
 
-        {/* ── System & Data ── */}
+        {/* TODO(post-MVP): re-enable System & Data (Notifications, Export Transactions)
         <SettingsSection title="SYSTEM & DATA">
           <SettingsRow
             iconName="bell"
@@ -162,6 +160,7 @@ const SettingsScreen = () => {
             showDivider={false}
           />
         </SettingsSection>
+        */}
 
         {/* ── Accounts ── */}
         <SettingsSection title="ACCOUNTS">
@@ -227,10 +226,12 @@ const SettingsScreen = () => {
         </Label>
       </ScrollView>
 
+      {/* TODO(post-MVP): re-enable with Export Transactions
       <ExportModal
         visible={exportModalVisible}
         onClose={() => setExportModalVisible(false)}
       />
+      */}
     </View>
   );
 };
