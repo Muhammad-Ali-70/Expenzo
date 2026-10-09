@@ -41,7 +41,7 @@ const DebtItem = ({ debt, onPress, themeColors, styles }) => (
     <Label
       type="bodySmall"
       weight="semiBold"
-      color={debt.totalAmount >= 0 ? 'primary' : 'error'}
+      color={debt.debtType === 'receivable' ? 'primary' : 'error'}
     >
       PKR {debt.totalAmount?.toLocaleString() ?? '0'}
     </Label>

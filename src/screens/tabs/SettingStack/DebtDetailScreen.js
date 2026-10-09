@@ -9,7 +9,7 @@ import PrimaryLoader from '../../../components/ui/PrimaryLoader';
 import PrimaryButton from '../../../components/ui/PrimaryButton';
 import { getDebtByIdApi, deleteDebtApi, getDebtTransactionsApi } from '../../../services/debtService';
 import { formatDate } from '../../../utils/date';
-import { ThemedView } from '../../../components/ui/ThemedView'; // Assuming this component exists
+import ThemedView from '../../../components/ui/ThemedView';
 
 const DebtDetailScreen = ({ navigation, route }) => {
   const { id } = route.params;
@@ -123,7 +123,7 @@ const DebtDetailScreen = ({ navigation, route }) => {
               variant="ghost"
               size="sm"
               icon={<Pencil size={wp(5)} color={theme.textMain} />}
-              onPress={() => navigation.navigate('AddEditDebtScreen', { debtId: debt.id })}
+              onPress={() => navigation.navigate('AddEditDebtScreen', { debtId: id })}
               style={styles.actionButton}
             />
             <PrimaryButton
@@ -171,19 +171,19 @@ const DebtDetailScreen = ({ navigation, route }) => {
           <Label type="bodySmall" weight="semiBold" color="textMuted">Due Date</Label>
           <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{formatDate(debt.dueDate)}</Label>
         </View>
-        {debt.interestRate && (
+        {debt.interestRate > 0 && (
           <View style={styles.detailCard}>
             <Label type="bodySmall" weight="semiBold" color="textMuted">Interest Rate</Label>
             <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{debt.interestRate}% ({debt.interestType})</Label>
           </View>
         )}
-        {debt.category && (
+        {!!debt.category && (
           <View style={styles.detailCard}>
             <Label type="bodySmall" weight="semiBold" color="textMuted">Category</Label>
             <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{debt.category}</Label>
           </View>
         )}
-        {debt.notes && (
+        {!!debt.notes && (
           <View style={styles.detailCard}>
             <Label type="bodySmall" weight="semiBold" color="textMuted">Notes</Label>
             <Label type="body" weight="regular" color="textMain" style={styles.detailValue}>{debt.notes}</Label>
