@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
@@ -10,6 +10,8 @@ import { useThemeColors } from '@hooks/useThemeColors';
 import { hp, wp } from '../../../constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import SignOutButton from '../../../components/settings/SignOutButton';
+import DeleteUserModal from '../../../components/settings/DeleteUserModal';
+import { useToastService } from '../../../utils/ToastService';
 // import ExportModal from '../../../components/modals/export/ExportModal'; // TODO(post-MVP)
 import { useAccounts } from '../../../database/hooks/useAccounts';
 // import useAppStore from '@store/useAppStore'; // TODO(post-MVP): Dark Mode toggle
@@ -56,6 +58,11 @@ const SettingsScreen = () => {
   // const theme = useAppStore(s => s.theme);
   // const toggleTheme = useAppStore(s => s.toggleTheme);
   const logout = useAuthStore(s => s.logout);
+  const deleteAccount = useAuthStore(s => s.deleteAccount);
+  const toast = useToastService();
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   // const darkMode = theme === 'dark';
   const themeColors = useThemeColors();
@@ -72,6 +79,19 @@ const SettingsScreen = () => {
         onPress: () => logout(),
       },
     ]);
+  };
+
+  // On success the store logs out and the navigator drops back to the auth flow.
+  const handleDeleteAccount = async password => {
+    setDeleting(true);
+    setDeleteError(null);
+    const result = await deleteAccount({ password });
+    setDeleting(false);
+    if (result.success) {
+      toast.success('Your account has been deleted');
+    } else {
+      setDeleteError(result.message);
+    }
   };
 
   return (
@@ -216,6 +236,16 @@ const SettingsScreen = () => {
 
         <SignOutButton onPress={handleSignOut} />
 
+        <TouchableOpacity
+          onPress={() => setDeleteVisible(true)}
+          activeOpacity={0.6}
+          style={styles.deleteLink}
+        >
+          <Label type="bodySmall" weight="semiBold" color="error">
+            Delete Account
+          </Label>
+        </TouchableOpacity>
+
         <Label
           type="bodyXs"
           weight="regular"
@@ -225,6 +255,17 @@ const SettingsScreen = () => {
           Paisly v{DeviceInfo.getVersion()} (Build {DeviceInfo.getBuildNumber()})
         </Label>
       </ScrollView>
+
+      <DeleteUserModal
+        visible={deleteVisible}
+        loading={deleting}
+        error={deleteError}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => {
+          setDeleteVisible(false);
+          setDeleteError(null);
+        }}
+      />
 
       {/* TODO(post-MVP): re-enable with Export Transactions
       <ExportModal
@@ -273,9 +314,15 @@ const styles = StyleSheet.create({
     paddingVertical: hp(2),
   },
 
+  deleteLink: {
+    alignSelf: 'center',
+    marginTop: hp(2),
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(4),
+  },
   version: {
     textAlign: 'center',
-    marginTop: hp(2),
+    marginTop: hp(1),
   },
 });
 

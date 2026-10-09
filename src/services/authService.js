@@ -74,6 +74,11 @@ export const uploadAvatarApi = async (imageUri) => {
   return response.data;
 };
 
+export const deleteAccountApi = async ({ password }) => {
+  const response = await apiClient.delete('/users/me', { data: { password } });
+  return response.data;
+};
+
 export const healthCheckApi = async () => {
   const baseURL = apiClient.defaults.baseURL.replace('/api', '');
   const response = await apiClient.get('/health', {

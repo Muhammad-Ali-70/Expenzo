@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { storage, mmkvStorage } from '../services/storage';
-import { signupApi, loginApi, getMeApi, verifySignupOtpApi, updateProfileApi, uploadAvatarApi } from '../services/authService';
+import { signupApi, loginApi, getMeApi, verifySignupOtpApi, updateProfileApi, uploadAvatarApi, deleteAccountApi } from '../services/authService';
 import useAccountStore from './useAccountStore';
 
 const withLoading = async (set, fn) => {
@@ -89,6 +89,14 @@ const useAuthStore = create(
         useAccountStore.getState().clearAccounts();
         set({ user: null, token: null, error: null, pendingAction: null });
       },
+
+      // Server wipes all user data; locally it's just a logout since nothing else is cached.
+      deleteAccount: ({ password }) =>
+        withLoading(set, async () => {
+          await deleteAccountApi({ password });
+          get().logout();
+          return { success: true };
+        }),
 
       setPendingAction: action => set({ pendingAction: action }),
       
