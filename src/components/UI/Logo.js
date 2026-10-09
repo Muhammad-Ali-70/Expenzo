@@ -14,7 +14,7 @@ const Logo = ({ width = wp(75), height = hp(8), style }) => {
         style={{ width, height, resizeMode: 'cover' }}
       /> */}
       <Label type="displayMd" color={theme.primary}>
-        Expenzo.
+        Paisly
       </Label>
     </View>
   );

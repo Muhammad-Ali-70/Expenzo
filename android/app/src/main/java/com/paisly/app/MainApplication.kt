@@ -1,4 +1,4 @@
-package com.expenzo
+package com.paisly.app
 
 import android.app.Application
 import com.facebook.react.PackageList

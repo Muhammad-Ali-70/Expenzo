@@ -1,7 +1,7 @@
 import { createMMKV } from 'react-native-mmkv';
 
 export const storage = createMMKV({
-  id: 'expenzo-storage',
+  id: 'paisly-storage',
 });
 
 export const mmkvStorage = {

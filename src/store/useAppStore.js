@@ -78,7 +78,7 @@ const useAppStore = create(
     }),
 
     {
-      name: 'expenzo-app-store',
+      name: 'paisly-app-store',
       storage: createJSONStorage(() => mmkvStorage),
       partialize: state => ({
         onboardingByUser: state.onboardingByUser,

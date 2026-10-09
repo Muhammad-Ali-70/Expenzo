@@ -1,4 +1,4 @@
-# Commit Guide for Expenzo
+# Commit Guide for Paisly
 
 This guide helps you (and AI assistants) create well-structured commits following the project's conventions.
 

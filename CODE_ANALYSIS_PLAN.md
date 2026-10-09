@@ -1,4 +1,4 @@
-# Expenzo Frontend Code Analysis Plan
+# Paisly (formerly Expenzo) Frontend Code Analysis Plan
 **Created:** August 4, 2026  
 **Analyst Role:** Senior React Native Developer (10+ years experience)  
 **Objective:** Comprehensive code review to identify vulnerabilities, bugs, optimization opportunities, and code quality issues
@@ -650,7 +650,7 @@ All 🔴 critical and 🟡 major findings are fixed in code. Static checks pass 
 
 ## Release checklist (manual steps that remain)
 
-1. **Back up** `android/app/my-expenzo-app.keystore` + `android/keystore.properties` (password manager / secure drive). Without them you can't update the app.
+1. **Back up** `android/app/paisly-upload.keystore` (alias `paisly-upload`, replaced the Expenzo key on the rename to Paisly) + `android/keystore.properties` (password manager / secure drive). Without them you can't update the app.
 2. **Gmail App Password**: ensure `EMAIL_PASS` in backend `.env` is an App Password (Google account → Security → 2-Step Verification → App passwords), then test signup end-to-end.
 3. **PostHog**: replace `POSTHOG_KEY=your_posthog_key_here` in frontend `.env` with the real project key.
 4. **Deploy backend to Render** with env vars: `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASS`, `CLOUDINARY_*`, `NODE_ENV=production`.

@@ -29,7 +29,7 @@ const HomeHeader = ({ avatarSource, onBellPress }) => {
     <View style={[styles.container, shadowPrimary]}>
       <View style={styles.left}>
         <Label type="body" weight="bold" color="primary">
-          Expenzo.
+          Paisly
         </Label>
       </View>
 

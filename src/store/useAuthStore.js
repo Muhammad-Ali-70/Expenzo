@@ -99,7 +99,7 @@ const useAuthStore = create(
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'expenzo-auth-store',
+      name: 'paisly-auth-store',
       storage: createJSONStorage(() => mmkvStorage),
       partialize: state => {
         const partial = { 

@@ -57,7 +57,7 @@ const WelcomeCarouselScreen = ({ navigation }) => {
     <View style={styles.safe}>
       <View style={styles.header}>
         <Label type="h4" weight="bold" color="primary">
-          Expenzo.
+          Paisly
         </Label>
 
         <TouchableOpacity

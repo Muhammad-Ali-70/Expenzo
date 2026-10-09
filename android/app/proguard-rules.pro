@@ -63,7 +63,7 @@
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
 
--keep class com.expenzo.BuildConfig { *; }
+-keep class com.paisly.app.BuildConfig { *; }
 
 -dontwarn okio.**
 -dontwarn javax.annotation.**

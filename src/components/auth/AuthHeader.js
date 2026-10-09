@@ -34,7 +34,7 @@ const AuthHeader = ({ showBack = false, onBack, style }) => {
         /> */}
 
         <Label type="body" weight="bold" color="primary">
-          Expenzo.
+          Paisly
         </Label>
       </View>
 

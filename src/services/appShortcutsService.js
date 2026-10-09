@@ -2,9 +2,9 @@ import { Platform, DeviceEventEmitter } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 
 export const SHORTCUT_TYPES = {
-  ADD_EXPENSE: 'com.expenzo.addExpense',
-  ADD_INCOME: 'com.expenzo.addIncome',
-  VIEW_HISTORY: 'com.expenzo.viewHistory',
+  ADD_EXPENSE: 'com.paisly.app.addExpense',
+  ADD_INCOME: 'com.paisly.app.addIncome',
+  VIEW_HISTORY: 'com.paisly.app.viewHistory',
 };
 
 export const initializeShortcuts = () => {
@@ -15,21 +15,21 @@ export const initializeShortcuts = () => {
         title: 'Add Expense',
         subtitle: 'Add a new expense',
         icon: Platform.select({ ios: 'Compose', android: 'ic_launcher' }),
-        userInfo: { url: 'expenzo://addExpense' },
+        userInfo: { url: 'paisly://addExpense' },
       },
       {
         type: SHORTCUT_TYPES.ADD_INCOME,
         title: 'Add Income',
         subtitle: 'Add a new income',
         icon: Platform.select({ ios: 'Add', android: 'ic_launcher' }),
-        userInfo: { url: 'expenzo://addIncome' },
+        userInfo: { url: 'paisly://addIncome' },
       },
       {
         type: SHORTCUT_TYPES.VIEW_HISTORY,
         title: 'View History',
         subtitle: 'View transaction history',
         icon: Platform.select({ ios: 'Time', android: 'ic_launcher' }),
-        userInfo: { url: 'expenzo://history' },
+        userInfo: { url: 'paisly://history' },
       },
     ];
 

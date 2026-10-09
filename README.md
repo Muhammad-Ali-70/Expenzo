@@ -8,7 +8,7 @@
 <br />
 
 <div align="center">
-  <h1>Expenzo</h1>
+  <h1>Paisly</h1>
   <p><strong>Personal Finance, Simplified.</strong></p>
   <p>Track every rupee. Plan every month. Take control of your money.</p>
 </div>
@@ -17,9 +17,9 @@
 
 ## 📖 About
 
-Expenzo is a personal finance management app that helps you track expenses, manage accounts, set monthly budgets, and monitor debts — all in one place. Built for individuals who want a clear, real-time picture of where their money is going without the complexity of traditional finance tools.
+Paisly (Play title: "Paisly - Expense & Udhar Book") is a personal finance app that helps you track daily expenses (kharcha), money lent and borrowed (udhar), accounts and monthly budgets — all in one place. Built for individuals who want a clear, real-time picture of where their money is going without the complexity of traditional finance tools.
 
-Whether you're managing cash, a bank account, or a digital wallet, Expenzo adapts to how you handle your money.
+Whether you're managing cash, a bank account, or a digital wallet, Paisly adapts to how you handle your money.
 
 ---
 
@@ -95,7 +95,7 @@ npx react-native run-android   # for Android
 npx react-native run-ios       # for iOS
 ```
 
-> **Note:** The app requires the Expenzo backend to be running. See the [backend repository](https://github.com/your-org/Expenzo-Backend) for setup instructions.
+> **Note:** The app requires the Paisly backend to be running. See the [backend repository](https://github.com/your-org/Expenzo-Backend) for setup instructions.
 
 ---
 
@@ -133,7 +133,7 @@ Found a bug or have a suggestion? Open an issue on the [GitHub repository](https
 
 ## 📄 License
 
-Expenzo is released under the MIT License.
+Paisly is released under the MIT License.
 
 ---
 

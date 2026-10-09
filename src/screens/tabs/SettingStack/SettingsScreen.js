@@ -222,7 +222,7 @@ const SettingsScreen = () => {
           color="textMuted"
           style={styles.version}
         >
-          Expenzo v{DeviceInfo.getVersion()} (Build {DeviceInfo.getBuildNumber()})
+          Paisly v{DeviceInfo.getVersion()} (Build {DeviceInfo.getBuildNumber()})
         </Label>
       </ScrollView>
 

@@ -4,7 +4,7 @@ import { Label, shadowPrimary } from '../../constants/globalstyle';
 import { hp, wp } from '../../constants/responsive';
 import { useThemeColors } from '@hooks/useThemeColors';
 
-const OnboardingHeader = ({ title = 'Expenzo.', showSkip = true, onSkip }) => {
+const OnboardingHeader = ({ title = 'Paisly', showSkip = true, onSkip }) => {
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
   return (

@@ -89,7 +89,7 @@ const SignUpScreen = ({ navigation }) => {
         >
           <AuthTagline
             title="Create Account"
-            subtitle="Join Expenzo to start tracking your finances with precision."
+            subtitle="Join Paisly to start tracking your finances with precision."
           />
 
           <AppTextInput
