@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paisly feature graphic</title>
+<style>
+  @font-face {
+    font-family: 'Manrope';
+    src: url('manrope.woff2') format('woff2');
+    font-weight: 200 800;
+  }
+  :root {
+    --navy: #0f172a;
+    --surface: #1e293b;
+    --line: #334155;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.16), transparent 42%),
+      var(--navy);
+    display: flex;
+    align-items: center;
+    padding: 0 64px;
+    gap: 40px;
+  }
+
+  .copy { flex: 1; }
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .brand svg { width: 44px; height: 44px; }
+  .brand span { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+  h1 {
+    font-size: 45px;
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: -1.4px;
+  }
+  h1 em { font-style: normal; color: var(--green); }
+  .sub { margin-top: 20px; font-size: 20px; font-weight: 500; color: var(--muted); }
+
+  .cards { width: 320px; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 20px 22px;
+  }
+  .label { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; color: var(--muted); }
+  .amount { margin-top: 6px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .amount small { font-size: 15px; font-weight: 600; color: var(--muted); }
+  .bar { margin-top: 14px; height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; width: 62%; height: 100%; border-radius: 99px; background: var(--green); }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .row + .row { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 15px; font-weight: 800; color: var(--navy);
+  }
+  .who { flex: 1; }
+  .who b { display: block; font-size: 16px; font-weight: 700; }
+  .who span { font-size: 13px; color: var(--muted); }
+  .val { font-size: 16px; font-weight: 800; }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="brand">
+      <svg viewBox="231 231 1038 1038" aria-hidden="true">
+        <path fill="#10b981" d="M 1146.613281 475.070312 L 1146.613281 780.28125 L 913.410156 780.28125 L 913.410156 464.792969 L 353.378906 464.792969 L 353.378906 231.585938 L 906.476562 231.585938 C 949.445312 275.710938 1061.324219 389.050781 1146.613281 475.070312 Z M 353.378906 1035.507812 L 586.585938 1268.433594 L 586.585938 1013.488281 L 913.429688 1013.488281 L 913.429688 780.28125 L 353.378906 780.28125 Z"/>
+      </svg>
+      <span>Paisly</span>
+    </div>
+    <h1>Track your <em>kharcha</em>.<br>Never forget an <em>udhar</em>.</h1>
+    <p class="sub">Expenses, udhar and budgets in one simple app</p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">THIS MONTH'S BUDGET</div>
+      <div class="amount">PKR 18,600 <small>left</small></div>
+      <div class="bar"><i></i></div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <div class="avatar" style="background:#10b981">A</div>
+        <div class="who"><b>Ahmed</b><span>owes you</span></div>
+        <div class="val" style="color:#10b981">PKR 5,000</div>
+      </div>
+      <div class="row">
+        <div class="avatar" style="background:#f59e0b">S</div>
+        <div class="who"><b>Sara</b><span>you owe</span></div>
+        <div class="val" style="color:#f59e0b">PKR 1,200</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

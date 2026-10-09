@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Paisly screenshot frame</title>
+<!-- Render with ?img=screenshots/raw/home.png&title=Know where every <em>rupee</em> goes -->
+<style>
+  @font-face {
+    font-family: 'Manrope';
+    src: url('manrope.woff2') format('woff2');
+    font-weight: 200 800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background:
+      radial-gradient(circle at 85% 8%, rgba(16, 185, 129, 0.22), transparent 40%),
+      radial-gradient(circle at 10% 95%, rgba(16, 185, 129, 0.12), transparent 45%),
+      #0f172a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin-top: 120px;
+    width: 900px;
+    text-align: center;
+    color: #f8fafc;
+    font-size: 76px;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -2px;
+  }
+  h1 em { font-style: normal; color: #10b981; }
+  .phone {
+    margin-top: 70px;
+    padding: 16px;
+    border-radius: 92px;
+    background: #1e293b;
+    border: 2px solid #334155;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+  }
+  .screen {
+    display: block;
+    width: 640px;
+    height: 1436px; /* 1080x2424 source, scaled */
+    border-radius: 76px;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+  <h1 id="title"></h1>
+  <div class="phone"><img class="screen" id="shot" alt=""></div>
+  <script>
+    const p = new URLSearchParams(location.search);
+    document.getElementById('title').innerHTML = p.get('title') || '';
+    document.getElementById('shot').src = p.get('img') || '';
+  </script>
+</body>
+</html>
