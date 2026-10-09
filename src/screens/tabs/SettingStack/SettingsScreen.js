@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, TouchableOpacity, Linking } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import HomeHeader from '../../../components/home/HomeHeader';
 import SettingsProfileCard from '../../../components/settings/SettingsProfileCard';
@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import SignOutButton from '../../../components/settings/SignOutButton';
 import DeleteUserModal from '../../../components/settings/DeleteUserModal';
 import { useToastService } from '../../../utils/ToastService';
+import { LINKS } from '../../../constants/links';
 // import ExportModal from '../../../components/modals/export/ExportModal'; // TODO(post-MVP)
 import { useAccounts } from '../../../database/hooks/useAccounts';
 // import useAppStore from '@store/useAppStore'; // TODO(post-MVP): Dark Mode toggle
@@ -230,6 +231,27 @@ const SettingsScreen = () => {
               </View>
             </>
           )}
+        </SettingsSection>
+
+        <SettingsSection title="ABOUT">
+          <SettingsRow
+            iconName="help"
+            title="Help & Support"
+            onPress={() => Linking.openURL(LINKS.support)}
+            showDivider
+          />
+          <SettingsRow
+            iconName="shield"
+            title="Privacy Policy"
+            onPress={() => Linking.openURL(LINKS.privacy)}
+            showDivider
+          />
+          <SettingsRow
+            iconName="shield"
+            title="Terms of Service"
+            onPress={() => Linking.openURL(LINKS.terms)}
+            showDivider={false}
+          />
         </SettingsSection>
 
         {/* ── Danger zone ── */}

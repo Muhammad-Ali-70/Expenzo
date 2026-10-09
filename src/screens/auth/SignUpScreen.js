@@ -5,6 +5,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Linking,
   // Image, // TODO(post-MVP): Google Sign-In button
 } from 'react-native';
 import { hp, wp } from '../../constants/responsive';
@@ -18,6 +19,7 @@ import TermsAgreementRow from '../../components/auth/TermsAgreementRow';
 // import SectionDivider from '../../components/onboarding/Sectiondivider';
 // import GoogleImage from '../../assets/images/static/logos/google.png';
 import { validateSignUp } from '../../utils/validation';
+import { LINKS } from '../../constants/links';
 import { useToastService } from '../../utils/ToastService';
 import useAuthStore from '../../store/useAuthStore';
 
@@ -156,8 +158,8 @@ const SignUpScreen = ({ navigation }) => {
               clearError('agreedToTerms');
             }}
             error={errors.agreedToTerms}
-            onTermsPress={() => {}}
-            onPrivacyPress={() => {}}
+            onTermsPress={() => Linking.openURL(LINKS.terms)}
+            onPrivacyPress={() => Linking.openURL(LINKS.privacy)}
           />
 
           <View style={styles.ctaWrapper}>
