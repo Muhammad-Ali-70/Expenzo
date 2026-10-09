@@ -38,7 +38,9 @@ const useBudgetStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       await saveBudgetApi(budgetData);
-      await set({ loading: false });
+      // Refetch so PlanScreen (which only fetches on mount) shows the saved budget.
+      const data = await getCurrentBudgetApi();
+      set({ currentBudget: data, loading: false });
       return { success: true };
     } catch (err) {
       set({ error: err?.message || 'Failed to save budget', loading: false });
