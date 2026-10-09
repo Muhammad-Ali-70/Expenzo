@@ -280,7 +280,11 @@ const AddTransactionScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <AmountHeader value={amount} onChangeText={setAmount} />
+        <AmountHeader
+          value={amount}
+          onChangeText={setAmount}
+          label={isExpense ? 'AMOUNT SPENT' : 'AMOUNT RECEIVED'}
+        />
 
         <View style={styles.form}>
           <DescriptionInput

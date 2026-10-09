@@ -7,7 +7,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import fonts from '../../constants/fonts';
 import { useThemeColors } from '@hooks/useThemeColors';
 
-const AmountHeader = ({ value, onChangeText, currency = ACTIVE_CURRENCY }) => {
+const AmountHeader = ({ value, onChangeText, label = 'AMOUNT SPENT', currency = ACTIVE_CURRENCY }) => {
   const handleChange = text => onChangeText(sanitiseInput(text, currency));
   const theme = useThemeColors();
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -20,7 +20,7 @@ const AmountHeader = ({ value, onChangeText, currency = ACTIVE_CURRENCY }) => {
         color="textMuted"
         style={styles.label}
       >
-        AMOUNT SPENT
+        {label}
       </Label>
       <View style={styles.row}>
         <Label
